@@ -7,3 +7,17 @@ body {
   font-weight: 900;
   font-style: normal;
 }
+
+/* Active underline styling */
+.underline-indicator {
+  width: 50%;
+  height: 1.5px;
+  background-color: #374151;
+  /* Tailwind's gray-700 */
+  border: none;
+  display: none;
+}
+
+.active .underline-indicator {
+  display: block;
+}
