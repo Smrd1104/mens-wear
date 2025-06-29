@@ -76,10 +76,24 @@ const Navbar = () => {
           <img src={assets.menu_icon} alt="Menu" className="w-5" />
         </button>
         {/* sidebar menu for small screen */}
+        <div className={`fixed inset-0 bg-white z-50 transition-all duration-300  ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="flex flex-col text-gray-600 p-4">
+            <div onClick={() => setVisible(false)} className="flex items-center gap-4 mb-6">
+              <img src={assets.dropdown_icon} className="h-4 rotate-180" alt="Back" />
+              <p>Back</p>
+            </div>
+            {/* Add your sidebar nav links here */}
+            <NavLink to="/" onClick={() => setVisible(false)} className="pl-6 py-2 border-b">Home</NavLink>
+            <NavLink to="/collection" onClick={() => setVisible(false)} className="pl-6 py-2 border-b">Collection</NavLink>
+            <NavLink to="/about" onClick={() => setVisible(false)} className="pl-6 py-2 border-b">About</NavLink>
+            <NavLink to="/contact" onClick={() => setVisible(false)} className="pl-6 py-2 border-b">Contact</NavLink>
+          </div>
+        </div>
+
       </div>
 
 
-    </div>
+    </div >
   );
 };
 
