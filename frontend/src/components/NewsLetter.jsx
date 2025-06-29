@@ -7,7 +7,7 @@ const NewsLetter = () => {
     }
 
     return (
-        <div className='text-center'>
+        <div className='text-center py-12'>
             <p className='text-2xl font-medium text-gray-800'>Subscribe now & get 20% offer</p>
             <p className='text-gray-400 mt-3'>        Be the first to know about new arrivals, exclusive deals, and fashion tips. Join our community today!
             </p>
