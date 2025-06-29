@@ -3,7 +3,7 @@ import { assets } from '../assets/frontend_assets/assets';
 
 const Footer = () => {
     return (
-        <div className="my-10 text-sm px-5">
+        <div className=" text-sm px-5">
             <div className="grid grid-cols-1 sm:grid-cols-[3fr_1fr_1fr] gap-14">
                 {/* Logo + Description */}
                 <div>
@@ -33,7 +33,7 @@ const Footer = () => {
                     </ul>
                 </div>
             </div>
-            <div className='mt-5'>
+            <div className='mt-2'>
                 <hr />
                 <p className='py-5 text-sm text-center'>© 2025 forever.com. All rights reserved.</p>
             </div>
