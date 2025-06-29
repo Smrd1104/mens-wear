@@ -25,3 +25,12 @@
 .active .underline-indicator {
   display: block;
 }
+
+@media (max-width: 640px) {
+  .active .underline-indicator {
+    background-color: black !important;
+    /* override Tailwind gray-700 */
+    height: 2px;
+    width: 60%;
+  }
+}
