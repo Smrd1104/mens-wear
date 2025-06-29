@@ -1,12 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
 @import "tailwindcss";
 
-body {
-  font-family: "Lora", serif;
-  font-optical-sizing: auto;
-  font-weight: 900;
+* {
+  font-family: 'Outfit', sans-serif;
+}
+
+.prata-regular {
+  font-family: "Prata", serif;
+  font-weight: 400;
   font-style: normal;
 }
+
 
 /* Active underline styling */
 .underline-indicator {
