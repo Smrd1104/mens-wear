@@ -5,7 +5,7 @@ import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 
 const Collection = () => {
-  const { products } = useContext(ShopContext);
+  const { products, search, showSearch } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [visibleCount, setVisibleCount] = useState(8); // Initially show 8
@@ -33,6 +33,13 @@ const Collection = () => {
   const applyFilter = () => {
     let productsCopy = [...products];
 
+     // ✅ Apply search filter
+  if (showSearch && search) {
+    productsCopy = productsCopy.filter(item =>
+      item.name?.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+
     productsCopy = productsCopy.filter((item) => {
       const categoryMatch = category.length === 0 || category.includes(item.category);
       const subCategoryMatch = subCategory.length === 0 || subCategory.includes(item.subCategory);
@@ -56,7 +63,7 @@ const Collection = () => {
 
   useEffect(() => {
     applyFilter();
-  }, [category, subCategory, sortOption]);
+  }, [category, subCategory, sortOption, search, showSearch]);
 
   // Load more handler
   const handleLoadMore = () => {
