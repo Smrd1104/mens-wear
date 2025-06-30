@@ -1,11 +1,23 @@
-const express = require('express');
-const app = express();
-const PORT = 5000;
+// server.js
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
+dotenv.config();
+
+const app = express();
+const port = process.env.PORT || 5000;
+
+// Middlewares
+app.use(express.json());
+app.use(cors());
+
+// Basic Route
 app.get('/', (req, res) => {
-  res.send('Backend is running!');
+  res.send("API working");
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+// Start server
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
 });
