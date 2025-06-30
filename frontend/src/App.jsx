@@ -17,7 +17,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
   return (
-    <div className="px-4 overflow-hidden">
+    <div className="md:px-10 px-4 overflow-hidden">
       <ToastContainer />
       <Navbar />
       <SearchBar />
@@ -30,7 +30,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/product/:productId" element={<Product />} />
         <Route path="/orders" element={<Orders />} />
-        <Route path="/place-orders" element={<PlaceOrder />} />
+        <Route path="/place-order" element={<PlaceOrder />} />
       </Routes>
       <Footer />
     </div>
