@@ -1,6 +1,7 @@
 
 
 // add product 
+import mongoose from "mongoose";
 
 import productModel from "../models/productModel.js";
 import { v2 as cloudinary } from "cloudinary"
@@ -56,7 +57,7 @@ const addProduct = async (req, res) => {
 
     await productData.save();
 
-    res.json({ success: true, message: "Product added successfully", product: newProduct });
+    res.json({ success: true, message: "Product added successfully", product: productData });
   } catch (error) {
     console.error("❌ Error adding product:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -81,9 +82,38 @@ const listProducts = async (req, res) => {
 
 // remove product 
 
-const removeProduct = async (req, res) => {
 
-}
+const removeProduct = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    // Validate ID format
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or missing product ID",
+      });
+    }
+
+    const deletedProduct = await productModel.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Product removed successfully",
+    });
+  } catch (error) {
+    console.error("❌ Error deleting product:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 
 // single product 
 
