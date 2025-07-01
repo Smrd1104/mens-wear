@@ -42,7 +42,7 @@ const addProduct = async (req, res) => {
       }
     }
 
-    const newProduct = new productModel({
+    const productData = new productModel({
       name,
       description,
       price: numericPrice,
@@ -54,7 +54,7 @@ const addProduct = async (req, res) => {
       date: Date.now(),
     });
 
-    await newProduct.save();
+    await productData.save();
 
     res.json({ success: true, message: "Product added successfully", product: newProduct });
   } catch (error) {
@@ -67,6 +67,15 @@ const addProduct = async (req, res) => {
 // list product 
 
 const listProducts = async (req, res) => {
+
+  try {
+
+    const products = await productModel.find({});
+    res.json({ success: true, products })
+  } catch (error) {
+    console.log(error)
+    res.json({ success: false, message: error.message })
+  }
 
 }
 

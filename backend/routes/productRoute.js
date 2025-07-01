@@ -1,4 +1,4 @@
-import express, { Router } from "express"
+import express from "express"
 
 import { addProduct, singleProduct, removeProduct, listProducts } from "../controllers/productController.js"
 import upload from "../middleware/multer.js";
@@ -13,9 +13,9 @@ productRouter.post('/add',
         { name: 'image4', maxCount: 1 },
     ]),
     addProduct);
-productRouter.post('/list', listProducts);
+productRouter.get('/list', listProducts);
 productRouter.post('/remove', removeProduct);
-productRouter.get('/single', singleProduct);
+productRouter.post('/single', singleProduct);
 
 
 export default productRouter
