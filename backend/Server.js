@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import connectCloudinary from "./config/cloudinary.js"
 import connectDB from './config/mongodb.js';
 import userRouter from "./routes/userRoute.js"
+import productRouter from "./routes/productRoute.js"
+
 dotenv.config();
 
 const app = express();
@@ -18,7 +20,8 @@ app.use(cors());
 
 // api endpoints
 
-app.use('/api/user', userRouter)
+app.use('/api/user', userRouter);
+app.use('/api/product',productRouter)
 
 // Basic Route
 app.get('/', (req, res) => {
