@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { assets } from '../assets/admin_assets/assets'
 import { backendUrl } from '../App';
 import axios from "axios"
+import { toast } from 'react-toastify';
 
 const Add = ({ token }) => {
 
@@ -26,12 +27,13 @@ const Add = ({ token }) => {
         try {
             const formData = new FormData();
 
-            formData.append("name", name)
-            formData.append("description", description)
+            formData.append("name", name.trim());
+            formData.append("description", description.trim());
             formData.append("price", price)
             formData.append("category", category)
             formData.append("subCategory", subCategory)
             formData.append("bestseller", bestseller)
+            formData.append("sizes", JSON.stringify(sizes))
 
 
             image1 && formData.append("image1", image1)
@@ -43,8 +45,23 @@ const Add = ({ token }) => {
             const response = await axios.post(backendUrl + "/api/product/add", formData, { headers: { token } })
             console.log(response.data)
 
+            if (response.data.success) {
+                toast.success("Product added successfully");
+                setName('')
+                setDescription('')
+                setImage1()
+                setImage2()
+                setImage3()
+                setImage4()
+                setPrice()
+            } else {
+                toast.error(response.data.message || "Something went wrong");
+            }
+
+
         } catch (error) {
- console.log(error)
+            console.log(error)
+            toast.error(error.message)
         }
     }
 
