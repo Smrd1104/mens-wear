@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
+@import "tailwindcss";
+
+* {
+  font-family: 'Outfit', sans-serif;
+}
+
+.prata-regular {
+  font-family: "Prata", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+/* Active underline styling */
+.underline-indicator {
+  width: 50%;
+  height: 1.5px;
+  background-color: #374151;
+  /* Tailwind's gray-700 */
+  border: none;
+  display: none;
+}
+
+.active .underline-indicator {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .active .underline-indicator {
+    background-color: black !important;
+    /* override Tailwind gray-700 */
+    height: 2px;
+    width: 60%;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
