@@ -31,7 +31,7 @@ const Orders = () => {
 
                 })
 
-                setOrderData(allOrderItem.reverse())
+                setOrderData(allOrderItem)
             }
 
         } catch (error) {
