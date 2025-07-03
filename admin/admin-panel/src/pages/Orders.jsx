@@ -151,7 +151,7 @@ const Orders = ({ token }) => {
                                         <div className="text-xs md:text-sm text-gray-600 mt-1 space-y-0.5">
                                             <p>{order.address?.street}</p>
                                             <p>{order.address?.city}, {order.address?.state}</p>
-                                            <p>{order.address?.country}, {order.address?.zipCode}</p>
+                                            <p>{order.address?.country}, {order.address?.zipcode}</p>
                                             <p>📞 {order.address?.phone}</p>
                                         </div>
                                     </div>

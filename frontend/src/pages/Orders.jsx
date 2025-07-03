@@ -8,6 +8,10 @@ const Orders = () => {
 
     const [orderData, setOrderData] = useState([])
 
+    const [visibleOrders, setVisibleOrders] = useState([]);
+    const [itemsToShow, setItemsToShow] = useState(5); // initial number of items to show
+
+
 
     const loadOrderData = async () => {
         try {
@@ -32,12 +36,19 @@ const Orders = () => {
                 })
 
                 setOrderData(allOrderItem)
+                setVisibleOrders(allOrderItem.slice(0, itemsToShow));
+
             }
 
         } catch (error) {
-
+            console.log(error)
         }
     }
+
+    useEffect(() => {
+        setVisibleOrders(orderData.slice(0, itemsToShow));
+    }, [itemsToShow, orderData]);
+
 
     useEffect(() => {
         loadOrderData()
@@ -51,14 +62,14 @@ const Orders = () => {
 
             <div>
                 {
-                    orderData.map((item, index) => (
+                    visibleOrders.map((item, index) => (
                         <div key={index} className='py-4 border-t border-b border-gray-500 text-gray-700 flex flex-col md:flex-row md:justify-between gap-4'>
                             <div className='flex items-start gap-6 text-sm'>
                                 <img src={item.image[0]} alt='' className='w-16 sm:w-20' />
                                 <div>
                                     <p className='sm:text-base font-medium'>{item.name}</p>
                                     <div className='flex item-center gap-3 mt-1 text-base text-gray-700'>
-                                        <p className='text-lg'>{currency}{item.price}</p>
+                                        <p className='text-md'>{currency}{item.price}</p>
                                         <p>Quantity: {item.quantity}</p>
                                         <p>Size: {item.size}</p>
                                     </div>
@@ -84,6 +95,20 @@ const Orders = () => {
                     ))
                 }
             </div>
+
+            {
+                itemsToShow < orderData.length && (
+                    <div className="text-center mt-6">
+                        <button
+                            onClick={() => setItemsToShow(prev => prev + 5)}
+                            className="px-6 py-2 border border-black  cursor-pointer text-sm hover:bg-black hover:text-white transition duration-300"
+                        >
+                            Load More
+                        </button>
+                    </div>
+                )
+            }
+
         </div>
     )
 }
