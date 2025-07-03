@@ -5,7 +5,7 @@ import { assets, products } from '../assets/frontend_assets/assets'
 import CartTotal from '../components/CartTotal'
 const Cart = () => {
 
-  const { product, currency, cartItems, updateQuantity, navigate } = useContext(ShopContext)
+  const { products, currency, cartItems, updateQuantity, navigate } = useContext(ShopContext)
 
   const [cartData, setCartData] = useState([]);
 

@@ -1,8 +1,7 @@
-import { createContext, useEffect, useState } from "react";
-import { products } from "../assets/frontend_assets/assets";
+import { createContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
-
+import axios from "axios"
 
 // Create context
 export const ShopContext = createContext();
@@ -11,10 +10,14 @@ export const ShopContext = createContext();
 export const ShopProvider = ({ children }) => {
   const currency = "₹";
   const delivery_fee = 50;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [products, setProducts] = useState([])
   const [cartItems, setCartItems] = useState({})
+
   const navigate = useNavigate()
+  const hasFetched = useRef(false); // 👈 this line is important
 
   const addToCart = async (itemId, size) => {
 
@@ -86,6 +89,33 @@ export const ShopProvider = ({ children }) => {
     return totalAmount;
   };
 
+  const getProductsData = async (e) => {
+
+    try {
+      const response = await axios.get(backendUrl + "/api/product/list")
+      if (response.data.success) {
+        setProducts(response.data.products)
+        toast.success(response.data.message)
+
+      } else {
+        toast.error(error.message)
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error(error.message)
+    }
+  }
+
+  useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true; // ✅ ensures it runs once
+
+    getProductsData();
+
+  }, [])
+
+
+
   useEffect(() => {
     console.log(cartItems)
   }, [cartItems])
@@ -103,7 +133,9 @@ export const ShopProvider = ({ children }) => {
     getCartCount,
     updateQuantity,
     getCartAmount,
-    navigate
+    navigate,
+    backendUrl,
+    setProducts
   };
 
   return (

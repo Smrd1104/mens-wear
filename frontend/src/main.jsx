@@ -6,12 +6,12 @@ import './index.css';
 import { ShopProvider } from './context/ShopContext.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <BrowserRouter>
       <ShopProvider >
         <App />
       </ShopProvider >
 
     </BrowserRouter>
-  </React.StrictMode>
+  // </React.StrictMode>
 );
