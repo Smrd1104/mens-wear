@@ -15,7 +15,7 @@ export const ShopProvider = ({ children }) => {
   const [showSearch, setShowSearch] = useState(false);
   const [products, setProducts] = useState([])
   const [cartItems, setCartItems] = useState({})
-
+  const [token, setToken] = useState('')
   const navigate = useNavigate()
   const hasFetched = useRef(false); // 👈 this line is important
 
@@ -52,7 +52,7 @@ export const ShopProvider = ({ children }) => {
             totalCount += cartItems[items][item]
           }
         } catch (error) {
-
+          console.log(error)
         }
       }
     }
@@ -115,6 +115,13 @@ export const ShopProvider = ({ children }) => {
   }, [])
 
 
+  useEffect(() => {
+    if (!token && localStorage.getItem('token')) {
+      setToken(localStorage.getItem('token'))
+    }
+  },[])
+
+
 
   useEffect(() => {
     console.log(cartItems)
@@ -135,7 +142,8 @@ export const ShopProvider = ({ children }) => {
     getCartAmount,
     navigate,
     backendUrl,
-    setProducts
+    setProducts,
+    token, setToken
   };
 
   return (
