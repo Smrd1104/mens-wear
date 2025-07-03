@@ -190,7 +190,8 @@ export const ShopProvider = ({ children }) => {
     navigate,
     backendUrl,
     setProducts,
-    token, setToken
+    token, setToken,
+    setCartItems
   };
 
   return (
