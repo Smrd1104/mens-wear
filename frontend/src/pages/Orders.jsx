@@ -1,9 +1,47 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from "../context/ShopContext"
 import Title from "../components/Title"
+import axios from 'axios'
 const Orders = () => {
 
-    const { products, currency } = useContext(ShopContext)
+    const { backendUrl, token, currency } = useContext(ShopContext)
+
+    const [orderData, setOrderData] = useState([])
+
+
+    const loadOrderData = async () => {
+        try {
+
+            if (!token) {
+                return null
+            }
+
+            const response = await axios.post(backendUrl + "/api/order/userorders", { userId: localStorage.getItem("userId") }, { headers: { token } })
+
+            if (response.data.success) {
+                let allOrderItem = [];
+                response.data.orders.map((order) => {
+                    order.items.map((item) => {
+                        item['status'] = order.status
+                        item['payment'] = order.payment
+                        item['paymentMethod'] = order.paymentMethod
+                        item['date'] = order.date
+                        allOrderItem.push(item)
+                    })
+
+                })
+
+                setOrderData(allOrderItem.reverse())
+            }
+
+        } catch (error) {
+
+        }
+    }
+
+    useEffect(() => {
+        loadOrderData()
+    }, [token])
 
     return (
         <div className='border-t pt-16'>
@@ -13,25 +51,27 @@ const Orders = () => {
 
             <div>
                 {
-                    products.slice(1, 4).map((item, index) => (
+                    orderData.map((item, index) => (
                         <div key={index} className='py-4 border-t border-b border-gray-500 text-gray-700 flex flex-col md:flex-row md:justify-between gap-4'>
                             <div className='flex items-start gap-6 text-sm'>
                                 <img src={item.image[0]} alt='' className='w-16 sm:w-20' />
                                 <div>
                                     <p className='sm:text-base font-medium'>{item.name}</p>
-                                    <div className='flex item-center gap-3 mt-2 text-base text-gray-700'>
+                                    <div className='flex item-center gap-3 mt-1 text-base text-gray-700'>
                                         <p className='text-lg'>{currency}{item.price}</p>
-                                        <p>Quantity: 1</p>
-                                        <p>Size: M</p>
+                                        <p>Quantity: {item.quantity}</p>
+                                        <p>Size: {item.size}</p>
                                     </div>
-                                    <p className='mt-2'>Date:<span className='text-gray-400'> 25, Jul, 2025</span></p>
+                                    <p className='mt-2'>Date:<span className='text-gray-400'>{new Date(item.date).toDateString()}</span></p>
+                                    <p className='mt-2'>Payment:<span className='text-gray-400'>{item.paymentMethod}</span></p>
+
                                 </div>
                             </div>
                             <div className="w-full md:w-1/2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
                                 {/* Status */}
                                 <div className="flex items-center gap-2">
                                     <p className="min-w-2 h-2 rounded-full bg-green-500"></p>
-                                    <p className="capitalize text-base md:text-sm">ready to ship</p>
+                                    <p className="capitalize text-base md:text-sm">{item.status}</p>
                                 </div>
 
                                 {/* Track Button */}
