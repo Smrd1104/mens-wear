@@ -7,7 +7,7 @@ import axios from "axios"
 import { toast } from "react-toastify"
 const PlaceOrder = () => {
 
-    const [method, setMethod] = useState('cod')
+    const [method, setMethod] = useState('')
 
     const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext)
 
@@ -31,6 +31,50 @@ const PlaceOrder = () => {
 
         setFormData(data => ({ ...data, [name]: value }))
     }
+
+
+    const initPay = (order) => {
+        const options = {
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+            amount: order.amount,
+            currency: order.currency,
+            name: "Order Payment",
+            description: "Order Payment",
+            order_id: order.id,
+            receipt: order.receipt,
+            handler: async (response) => {
+                console.log(response);
+                try {
+                    const { data } = await axios.post(
+                        backendUrl + "/api/order/verifyRazorpay",
+                        response,
+                        {
+                            headers: { token },
+                        }
+                    );
+                    if (data.success) {
+
+                        navigate('/orders')
+                        setCartItems({})
+                        // Payment verified successfully
+                        console.log("Payment verified");
+                        // Optionally: redirect user or show success toast
+                    } else {
+                        // Handle verification failure
+                        console.log("Payment verification failed");
+                    }
+                } catch (error) {
+                    console.log("Error verifying payment:", error);
+                    toast.error(error)
+                }
+            },
+
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+    };
+
 
 
     const onSubmitHandler = async (event, item) => {
@@ -58,7 +102,7 @@ const PlaceOrder = () => {
             let orderData = {
                 address: formData,
                 items: orderItems,
-                amount: getCartAmount() + delivery_fee
+                amount: Math.round(getCartAmount() + delivery_fee)
 
 
 
@@ -82,6 +126,23 @@ const PlaceOrder = () => {
                     }
 
                     break;
+
+
+
+
+
+                case "razorpay":
+
+                    const responseRazorpay = await axios.post(backendUrl + "/api/order/razorpay", orderData, { headers: { token } })
+
+                    if (responseRazorpay.data.success) {
+                        initPay(responseRazorpay.data.order)
+                    }
+
+                    break;
+
+
+
 
                 default:
                     break;
