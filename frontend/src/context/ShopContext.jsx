@@ -10,7 +10,12 @@ export const ShopContext = createContext();
 export const ShopProvider = ({ children }) => {
   const currency = "₹";
   const delivery_fee = 50;
-  const backendUrl = import.meta.env.VITE_BACKEND_URL
+// axios setup (React example)
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
+// Example call
+axios.get(`${backendUrl}/api/products`);
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [products, setProducts] = useState([])

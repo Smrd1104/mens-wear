@@ -22,6 +22,22 @@ connectCloudinary();
 app.use(express.json());
 app.use(cors());
 
+
+
+
+const allowedOrigins = [
+  'http://localhost:5173',  // frontend local
+  'http://localhost:5174',  // admin local
+  'https://trends-wear.onrender.com',  // deployed frontend
+  'https://mens-wear-admin.onrender.com'  // deployed admin
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
+
 // Routes
 app.use('/api/user', userRouter);
 app.use('/api/product', productRouter);
