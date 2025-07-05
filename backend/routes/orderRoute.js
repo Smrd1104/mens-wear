@@ -1,5 +1,5 @@
 import express from "express"
-import { placeOrder, placeOrderRazorPay, allOrders, userOrders, updateStatus, verifyRazorpay,whatsappOrder} from "../controllers/orderController.js"
+import { placeOrder, placeOrderRazorPay, allOrders, userOrders, updateStatus, verifyRazorpay, whatsappOrder, trackOrder } from "../controllers/orderController.js"
 
 import adminAuth from "../middleware/adminAuth.js"
 import authUser from "../middleware/auth.js"
@@ -27,6 +27,11 @@ orderRouter.post("/verifyRazorpay", authUser, verifyRazorpay)
 
 // whatsapp
 orderRouter.post('/whatsapp', authUser, whatsappOrder)
+
+// trackorder
+orderRouter.get("/track/:orderId", authUser, trackOrder)
+
+
 
 
 
