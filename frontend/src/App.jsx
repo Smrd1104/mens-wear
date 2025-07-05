@@ -13,6 +13,7 @@ import Footer from "./components/Footer"
 import SearchBar from "./components/SearchBar"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
+import ForgotPassword from "./pages/ForgotPassword"
 
 
 function App() {
@@ -31,6 +32,8 @@ function App() {
         <Route path="/product/:productId" element={<Product />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/place-order" element={<PlaceOrder />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
       </Routes>
       <Footer />
     </div>

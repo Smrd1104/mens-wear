@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from "../context/ShopContext"
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 const Login = () => {
     const [currentState, setCurrentState] = useState("Login");
 
@@ -90,7 +91,9 @@ const Login = () => {
                     value={password}
                 />
                 <div className='w-full flex justify-between text-sm mt-[-8px]'>
-                    <p className='capitalize cursor-pointer'>forgot your password ?</p>
+                    <Link to="/forgot-password">
+                        <p className='capitalize cursor-pointer'>forgot your password ?</p>
+                    </Link>
                     {
                         currentState === 'Login'
                             ? <p onClick={() => setCurrentState('Sign Up')} className=' cursor-pointer'>Create Account</p>
