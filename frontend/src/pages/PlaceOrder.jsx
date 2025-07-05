@@ -5,6 +5,8 @@ import Title from "../components/Title"
 import { ShopContext } from "../context/ShopContext"
 import axios from "axios"
 import { toast } from "react-toastify"
+import whatsapp_logo from '../assets/frontend_assets/whatsapp(1).png'
+
 
 const PlaceOrder = () => {
 
@@ -252,8 +254,8 @@ ${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, $
                         </div>
                         <div onClick={() => setMethod('whatsapp')} className="flex items-center gap-3 border px-3  p-2 cursor-pointer">
                             <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'whatsapp' ? "bg-green-400" : ""}`}></p>
-                            <img src={assets.whatsapp_logo} alt="whatsapp" className="h-5 mx-4" />
-                            <p className="uppercase text-gray-400 font-medium">WhatsApp</p>
+                            <img src={whatsapp_logo} alt="whatsapp" className="min-w-3.5 h-5 mx-4" />
+                            <p className="uppercase text-gray-400 font-medium -translate-x-4.5 ">WhatsApp</p>
                         </div>
 
 
