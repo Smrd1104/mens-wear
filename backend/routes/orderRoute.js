@@ -1,5 +1,5 @@
 import express from "express"
-import { placeOrder, placeOrderRazorPay, allOrders, userOrders, updateStatus, verifyRazorpay } from "../controllers/orderController.js"
+import { placeOrder, placeOrderRazorPay, allOrders, userOrders, updateStatus, verifyRazorpay,whatsappOrder} from "../controllers/orderController.js"
 
 import adminAuth from "../middleware/adminAuth.js"
 import authUser from "../middleware/auth.js"
@@ -23,6 +23,11 @@ orderRouter.post("/userorders", authUser, userOrders)
 
 // verify payment
 orderRouter.post("/verifyRazorpay", authUser, verifyRazorpay)
+
+
+// whatsapp
+orderRouter.post('/whatsapp', authUser, whatsappOrder)
+
 
 
 export default orderRouter

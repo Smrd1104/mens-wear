@@ -180,12 +180,30 @@ const updateStatus = async (req, res) => {
     }
 }
 
+
+ const whatsappOrder = async (req, res) => {
+    try {
+        const { address, items, amount } = req.body;
+
+        // Save WhatsApp order to DB (optional)
+        // Example: await Order.create({ type: 'whatsapp', address, items, amount });
+
+        console.log("WhatsApp Order:", { address, items, amount });
+
+        res.json({ success: true, message: "WhatsApp order logged successfully" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Failed to log WhatsApp order" });
+    }
+};
+
+
 export {
     placeOrder,
     placeOrderRazorPay,
     allOrders,
     userOrders,
     updateStatus,
-    verifyRazorpay
+    verifyRazorpay,
+    whatsappOrder
 }
 

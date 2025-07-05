@@ -5,6 +5,7 @@ import Title from "../components/Title"
 import { ShopContext } from "../context/ShopContext"
 import axios from "axios"
 import { toast } from "react-toastify"
+
 const PlaceOrder = () => {
 
     const [method, setMethod] = useState('')
@@ -146,6 +147,53 @@ const PlaceOrder = () => {
 
                 default:
                     break;
+
+
+                // whatsapp
+                case 'whatsapp': {
+                    // Format the WhatsApp message
+                    const message = `
+🛒 *Order Summary* 🛒
+
+👤 Name: ${formData.firstName} ${formData.lastName}
+📧 Email: ${formData.email}
+📱 Phone: ${formData.phone}
+
+📦 Products:
+${orderItems.map(item => `- ${item.name} (Size: ${item.size}) x${item.quantity}`).join('\n')}
+
+🏠 Address:
+${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, ${formData.country}
+
+💰 Total: ₹${Math.round(getCartAmount() + delivery_fee)}
+
+*Please confirm this order.*
+  `;
+
+                    // Encode the message for URL
+                    const encodedMessage = encodeURIComponent(message);
+
+                    // Replace with your actual WhatsApp business number (with country code, no "+" or "-")
+                    const whatsappNumber = '919360103180';
+
+                    // Create WhatsApp URL
+                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+                    // Optionally: log order to your backend
+                    await axios.post(`${backendUrl}/api/order/whatsapp`, {
+                        address: formData,
+                        items: orderItems,
+                        amount: Math.round(getCartAmount() + delivery_fee),
+                    }, {
+                        headers: { token },
+                    });
+
+                    // Open WhatsApp chat in new tab
+                    window.open(whatsappUrl, '_blank');
+
+                    break;
+                }
+
             }
 
 
@@ -189,7 +237,7 @@ const PlaceOrder = () => {
                 </div>
                 <div>
                     <Title text1={'payment'} text2={'methods'} />
-                    <div className="flex gap-3 flex-col lg:flex-row">
+                    <div className="flex gap-3 flex-col lg:flex-wrap">
                         <div onClick={() => setMethod('stripe')} className="flex items-center gap-3 border px-3  p-2 cursor-pointer">
                             <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'stripe' ? "bg-green-400" : ""}`}></p>
                             <img src={assets.stripe_logo} alt="" className="h-5 mx-4" />
@@ -202,6 +250,12 @@ const PlaceOrder = () => {
                             <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'cod' ? "bg-green-400" : ""}`}></p>
                             <p className="uppercase text-gray-400 font-medium mx-4">cash on delivery</p>
                         </div>
+                        <div onClick={() => setMethod('whatsapp')} className="flex items-center gap-3 border px-3  p-2 cursor-pointer">
+                            <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'whatsapp' ? "bg-green-400" : ""}`}></p>
+                            <img src={assets.whatsapp_logo} alt="whatsapp" className="h-5 mx-4" />
+                            <p className="uppercase text-gray-400 font-medium">WhatsApp</p>
+                        </div>
+
 
                     </div>
 
