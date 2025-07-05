@@ -145,21 +145,25 @@ const verifyOtp = async (req, res) => {
     }
 };
 
-// Reset Password
 const resetPassword = async (req, res) => {
     const { email, newPassword } = req.body;
     try {
         const user = await userModel.findOne({ email });
         if (!user) return res.json({ success: false, message: "User not found" });
 
-        user.password = newPassword;
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword;
         await user.save();
         delete otpStore[email]; // clear OTP after use
+
         res.json({ success: true, message: "Password reset successfully" });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
 
 
 
