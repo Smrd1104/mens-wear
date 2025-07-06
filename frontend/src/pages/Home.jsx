@@ -6,7 +6,7 @@ import OurPolicy from '../components/OurPolicy'
 
 const Home = () => {
     return (
-        <div>
+        <div className='mt-22'>
             <Hero />
             <LatestCollection />
             <BestSeller />

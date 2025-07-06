@@ -5,7 +5,7 @@ import NewsLetter from "../components/NewsLetter"
 const About = () => {
     return (
         <div>
-            <div className='text-2xl text-center pt-8 border-t'>
+            <div className='text-2xl text-center pt-22 border-t'>
                 <Title text1={'about '} text2={'us'} />
             </div>
             <div className='my-10 flex flex-col md:flex-row gap-16'>

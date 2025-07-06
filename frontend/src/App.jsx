@@ -18,7 +18,7 @@ import ForgotPassword from "./pages/ForgotPassword"
 
 function App() {
   return (
-    <div className="md:px-10 px-4 overflow-hidden">
+    <div className="px-4 overflow-hidden">
       <ToastContainer />
       <Navbar />
       <SearchBar />

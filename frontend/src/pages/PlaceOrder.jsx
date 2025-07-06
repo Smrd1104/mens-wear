@@ -209,7 +209,7 @@ ${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, $
     }
 
     return (
-        <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'>
+        <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-22 sm:pt-22 min-h-[80vh] border-t'>
             {/* --------left side-------- */}
             <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
                 <div className='text-xl sm:text-2xl my-3'>
@@ -233,17 +233,19 @@ ${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, $
             </div>
 
             {/* right side content  */}
-            <div className="mt-8">
-                <div className="mt-8 min-w-80">
+            <div className="">
+                <div className="my-3 min-w-80">
                     <CartTotal />
                 </div>
-                <div>
-                    <Title text1={'payment'} text2={'methods'} />
-                    <div className="flex gap-3 flex-col lg:flex-wrap">
-                        <div onClick={() => setMethod('stripe')} className="flex items-center gap-3 border px-3  p-2 cursor-pointer">
+                <div className="mt-3">
+                    <div className='text-2xl'>
+                        <Title text1={'payment'} text2={'methods'} />
+                    </div>
+                    <div className="flex gap-3 flex-col lg:flex-row">
+                        {/* <div onClick={() => setMethod('stripe')} className="flex items-center gap-3 border px-3  p-2 cursor-pointer">
                             <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'stripe' ? "bg-green-400" : ""}`}></p>
                             <img src={assets.stripe_logo} alt="" className="h-5 mx-4" />
-                        </div>
+                        </div> */}
                         <div onClick={() => setMethod('razorpay')} className="flex items-center gap-3 border px-3  p-2 cursor-pointer">
                             <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'razorpay' ? "bg-green-400" : ""}`}></p>
                             <img src={assets.razorpay_logo} alt="" className="h-5 mx-4" />

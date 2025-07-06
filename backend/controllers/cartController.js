@@ -37,27 +37,37 @@ const addToCart = async (req, res) => {
 // update user cart
 
 const updateCart = async (req, res) => {
-
     try {
-        const { userId, itemId, size, quantity } = req.body
-        const userData = await userModel.findById(userId)
-        let cartData = await userData.cartData
+        const { userId, itemId, size, quantity } = req.body;
 
-        cartData[itemId][size] = quantity
+        const userData = await userModel.findById(userId);
+        let cartData = { ...userData.cartData }; // safely clone the cart
 
-        await userModel.findByIdAndUpdate(userId, { cartData })
+        if (quantity === 0) {
+            if (cartData[itemId] && cartData[itemId][size]) {
+                delete cartData[itemId][size]; // remove the size
 
-        res.json({ success: true, message: "Cart Updated" })
+                // If no sizes left for the item, remove the item
+                if (Object.keys(cartData[itemId]).length === 0) {
+                    delete cartData[itemId];
+                }
+            }
+        } else {
+            if (!cartData[itemId]) cartData[itemId] = {};
+            cartData[itemId][size] = quantity;
+        }
 
+        await userModel.findByIdAndUpdate(userId, { cartData });
 
+        res.json({ success: true, message: "Cart updated successfully" });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-
-
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
     }
+};
 
-}
+
+
 
 // get user cart data
 

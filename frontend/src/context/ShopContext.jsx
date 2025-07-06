@@ -85,26 +85,37 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   }
 
 
-  const updateQuantity = async (itemId, size, quantity) => {
+const updateQuantity = async (itemId, size, quantity) => {
+  const cartData = structuredClone(cartItems);
 
-    let cartData = structuredClone(cartItems);
+  if (quantity === 0) {
+    // Delete the size from the item
+    delete cartData[itemId][size];
 
-    cartData[itemId][size] = quantity;
-
-    setCartItems(cartData)
-
-
-    if (token) {
-      try {
-        await axios.post(backendUrl + "/api/cart/update", { itemId, size, quantity }, { headers: { token } })
-      } catch (error) {
-        console.log(error)
-        toast.error(error.message)
-      }
+    // If no sizes left for that item, delete the item entirely
+    if (Object.keys(cartData[itemId]).length === 0) {
+      delete cartData[itemId];
     }
-
-
+  } else {
+    cartData[itemId][size] = quantity;
   }
+
+  setCartItems(cartData);
+
+  if (token) {
+    try {
+      await axios.post(
+        backendUrl + "/api/cart/update",
+        { itemId, size, quantity },
+        { headers: { token } }
+      );
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  }
+};
+
 
 
   const getCartAmount = () => {

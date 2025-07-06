@@ -54,7 +54,7 @@ const Login = () => {
     }, [token])
 
     return (
-        <div className="flex items-center justify-center my-20 px-4">
+        <div className="flex items-center justify-center my-20 pt-22 px-4">
             <form onSubmit={onSubmitHandler} className="w-full max-w-md flex flex-col gap-6 text-gray-800">
                 {/* Header */}
                 <div className="flex items-center justify-center  gap-3 mb-4">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { assets } from '../assets/frontend_assets/assets';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
@@ -35,7 +36,8 @@ const Footer = () => {
             </div>
             <div className='mt-2'>
                 <hr />
-                <p className='py-5 text-sm text-center'>© 2025 forever.com. All rights reserved.</p>
+                <Link target='_blank' to="https://trends-wear.onrender.com/">  <p className='py-5 text-sm text-center'>trends-wear.onrender.com.</p></Link>
+
             </div>
         </div>
     );

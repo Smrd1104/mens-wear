@@ -4,7 +4,7 @@ import NewsLetter from "../components/NewsLetter"
 const Contact = () => {
     return (
         <div>
-            <div className='text-2xl text-center pt-8 border-t'>
+            <div className='text-2xl text-center pt-22 border-t'>
                 <Title text1={'Contact '} text2={'us'} />
             </div>
 
