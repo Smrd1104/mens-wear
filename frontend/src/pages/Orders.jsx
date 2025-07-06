@@ -12,25 +12,6 @@ const Orders = () => {
     const [itemsToShow, setItemsToShow] = useState(5); // initial number of items to show
 
 
-    // track order
-
-    const [selectedOrderId, setSelectedOrderId] = useState(null);
-    const [trackingData, setTrackingData] = useState(null);
-    const [showTracking, setShowTracking] = useState(false);
-
-    const fetchTrackingData = async (orderId) => {
-        try {
-            const res = await axios.get(backendUrl + "/api/order/track/${orderId}", {
-                headers: { token }
-            });
-            if (res.data.success) {
-                setTrackingData(res.data.tracking);
-                setShowTracking(true);
-            }
-        } catch (err) {
-            console.log("Tracking fetch error:", err);
-        }
-    };
 
 
 
@@ -109,7 +90,7 @@ const Orders = () => {
                                 {/* Track Button */}
                                 <button
                                     className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
-                                    onClick={() => fetchTrackingData(item._id)}
+
                                 >
                                     Track Order
                                 </button>
@@ -133,34 +114,6 @@ const Orders = () => {
                     </div>
                 )
             }
-
-
-
-            {showTracking && trackingData && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg w-[90%] max-w-lg shadow-xl">
-                        <h2 className="text-xl font-bold mb-4">Order Tracking</h2>
-                        <p><strong>Status:</strong> {trackingData.status}</p>
-                        <p><strong>Current Location:</strong> {trackingData.currentLocation}</p>
-                        <p><strong>Estimated Delivery:</strong> {trackingData.estimatedDelivery}</p>
-
-                        <h3 className="mt-4 font-semibold">Route History:</h3>
-                        <ul className="list-disc ml-5">
-                            {trackingData.route.map((stop, idx) => (
-                                <li key={idx}>{stop.location} - {new Date(stop.date).toDateString()}</li>
-                            ))}
-                        </ul>
-
-                        <button
-                            className="mt-6 px-4 py-2 bg-red-500 text-white rounded"
-                            onClick={() => setShowTracking(false)}
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
-
 
         </div>
     )

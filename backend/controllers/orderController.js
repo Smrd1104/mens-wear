@@ -200,28 +200,7 @@ const whatsappOrder = async (req, res) => {
 
 // tract order  
 
-const trackOrder = async (req, res) => {
-    try {
-        const { orderId } = req.params;
 
-        // Replace this with 3rd-party tracking API call or internal tracking logic
-        const trackingInfo = {
-            currentLocation: "Chennai Hub",
-            estimatedDelivery: "2025-07-07",
-            status: "In Transit",
-            route: [
-                { location: "Delhi", date: "2025-07-03" },
-                { location: "Mumbai", date: "2025-07-04" },
-                { location: "Chennai Hub", date: "2025-07-05" },
-            ],
-        };
-
-        return res.json({ success: true, tracking: trackingInfo });
-
-    } catch (err) {
-        return res.status(500).json({ success: false, message: "Tracking failed" });
-    }
-};
 
 
 export {
@@ -232,6 +211,6 @@ export {
     updateStatus,
     verifyRazorpay,
     whatsappOrder,
-    trackOrder
+    
 }
 
