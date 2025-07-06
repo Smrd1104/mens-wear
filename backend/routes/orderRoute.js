@@ -30,32 +30,28 @@ orderRouter.post("/verifyRazorpay", authUser, verifyRazorpay)
 orderRouter.post('/whatsapp', authUser, whatsappOrder)
 
 // trackorder
+
 orderRouter.post('/track', authUser, async (req, res) => {
     try {
-        console.log("🔍 Incoming /track request body:", req.body);
-
         const { orderId } = req.body;
 
-        if (!orderId) {
-            console.log("❌ Missing orderId");
-            return res.status(400).json({ success: false, message: "orderId is required" });
+        if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
+            return res.status(400).json({ success: false, message: "Invalid or missing orderId" });
         }
 
-        const order = await orderModel.findOne({ orderId });
+        const order = await orderModel.findById(orderId); // ✅ use _id search
 
         if (!order) {
-            console.log("❌ Order not found for:", orderId);
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-        console.log("✅ Order found:", order._id);
-
-        res.status(200).json({ success: true, tracking: order.tracking || [] });
+        res.json({ success: true, tracking: order.tracking || [] });
     } catch (err) {
-        console.error("❗TRACK ORDER ERROR:", err); // Log the actual error
+        console.error("❗TRACK ORDER ERROR:", err);
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
 
 
 

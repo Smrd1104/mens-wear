@@ -7,27 +7,31 @@ import { ShopContext } from '../context/ShopContext';
 const TrackOrderTimeline = ({ orderId, onClose }) => {
     const [tracking, setTracking] = useState([]);
 
-    const { backendUrl ,token} = useContext(ShopContext)
+    const { backendUrl, token } = useContext(ShopContext)
 
     useEffect(() => {
         const fetchTracking = async () => {
             try {
+                console.log("🔍 Sending orderId:", orderId); // ADD THIS
                 const res = await axios.post(
                     `${backendUrl}/api/order/track`,
-                    { orderId },
+                    { orderId: "6865661d7a455d076f66de96" },
                     { headers: { token } }
                 );
 
                 if (res.data.success) {
                     setTracking(res.data.tracking.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)));
+                } else {
+                    console.log("❗ Response:", res.data);
                 }
             } catch (err) {
-                console.error(err);
+                console.error("🚨 Axios error:", err);
             }
         };
 
         fetchTracking();
     }, [orderId]);
+
 
     return (
         <div className="fixed inset-0 bg-black/20 bg-opacity-40 flex justify-center items-center z-50">

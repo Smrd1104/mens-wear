@@ -199,6 +199,7 @@ const whatsappOrder = async (req, res) => {
 
 
 
+
 export {
     placeOrder,
     placeOrderRazorPay,
@@ -207,6 +208,6 @@ export {
     updateStatus,
     verifyRazorpay,
     whatsappOrder,
-    
+
 }
 
