@@ -21,7 +21,7 @@ const SearchBar = () => {
   if (!showSearch || !visible) return null;
 
   return (
-    <div className="border-t border-b bg-gray-50 text-center py-3">
+    <div className="bg-gray-50 text-center pt-22  pb-3">
       <div className="inline-flex items-center gap-3">
         {/* Search Input */}
         <div className="flex items-center border border-gray-400 px-5 rounded-full w-[75vw] sm:w-[50vw]">

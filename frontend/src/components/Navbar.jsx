@@ -3,6 +3,7 @@ import { assets } from "../assets/frontend_assets/assets";
 import { Link, NavLink } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { useSelector } from 'react-redux';
+import { toast } from "react-toastify";
 
 
 const Navbar = ({ currency }) => {
@@ -14,6 +15,7 @@ const Navbar = ({ currency }) => {
   const [showHeader, setShowHeader] = useState(true);
   const hideTimeoutRef = useRef(null);
   const [cartSidebarOpen, setCartSidebarOpen] = useState(false);
+  const scrollTimeoutRef = useRef(null);
 
   const sidebarRef = useRef(null);
 
@@ -44,15 +46,15 @@ const Navbar = ({ currency }) => {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
+
+      // Always show header on scroll
+      setShowHeader(true);
       setIsScrolled(scrollY > 10);
 
-      // Show header when scrolling
-      if (!showHeader) {
-        setShowHeader(true);
-      }
-
-      // Reset hide timeout
+      // Clear the existing timeout
       clearTimeout(scrollTimeoutRef.current);
+
+      // Start a new timeout to hide the header after 2s of no scroll
       scrollTimeoutRef.current = setTimeout(() => {
         if (window.scrollY > 10) {
           setShowHeader(false);
@@ -61,11 +63,14 @@ const Navbar = ({ currency }) => {
     };
 
     window.addEventListener('scroll', handleScroll);
+
+    // Clean up
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearTimeout(hideTimeoutRef.current);
+      clearTimeout(scrollTimeoutRef.current);
     };
   }, []);
+
 
   useEffect(() => {
     if (visible) {
@@ -137,8 +142,8 @@ const Navbar = ({ currency }) => {
           </NavLink>
         </ul>
 
-        <div className="flex items-center gap-6">
-          <img onClick={() => setShowSearch(true)} src={assets.search_icon} className="w-5 cursor-pointer" alt="" />
+        <div className="flex items-center  gap-6">
+          <img onClick={() => setShowSearch(true)} src={assets.search_icon} className="w-5  cursor-pointer" alt="" />
           <div className="group relative">
 
             <img onClick={() => token ? null : navigate('/login')} src={assets.profile_icon} className="w-5 cursor-pointer" alt="" />
@@ -355,8 +360,18 @@ const Navbar = ({ currency }) => {
                     </button>
                     <button
                       onClick={() => {
+                        const isCartEmpty = Object.keys(cartItems).every(productId =>
+                          Object.keys(cartItems[productId]).every(size => cartItems[productId][size] <= 0)
+                        );
+
                         setCartSidebarOpen(false);
-                        navigate('/place-order');
+
+                        if (isCartEmpty) {
+                          toast.error("Your cart is empty. Add items before proceeding.");
+                          navigate('/cart'); // optional: you could stay on current page instead
+                        } else {
+                          navigate('/place-order');
+                        }
                       }}
                       className="text-black cursor-pointer bg-white border hover:bg-black hover:text-white uppercase px-4 py-2 text-sm rounded"
                     >

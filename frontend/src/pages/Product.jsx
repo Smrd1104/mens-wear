@@ -3,13 +3,34 @@ import { useParams } from "react-router-dom"
 import { ShopContext } from "../context/ShopContext"
 import { assets } from "../assets/frontend_assets/assets"
 import RelatedProducts from "../components/RelatedProducts"
+import { useRef } from "react";
+
 const Product = () => {
 
     const { productId } = useParams()
-    const { products, currency, addToCart } = useContext(ShopContext)
+    const { products, currency, addToCart, cartItems, updateQuantity, getCartAmount, delivery_fee, navigate } = useContext(ShopContext)
     const [productData, setProductData] = useState(false)
     const [image, setImage] = useState('')
     const [size, setSize] = useState('')
+    const [cartSidebarOpen, setCartSidebarOpen] = useState(false);
+
+    const sidebarRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (cartSidebarOpen && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+                setCartSidebarOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [cartSidebarOpen]);
+
+
 
     const fetchProductData = async () => {
         products.map((item) => {
@@ -69,7 +90,10 @@ const Product = () => {
                         </div>
 
                     </div>
-                    <button onClick={() => addToCart(productData._id, size)} className="uppercase cursor-pointer hover:scale-105 transition-all duration-500 bg-black text-white px-8 py-3 text-sm active:bg-gray-700">Add to card</button>
+                    <button onClick={() => {
+                        addToCart(productData._id, size);
+                        setCartSidebarOpen(true); // 👈 This opens the sidebar
+                    }} className="uppercase cursor-pointer hover:scale-105 transition-all duration-500 bg-black text-white px-8 py-3 text-sm active:bg-gray-700">Add to cart</button>
                     <hr className="mt-8 sm:w-4/5" />
                     <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">
                         <p className=" capitalize">100% original products</p>
@@ -79,6 +103,112 @@ const Product = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Cart Sidebar */}
+            {cartSidebarOpen && (
+                <>
+                    {/* Overlay */}
+                    <div
+                        className="fixed inset-0  z-40"
+                        onClick={() => setCartSidebarOpen(false)}
+                        ref={sidebarRef}
+
+                    />
+
+                    {/* Sidebar */}
+                    <div ref={sidebarRef}
+                        className="fixed top-0 right-0 h-screen w-80 bg-white shadow-lg z-50 transition-transform duration-300">
+                        <div className="flex justify-between items-center p-6  border-b-2 ">
+                            <h2 className="text-lg font-semibold">Your Cart</h2>
+                            <button onClick={() => setCartSidebarOpen(false)} className="text-xl">×</button>
+                        </div>
+
+                        <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-250px)] ">
+                            {Object.keys(cartItems).length === 0 ? (
+                                <p className="text-center py-8">Your cart is empty</p>
+                            ) : (
+                                Object.entries(cartItems).map(([itemId, sizes]) => {
+                                    const product = products.find(p => p._id === itemId);
+                                    if (!product) return null;
+
+                                    return Object.entries(sizes).map(([size, quantity]) => (
+                                        <div key={`${itemId}-${size}`} className="flex gap-4 border-b pb-4">
+                                            <img
+                                                src={product.image[0]}
+                                                alt={product.name}
+                                                className="w-16 h-16 object-cover rounded"
+                                            />
+                                            <div className="flex flex-col justify-between w-full">
+                                                <div>
+                                                    <p className="text-sm font-semibold">{product.name}</p>
+                                                    <p className="text-xs text-gray-500">Size: <span className="font-medium">{size}</span></p>
+                                                </div>
+                                                <div className="flex justify-between items-center mt-1">
+                                                    <p className="text-sm font-semibold text-gray-700">
+                                                        {currency}{product.price} × {quantity} = {currency}{product.price * quantity}
+                                                    </p>
+                                                    <div className="flex gap-2 items-center">
+                                                        <button
+                                                            onClick={() => updateQuantity(itemId, size, Math.max(quantity - 1, 1))}
+                                                            className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
+                                                        >
+                                                            −
+                                                        </button>
+                                                        <span className="text-sm">{quantity}</span>
+                                                        <button
+                                                            onClick={() => updateQuantity(itemId, size, quantity + 1)}
+                                                            className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                    <img
+                                                        onClick={() => updateQuantity(itemId, size, 0)}
+                                                        src={assets.bin_icon}
+                                                        alt="Remove"
+                                                        className="w-4 h-4 cursor-pointer"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ));
+                                })
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-4 border-t">
+                            {Object.keys(cartItems).length > 0 && (
+                                <div className="flex justify-between text-sm font-semibold mb-4">
+                                    <p>Total</p>
+                                    <p>{currency}{getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee}.00</p>
+                                </div>
+                            )}
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => {
+                                        setCartSidebarOpen(false);
+                                        navigate('/cart');
+                                    }}
+                                    className="text-black cursor-pointer bg-white border hover:bg-black hover:text-white uppercase px-4 py-2 text-sm rounded"
+                                >
+                                    Go to Cart
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setCartSidebarOpen(false);
+                                        navigate('/place-order');
+                                    }}
+                                    className="text-black cursor-pointer bg-white border hover:bg-black hover:text-white uppercase px-4 py-2 text-sm rounded"
+                                >
+                                    Proceed to Checkout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
+
 
             {/* description & review section  */}
             <div className="mt-20">

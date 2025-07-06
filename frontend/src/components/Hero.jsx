@@ -26,9 +26,9 @@ const heroData = [
     { id: 3, title: "earth conscious", subtitle: "eco-friendly fits", cta: "Shop green", image: image10, type: "image" },
     { id: 4, title: "limited drop", subtitle: "48 hours only", cta: "Grab Fast", image: video2, type: "video" },
     { id: 5, title: "festival edit", subtitle: "vibrant & bold", cta: "Discover now", image: image3, type: "image" },
-    { id: 6, title: "summer clearance", subtitle: "up to 60% off", cta: "Don't Miss", image: video3, type: "video" },
-    { id: 7, title: "monochrome mood", subtitle: "minimalist classics", cta: "View Collection", image: image6, type: "image" },
-    { id: 8, title: "techwear drop", subtitle: "function meets fashion", cta: "Gear Up", image: video1, type: "video" },
+    { id: 6, title: "summer Trends", subtitle: "up to 60% off", cta: "Don't Miss", image: video3, type: "video" },
+    { id: 7, title: "Classic Wear", subtitle: "minimalist classics", cta: "View Collection", image: image6, type: "image" },
+    { id: 8, title: "Techwear drop", subtitle: "function meets fashion", cta: "Gear Up", image: video1, type: "video" },
     { id: 9, title: "vintage vibes", subtitle: "retro-inspired fits", cta: "Shop Vintage", image: image5, type: "image" },
     { id: 10, title: "back to campus", subtitle: "new arrivals for you", cta: "Get Ready", image: video2, type: "video" },
 ];
@@ -128,7 +128,7 @@ const Hero = () => {
                         </div>
 
                         {/* Media Section */}
-                        <div className="w-full sm:w-1/2 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[500px]">
+                        <div className="w-full sm:w-1/2 h-[300px] sm:h-[400px] md:h-[700px] lg:h-[600px] xl:h-[530px]">
                             {item.type === "image" ? (
                                 <img
                                     src={item.image}

@@ -14,11 +14,13 @@ import SearchBar from "./components/SearchBar"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import ForgotPassword from "./pages/ForgotPassword"
+import ScrollToTop from "./components/ScrollToTop"
 
 
 function App() {
   return (
     <div className="px-4 overflow-hidden">
+      <ScrollToTop />
       <ToastContainer />
       <Navbar />
       <SearchBar />
