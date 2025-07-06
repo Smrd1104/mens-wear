@@ -32,15 +32,24 @@ orderRouter.post('/whatsapp', authUser, whatsappOrder)
 orderRouter.post('/track', authUser, async (req, res) => {
     try {
         const { orderId } = req.body;
-        const order = await orderModel.findById(orderId);
 
-        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+        if (!orderId) {
+            return res.status(400).json({ success: false, message: "orderId is required" });
+        }
 
-        res.json({ success: true, tracking: order.tracking });
+        const order = await orderModel.findOne({ orderId }); // ✅ FIXED
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        res.json({ success: true, tracking: order.tracking || [] });
     } catch (err) {
+        console.error("TRACK ORDER ERROR:", err); // For Render logs
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
 
 
 
