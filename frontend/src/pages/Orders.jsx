@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from "../context/ShopContext"
 import Title from "../components/Title"
 import axios from 'axios'
+import TrackOrderTimeline from '../components/TrackOrderTimeline'
 const Orders = () => {
 
     const { backendUrl, token, currency } = useContext(ShopContext)
@@ -10,6 +11,7 @@ const Orders = () => {
 
     const [visibleOrders, setVisibleOrders] = useState([]);
     const [itemsToShow, setItemsToShow] = useState(5); // initial number of items to show
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
 
 
 
@@ -90,7 +92,7 @@ const Orders = () => {
                                 {/* Track Button */}
                                 <button
                                     className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
-
+                                    onClick={() => setSelectedOrderId(item._id)}
                                 >
                                     Track Order
                                 </button>
@@ -112,6 +114,16 @@ const Orders = () => {
                             Load More
                         </button>
                     </div>
+                )
+            }
+
+            {
+                selectedOrderId && (
+                    <TrackOrderTimeline
+                        orderId={selectedOrderId}
+                        token={token}
+                        onClose={() => setSelectedOrderId(null)}
+                    />
                 )
             }
 

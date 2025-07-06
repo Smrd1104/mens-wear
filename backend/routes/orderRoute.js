@@ -29,6 +29,18 @@ orderRouter.post("/verifyRazorpay", authUser, verifyRazorpay)
 orderRouter.post('/whatsapp', authUser, whatsappOrder)
 
 // trackorder
+orderRouter.post('/track', authUser, async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const order = await orderModel.findById(orderId);
+
+        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+        res.json({ success: true, tracking: order.tracking });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 
 
 

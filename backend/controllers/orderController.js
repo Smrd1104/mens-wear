@@ -143,42 +143,38 @@ const userOrders = async (req, res) => {
 // update order status from admin panel
 const updateStatus = async (req, res) => {
     try {
-        const { orderId, status } = req.body
+        const { orderId, status } = req.body;
 
-        // Validate status
-        const validStatuses = ['Order Placed', 'Processing', 'Out for Delivery', 'Delivered', 'Cancelled']
-        if (!validStatuses.includes(status)) {
-            return res.status(400).json({ success: false, message: 'Invalid status' })
+        const messages = {
+            'Order Placed': 'Your order has been placed.',
+            'Processing': 'Seller has processed your order.',
+            'Out for Delivery': 'Your item is out for delivery.',
+            'Delivered': 'Your item has been delivered.',
+            'Cancelled': 'Your order has been cancelled.'
+        };
+
+        const order = await orderModel.findById(orderId);
+        if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+        order.status = status;
+        order.tracking.push({
+            status,
+            message: messages[status],
+            timestamp: new Date()
+        });
+
+        if (status === 'Delivered' && order.paymentMethod === 'COD') {
+            order.payment = true;
         }
 
-        // Update order status
-        const updatedOrder = await orderModel.findByIdAndUpdate(
-            orderId,
-            { status },
-            { new: true }
-        ).populate('userId', 'name email')
-
-        if (!updatedOrder) {
-            return res.status(404).json({ success: false, message: 'Order not found' })
-        }
-
-        // If order is delivered and payment was COD, mark as paid
-        if (status === 'Delivered' && updatedOrder.paymentMethod === 'COD') {
-            updatedOrder.paymentStatus = 'paid'
-            await updatedOrder.save()
-        }
-
-        res.json({
-            success: true,
-            message: 'Order status updated',
-            order: updatedOrder
-        })
-
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ success: false, message: error.message })
+        await order.save();
+        res.json({ success: true, message: 'Status updated', order });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: err.message });
     }
-}
+};
+
 
 
 const whatsappOrder = async (req, res) => {

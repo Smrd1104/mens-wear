@@ -1,4 +1,10 @@
 import mongoose from "mongoose"
+const trackingSchema = new mongoose.Schema({
+    status: String,
+    message: String,
+    timestamp: Date
+});
+
 
 const orderSchema = new mongoose.Schema({
     userId: { type: String, required: true },
@@ -9,7 +15,13 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: { type: String, required: true },
     payment: { type: Boolean, required: true, default: false },
     date: { type: Number, required: true },
+    tracking: [trackingSchema], // ⬅️ added tracking field
+
 })
+
+
+
+
 
 const orderModel = mongoose.models.order || mongoose.model("order", orderSchema)
 
