@@ -3,6 +3,7 @@ import { placeOrder, placeOrderRazorPay, allOrders, userOrders, updateStatus, ve
 
 import adminAuth from "../middleware/adminAuth.js"
 import authUser from "../middleware/auth.js"
+import orderModel from "../models/orderModel.js"
 
 
 const orderRouter = express.Router()
@@ -31,24 +32,31 @@ orderRouter.post('/whatsapp', authUser, whatsappOrder)
 // trackorder
 orderRouter.post('/track', authUser, async (req, res) => {
     try {
+        console.log("🔍 Incoming /track request body:", req.body);
+
         const { orderId } = req.body;
 
         if (!orderId) {
+            console.log("❌ Missing orderId");
             return res.status(400).json({ success: false, message: "orderId is required" });
         }
 
-        const order = await orderModel.findOne({ orderId }); // ✅ FIXED
+        const order = await orderModel.findOne({ orderId });
 
         if (!order) {
+            console.log("❌ Order not found for:", orderId);
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-        res.json({ success: true, tracking: order.tracking || [] });
+        console.log("✅ Order found:", order._id);
+
+        res.status(200).json({ success: true, tracking: order.tracking || [] });
     } catch (err) {
-        console.error("TRACK ORDER ERROR:", err); // For Render logs
+        console.error("❗TRACK ORDER ERROR:", err); // Log the actual error
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
 
 
 
