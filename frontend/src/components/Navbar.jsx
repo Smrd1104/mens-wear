@@ -231,13 +231,13 @@ const Navbar = ({ currency }) => {
 
                       {/* Collapsible Content */}
                       {accountOpen && (
-                        <div className="flex flex-col border-b  text-sm transition-all duration-300 ease-in-out">
+                        <div className="flex flex-col border-b   text-sm transition-all duration-300 ease-in-out">
                           <p
                             onClick={() => {
                               navigate('/profile');
                               setVisible(false);
                             }}
-                            className="py-2 pl-6 border-b hover:text-black cursor-pointer"
+                            className="py-3 pl-6 border-b hover:text-black cursor-pointer"
                           >
                             My Profile
                           </p>
@@ -246,7 +246,7 @@ const Navbar = ({ currency }) => {
                               navigate('/orders');
                               setVisible(false);
                             }}
-                            className="py-2 pl-6 border-b hover:text-black cursor-pointer"
+                            className="py-3 pl-6 border-b hover:text-black cursor-pointer"
                           >
                             Orders
                           </p>
@@ -255,7 +255,7 @@ const Navbar = ({ currency }) => {
                               logout();
                               setVisible(false);
                             }}
-                            className="py-2 pl-6 border-b hover:text-black cursor-pointer"
+                            className="py-3 pl-6 border-b hover:text-black cursor-pointer"
                           >
                             Logout
                           </p>
