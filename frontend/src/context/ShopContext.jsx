@@ -10,12 +10,12 @@ export const ShopContext = createContext();
 export const ShopProvider = ({ children }) => {
   const currency = "₹";
   const delivery_fee = 50;
-// axios setup (React example)
+  // axios setup (React example)
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-// Example call
-// axios.get(`${backendUrl}/api/products`);
+  // Example call
+  // axios.get(`${backendUrl}/api/products`);
 
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -24,6 +24,56 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   const [token, setToken] = useState('')
   const navigate = useNavigate()
   const hasFetched = useRef(false); // 👈 this line is important
+
+  const [wishlist, setWishlist] = useState([]);
+
+  const userId = localStorage.getItem("userId") || "64abcde1234567890fghij12";
+
+
+  // ✅ Fetch wishlist using Axios
+  const fetchWishlist = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/api/wishlist/${userId}`);
+      setWishlist(res.data.map(item => item.productId));
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+      toast.error("Failed to load wishlist");
+    }
+  };
+
+
+  // ✅ Add to wishlist using Axios
+  const addToWishlist = async (productId) => {
+    try {
+      await axios.post(`${backendUrl}/api/wishlist`, { userId, productId });
+      fetchWishlist();
+      toast.success("Added to wishlist");
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      toast.error(error.response?.data?.message || "Failed to add to wishlist");
+    }
+  };
+
+
+
+ // ✅ Remove from wishlist using Axios
+const removeFromWishlist = async (productId) => {
+  try {
+    await axios.delete(`${backendUrl}/api/wishlist`, {
+      data: { userId, productId }
+    });
+    fetchWishlist();
+    toast.success("Removed from wishlist");
+  } catch (error) {
+    console.error("Error removing from wishlist:", error);
+    toast.error(error.response?.data?.message || "Failed to remove from wishlist");
+  }
+};
+
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
+
 
   const addToCart = async (itemId, size) => {
 
@@ -85,36 +135,36 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   }
 
 
-const updateQuantity = async (itemId, size, quantity) => {
-  const cartData = structuredClone(cartItems);
+  const updateQuantity = async (itemId, size, quantity) => {
+    const cartData = structuredClone(cartItems);
 
-  if (quantity === 0) {
-    // Delete the size from the item
-    delete cartData[itemId][size];
+    if (quantity === 0) {
+      // Delete the size from the item
+      delete cartData[itemId][size];
 
-    // If no sizes left for that item, delete the item entirely
-    if (Object.keys(cartData[itemId]).length === 0) {
-      delete cartData[itemId];
+      // If no sizes left for that item, delete the item entirely
+      if (Object.keys(cartData[itemId]).length === 0) {
+        delete cartData[itemId];
+      }
+    } else {
+      cartData[itemId][size] = quantity;
     }
-  } else {
-    cartData[itemId][size] = quantity;
-  }
 
-  setCartItems(cartData);
+    setCartItems(cartData);
 
-  if (token) {
-    try {
-      await axios.post(
-        backendUrl + "/api/cart/update",
-        { itemId, size, quantity },
-        { headers: { token } }
-      );
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+    if (token) {
+      try {
+        await axios.post(
+          backendUrl + "/api/cart/update",
+          { itemId, size, quantity },
+          { headers: { token } }
+        );
+      } catch (error) {
+        console.log(error);
+        toast.error(error.message);
+      }
     }
-  }
-};
+  };
 
 
 
@@ -208,7 +258,8 @@ const updateQuantity = async (itemId, size, quantity) => {
     backendUrl,
     setProducts,
     token, setToken,
-    setCartItems
+    setCartItems,
+    wishlist, setWishlist, addToWishlist, removeFromWishlist
   };
 
   return (
