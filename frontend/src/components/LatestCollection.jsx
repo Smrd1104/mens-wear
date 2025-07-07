@@ -7,9 +7,11 @@ const LatestCollection = () => {
     const { products } = useContext(ShopContext)
     const [latestProducts, setLatestProducts] = useState([])
 
-    useEffect(() => {
-        setLatestProducts(products.slice(0, 10))
-    }, [products])
+   useEffect(() => {
+    const reversedProducts = [...products].reverse(); // Reverse the array
+    setLatestProducts(reversedProducts.slice(0, 10)); // Take the first 10 (newest)
+}, [products]);
+
 
     return (
         <div className='my-10'>
