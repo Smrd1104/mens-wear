@@ -50,7 +50,7 @@ const Hero = () => {
     const swiperRef = useRef(null);
 
     const [currentIndex, setCurrentIndex] = useState(0);
-const totalSlides = heroData.length;
+    const totalSlides = heroData.length;
 
 
     useEffect(() => {
@@ -129,7 +129,7 @@ const totalSlides = heroData.length;
                     {/* Right Arrow */}
                     <div className="absolute z-20 top-1/2 right-2 -translate-y-74 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button
-                            className="lg:block hidden p-3 border-2 border-white cursor-pointer"
+                            className="lg:block md:block hidden p-3 border-2 border-white cursor-pointer"
                             onClick={() => swiperRef.current?.slideNext()}
                             aria-label="Next slide"
                         >
@@ -201,17 +201,17 @@ const totalSlides = heroData.length;
                             </div>
 
                             {/* Media Section */}
-                            <div className="w-full sm:w-1/2 h-[300px] sm:h-[400px] md:h-[700px] lg:h-[600px] xl:h-[530px]">
+                            <div className="w-full sm:w-1/2 h-[500px] sm:h-[400px] md:h-[700px] lg:h-[600px] xl:h-[530px]">
                                 {item.type === "image" ? (
                                     <img
                                         src={item.image}
-                                        className="w-full h-[700px] object-cover"
+                                        className="w-full md:h-[700px] h-full object-cover"
                                         alt={item.title}
                                     />
                                 ) : (
                                     <video
                                         src={item.image}
-                                        className="w-full  h-[700px] object-cover"
+                                        className="w-full  md:h-[700px] h-full object-cover"
                                         autoPlay
                                         loop
                                         muted

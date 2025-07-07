@@ -24,10 +24,10 @@ const BestSeller = () => {
         768: { slidesPerView: 3 },
         1024: { slidesPerView: 4 },
         1280: { slidesPerView: 4 },
-        1536: { slidesPerView: 6 },
-        1920: { slidesPerView: 7 },
-        2560: { slidesPerView: 8 },
-        3840: { slidesPerView: 10 },
+        // 1536: { slidesPerView: 6 },
+        // 1920: { slidesPerView: 7 },
+        // 2560: { slidesPerView: 8 },
+        // 3840: { slidesPerView: 10 },
     };
 
     return (

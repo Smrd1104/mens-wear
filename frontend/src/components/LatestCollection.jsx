@@ -23,9 +23,9 @@ const LatestCollection = () => {
         1024: { slidesPerView: 4 },
         1280: { slidesPerView: 4 },
         1536: { slidesPerView: 5 },
-        1920: { slidesPerView: 6 },
-        2560: { slidesPerView: 7 },
-        3840: { slidesPerView: 8 },
+        // 1920: { slidesPerView: 6 },
+        // 2560: { slidesPerView: 7 },
+        // 3840: { slidesPerView: 8 },
     };
 
     return (
