@@ -33,7 +33,7 @@ export const ShopProvider = ({ children }) => {
   // ✅ Fetch wishlist using Axios
   const fetchWishlist = async () => {
     try {
-      const res = await axios.get(`${backendUrl}/api/wishlist/${userId}`);
+      const res = await axios.get(`${backendUrl}/api/wishlist/${userId}`, { headers: { token } });
       setWishlist(res.data.map(item => item.productId));
     } catch (error) {
       console.error("Error fetching wishlist:", error);
@@ -56,19 +56,19 @@ export const ShopProvider = ({ children }) => {
 
 
 
- // ✅ Remove from wishlist using Axios
-const removeFromWishlist = async (productId) => {
-  try {
-    await axios.delete(`${backendUrl}/api/wishlist`, {
-      data: { userId, productId }
-    });
-    fetchWishlist();
-    toast.success("Removed from wishlist");
-  } catch (error) {
-    console.error("Error removing from wishlist:", error);
-    toast.error(error.response?.data?.message || "Failed to remove from wishlist");
-  }
-};
+  // ✅ Remove from wishlist using Axios
+  const removeFromWishlist = async (productId) => {
+    try {
+      await axios.delete(`${backendUrl}/api/wishlist`, {
+        data: { userId, productId }
+      });
+      fetchWishlist();
+      toast.success("Removed from wishlist");
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+      toast.error(error.response?.data?.message || "Failed to remove from wishlist");
+    }
+  };
 
   useEffect(() => {
     fetchWishlist();
