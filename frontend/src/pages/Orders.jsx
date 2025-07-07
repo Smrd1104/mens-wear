@@ -34,6 +34,7 @@ const Orders = () => {
                         item['payment'] = order.payment
                         item['paymentMethod'] = order.paymentMethod
                         item['date'] = order.date
+                        item['orderId'] = order._id; // ✅ ADD THIS LINE
                         allOrderItem.push(item)
                     })
 
@@ -92,7 +93,7 @@ const Orders = () => {
                                 {/* Track Button */}
                                 <button
                                     className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
-                                    onClick={() => setSelectedOrderId(item._id)}
+                                    onClick={() => setSelectedOrderId(item.orderId)}
                                 >
                                     Track Order
                                 </button>

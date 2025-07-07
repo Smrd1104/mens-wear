@@ -19,7 +19,7 @@ import ScrollToTop from "./components/ScrollToTop"
 
 function App() {
   return (
-    <div className="px-4 overflow-hidden">
+    <div className="px-4 overflow-hidden container mx-auto">
       <ScrollToTop />
       <ToastContainer />
       <Navbar />

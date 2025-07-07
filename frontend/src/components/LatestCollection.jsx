@@ -1,41 +1,86 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { ShopContext } from "../context/ShopContext"
-import Title from "../components/Title"
-import ProductItem from './ProductItem'
+import React, { useContext, useEffect, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import Title from "../components/Title";
+import ProductItem from "./ProductItem";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+
 const LatestCollection = () => {
+    const { products } = useContext(ShopContext);
+    const [latestProducts, setLatestProducts] = useState([]);
 
-    const { products } = useContext(ShopContext)
-    const [latestProducts, setLatestProducts] = useState([])
+    useEffect(() => {
+        const reversedProducts = [...products].reverse();
+        setLatestProducts(reversedProducts.slice(0, 10));
+    }, [products]);
 
-   useEffect(() => {
-    const reversedProducts = [...products].reverse(); // Reverse the array
-    setLatestProducts(reversedProducts.slice(0, 10)); // Take the first 10 (newest)
-}, [products]);
+    const topRowProducts = latestProducts.slice(0, Math.ceil(latestProducts.length / 2));
+    const bottomRowProducts = latestProducts.slice(Math.ceil(latestProducts.length / 2));
 
+    const breakpoints = {
+        640: { slidesPerView: 2 },
+        768: { slidesPerView: 2 },
+        1024: { slidesPerView: 4 },
+        1280: { slidesPerView: 4 },
+        1536: { slidesPerView: 5 },
+        1920: { slidesPerView: 6 },
+        2560: { slidesPerView: 7 },
+        3840: { slidesPerView: 8 },
+    };
 
     return (
-        <div className='my-10'>
-            <div className='text-center py-8 text-3xl'>
-                <Title text1={'LATEST'} text2={'COLLECTIONS'} />
-                <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>  Discover premium quality fashion with unbeatable comfort and timeless style. At our store, we believe clothing is more than just fabric — it's a statement. Explore our curated collections and find your next favorite piece today.
+        <div className="my-10">
+            {/* Title */}
+            <div className="text-center py-8 text-3xl">
+                <Title text1={"LATEST"} text2={"COLLECTIONS"} />
+                <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
+                    Discover premium quality fashion with unbeatable comfort and timeless style. At our store, we believe clothing is more than just fabric — it's a statement. Explore our curated collections and find your next favorite piece today.
                 </p>
             </div>
 
-            {/* rendering products */}
-            <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6 '>
+            {/* Top Row Slider */}
+            <Swiper
+                spaceBetween={20}
+                slidesPerView={2}
+                breakpoints={breakpoints}
+                className="px-4 mb-6"
+            >
+                {topRowProducts.map((item, index) => (
+                    <SwiperSlide key={`top-${index}`}>
+                        <ProductItem
+                            id={item._id}
+                            image={item.image}
+                            name={item.name}
+                            price={item.price}
+                            collection={item.collection}
 
-                {
-                    latestProducts.map((item, index) => (
-                        <ProductItem key={index} id={item._id} image={item.image} name={item.name} price={item.price} />
-                    ))
-                }
-            </div>
+                        />
+                    </SwiperSlide>
+                ))}
+            </Swiper>
 
+            {/* Bottom Row Slider */}
+            <Swiper
+                spaceBetween={20}
+                slidesPerView={2}
+                breakpoints={breakpoints}
+                className="px-4"
+            >
+                {bottomRowProducts.map((item, index) => (
+                    <SwiperSlide key={`bottom-${index}`}>
+                        <ProductItem
+                            id={item._id}
+                            image={item.image}
+                            name={item.name}
+                            price={item.price}
+                            collection={item.collection}
+
+                        />
+                    </SwiperSlide>
+                ))}
+            </Swiper>
         </div>
-    )
-}
+    );
+};
 
-export default LatestCollection
-
-
-
+export default LatestCollection;

@@ -16,7 +16,7 @@ export const ShopProvider = ({ children }) => {
 
   // Example call
   // axios.get(`${backendUrl}/api/products`);
-
+  const [userId, setUserId] = useState(null);
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [products, setProducts] = useState([])
@@ -27,7 +27,6 @@ export const ShopProvider = ({ children }) => {
 
   const [wishlist, setWishlist] = useState([]);
 
-  const userId = localStorage.getItem("userId")
 
 
   // ✅ Fetch wishlist using Axios
@@ -55,16 +54,19 @@ export const ShopProvider = ({ children }) => {
 
 
   // ✅ Add to wishlist using Axios
-  const addToWishlist = async (productId) => {
-    try {
-      await axios.post(`${backendUrl}/api/wishlist`, { userId, productId });
-      fetchWishlist();
-      toast.success("Added to wishlist");
-    } catch (error) {
-      console.error("Error adding to wishlist:", error);
-      toast.error(error.response?.data?.message || "Failed to add to wishlist");
-    }
-  };
+ const addToWishlist = async (productId) => {
+  try {
+    await axios.post(`${backendUrl}/api/wishlist`, { userId, productId }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setWishlist((prev) => [...prev, productId]);
+    toast.success("Added to wishlist");
+  } catch (error) {
+    console.error("Error adding to wishlist:", error);
+    toast.error(error.response?.data?.message || "Failed to add to wishlist");
+  }
+};
+
 
 
 
@@ -74,7 +76,7 @@ export const ShopProvider = ({ children }) => {
       await axios.delete(`${backendUrl}/api/wishlist`, {
         data: { userId, productId }
       });
-      fetchWishlist();
+    setWishlist((prev) => [...prev, productId]);
       toast.success("Removed from wishlist");
     } catch (error) {
       console.error("Error removing from wishlist:", error);
@@ -241,14 +243,26 @@ export const ShopProvider = ({ children }) => {
 
   }, [])
 
-
   useEffect(() => {
-    if (!token && localStorage.getItem('token')) {
-      setToken(localStorage.getItem('token'))
+  const storedToken = localStorage.getItem("token");
+  const storedUserId = localStorage.getItem("userId");
 
-      getUserCart(localStorage.getItem('token'));
-    }
-  }, [])
+  if (storedToken) {
+    setToken(storedToken);
+    setUserId(storedUserId); // ✅ now sets in memory
+    getUserCart(storedToken);
+  }
+}, []);
+
+
+
+  // useEffect(() => {
+  //   if (!token && localStorage.getItem('token')) {
+  //     setToken(localStorage.getItem('token'))
+
+  //     getUserCart(localStorage.getItem('token'));
+  //   }
+  // }, [])
 
 
 
@@ -274,7 +288,7 @@ export const ShopProvider = ({ children }) => {
     setProducts,
     token, setToken,
     setCartItems,
-    wishlist, setWishlist, addToWishlist, removeFromWishlist
+    wishlist, setWishlist, addToWishlist, removeFromWishlist,userId ,setUserId
   };
 
   return (

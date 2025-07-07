@@ -3,7 +3,8 @@ import Wishlist from '../models/wishlistModel.js';
 // Get user's wishlist
 export const getWishlist = async (req, res) => {
     try {
-        const wishlist = await Wishlist.find({ userId: req.params.userId });
+        const wishlist = await Wishlist.find({ userId: req.params.userId }).populate("productId");
+        res.json(wishlist);
         res.json(wishlist);
     } catch (err) {
         res.status(500).json({ error: err.message });

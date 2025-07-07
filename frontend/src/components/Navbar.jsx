@@ -88,13 +88,16 @@ const Navbar = ({ currency }) => {
 
 
 
+
+
+
   return (
     <div
       className={`w-full fixed z-50 top-0 left-0 h-auto transform transition-all duration-500 ${isScrolled ? "backdrop-blur-md bg-white/70" : "bg-white shadow"
         } ${showHeader ? "translate-y-0" : "-translate-y-full"} md:px-10`}
       role="navigation"
     >
-      <div className="flex items-center justify-between py-3 px-4 sm:px-8 font-medium">
+      <div className="flex  container mx-auto items-center justify-between py-3 px-4 sm:px-8 font-medium">
 
 
         <Link to="/"> <img src={assets.logo} alt="Logo" className="w-12 " /></Link>
@@ -176,7 +179,7 @@ const Navbar = ({ currency }) => {
           {/* Overlay (click to close) */}
           {visible && (
             <div
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0  z-40"
               onClick={() => setVisible(false)}
             />
           )}
@@ -186,12 +189,12 @@ const Navbar = ({ currency }) => {
             <>
               {/* Dimmed Overlay */}
               <div
-                className="fixed inset-0 bg-black/50 z-40"
+                className="fixed inset-0   z-40"
                 onClick={() => setVisible(false)}
               ></div>
 
               {/* Sidebar */}
-              <div className="fixed inset-y-0 left-0 w-full h-screen bg-white z-50 shadow-lg transition-transform duration-300 overflow-y-auto">
+              <div className="fixed inset-y-0 left-0 top-20 w-full h-screen bg-white z-50 shadow-lg transition-transform duration-300 overflow-y-auto">
                 <div className="p-4">
                   <div
                     onClick={() => setVisible(false)}
@@ -281,13 +284,13 @@ const Navbar = ({ currency }) => {
 
               {/* Sidebar */}
               <div ref={sidebarRef}
-                className="fixed top-0 right-0 h-screen w-80 bg-white shadow-lg z-50 transition-transform duration-300">
-                <div className="flex justify-between items-center p-6  border-b-2 ">
+                className="fixed top-18 right-0 h-screen w-80 bg-white shadow-lg z-50 transition-transform duration-300">
+                <div className="flex   justify-between items-center p-6  border-b-2 ">
                   <h2 className="text-lg font-semibold">Your Cart</h2>
                   <button onClick={() => setCartSidebarOpen(false)} className="text-xl">×</button>
                 </div>
 
-                <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-250px)] ">
+                <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-280px)] ">
                   {Object.keys(cartItems).length === 0 ? (
                     <p className="text-center py-8">Your cart is empty</p>
                   ) : (
@@ -344,8 +347,8 @@ const Navbar = ({ currency }) => {
                 <div className="p-4 border-t">
                   {Object.keys(cartItems).length > 0 && (
                     <div className="flex justify-between text-sm font-semibold mb-4">
-                      <p>Total</p>
-                      <p>{currency}{getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee}.00</p>
+                      <p>Total (exclude shipping fee)</p>
+                      <p>{currency}{getCartAmount() === 0 ? 0 : getCartAmount()}.00</p>
                     </div>
                   )}
                   <div className="flex flex-col gap-3">

@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from "../context/ShopContext";
 import Title from './Title';
 import ProductItem from './ProductItem';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 
 const BestSeller = () => {
     const { products } = useContext(ShopContext);
@@ -9,9 +11,24 @@ const BestSeller = () => {
 
     useEffect(() => {
         if (!products || products.length === 0) return;
-        const bestProduct = products.filter((item) => item.bestseller); // lowercase!
-        setBestSeller(bestProduct.slice(0, 10));
+        const bestProduct = products.filter((item) => item.bestseller);
+        setBestSeller(bestProduct.slice(0, 10)); // Only first 10 bestsellers
     }, [products]);
+
+    // Split into two groups for top and bottom sliders
+    const topRow = bestSeller.slice(0, Math.ceil(bestSeller.length / 2));
+    const bottomRow = bestSeller.slice(Math.ceil(bestSeller.length / 2));
+
+    const breakpoints = {
+        640: { slidesPerView: 2 },
+        768: { slidesPerView: 3 },
+        1024: { slidesPerView: 4 },
+        1280: { slidesPerView: 4 },
+        1536: { slidesPerView: 6 },
+        1920: { slidesPerView: 7 },
+        2560: { slidesPerView: 8 },
+        3840: { slidesPerView: 10 },
+    };
 
     return (
         <div className='my-10'>
@@ -22,13 +39,47 @@ const BestSeller = () => {
                 </p>
             </div>
 
-            <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6'>
-                {
-                    bestSeller.map((item, index) => (
-                        <ProductItem key={index} id={item._id} image={item.image} name={item.name} price={item.price} />
-                    ))
-                }
-            </div>
+            {/* Top Row Swiper */}
+            <Swiper
+                spaceBetween={20}
+                slidesPerView={2}
+                breakpoints={breakpoints}
+                className="px-4 mb-6"
+            >
+                {topRow.map((item, index) => (
+                    <SwiperSlide key={`top-${index}`}>
+                        <ProductItem
+                            id={item._id}
+                            image={item.image}
+                            name={item.name}
+                            price={item.price}
+                            bestseller={item.bestseller}
+
+                        />
+                    </SwiperSlide>
+                ))}
+            </Swiper>
+
+            {/* Bottom Row Swiper */}
+            <Swiper
+                spaceBetween={20}
+                slidesPerView={2}
+                breakpoints={breakpoints}
+                className="px-4"
+            >
+                {bottomRow.map((item, index) => (
+                    <SwiperSlide key={`bottom-${index}`}>
+                        <ProductItem
+                            id={item._id}
+                            image={item.image}
+                            name={item.name}
+                            price={item.price}
+                            bestseller={item.bestseller}
+
+                        />
+                    </SwiperSlide>
+                ))}
+            </Swiper>
         </div>
     );
 };

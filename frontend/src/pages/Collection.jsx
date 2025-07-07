@@ -13,7 +13,6 @@ const Collection = () => {
   const [subCategory, setSubCategory] = useState([]);
   const [sortOption, setSortOption] = useState("relevant");
 
-  // Toggle category selection
   const toggleCategory = (e) => {
     const value = e.target.value;
     setCategory(prev =>
@@ -21,7 +20,6 @@ const Collection = () => {
     );
   };
 
-  // Toggle subcategory selection
   const toggleSubCategory = (e) => {
     const value = e.target.value;
     setSubCategory(prev =>
@@ -29,32 +27,39 @@ const Collection = () => {
     );
   };
 
-  // Filter and sort products
   const applyFilter = () => {
     let productsCopy = [...products];
 
-    // ✅ Apply search filter
+    // Search filter
     if (showSearch && search) {
       productsCopy = productsCopy.filter(item =>
         item.name?.toLowerCase().includes(search.toLowerCase())
       );
     }
 
+    // Category and subcategory filters
     productsCopy = productsCopy.filter((item) => {
       const categoryMatch = category.length === 0 || category.includes(item.category);
       const subCategoryMatch = subCategory.length === 0 || subCategory.includes(item.subCategory);
       return categoryMatch && subCategoryMatch;
     });
 
-    // Apply sorting
+    // Sorting logic
     if (sortOption === 'low-high') {
       productsCopy.sort((a, b) => a.price - b.price);
     } else if (sortOption === 'high-low') {
       productsCopy.sort((a, b) => b.price - a.price);
+    } else if (sortOption === 'best-seller') {
+      productsCopy.sort((a, b) => {
+        if (a.bestseller === b.bestseller) {
+          return b.date - a.date; // If same, sort by newest
+        }
+        return b.bestseller - a.bestseller; // Bestsellers first
+      });
     }
 
     setFilterProducts(productsCopy);
-    setVisibleCount(8); // Reset visible count on new filter
+    setVisibleCount(8); // Reset count
   };
 
   useEffect(() => {
@@ -65,7 +70,6 @@ const Collection = () => {
     applyFilter();
   }, [category, subCategory, sortOption, search, showSearch, products]);
 
-  // Load more handler
   const handleLoadMore = () => {
     setVisibleCount(prev => prev + 8);
   };
@@ -121,7 +125,7 @@ const Collection = () => {
 
       {/* Product Grid */}
       <div className='flex-1'>
-        <div className='flex justify-between text-base sm:text-2xl mb-4'>
+        <div className='flex justify-between text-base sm:text-2xl mb-4 '>
           <Title text1={'ALL'} text2={'COLLECTIONS'} />
           <select
             className='border-2 border-gray-300 text-sm px-2'
@@ -131,8 +135,14 @@ const Collection = () => {
             <option value="relevant">Sort by: Relevant</option>
             <option value="low-high">Sort by: Low to High</option>
             <option value="high-low">Sort by: High to Low</option>
+            <option value="best-seller">Sort by: Bestseller</option>
           </select>
         </div>
+
+        {/* ✅ Product Count */}
+        <p className="text-sm text-gray-600 mb-2">
+          Showing {Math.min(visibleCount, filterProducts.length)} of {filterProducts.length} products
+        </p>
 
         {/* Product Items */}
         <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6'>
@@ -143,6 +153,8 @@ const Collection = () => {
               id={item._id}
               price={item.price}
               image={item.image}
+              bestseller={item.bestseller}
+              collection={item.collection}
             />
           ))}
         </div>
@@ -152,7 +164,7 @@ const Collection = () => {
           <div className='text-center mt-8'>
             <button
               onClick={handleLoadMore}
-              className='px-6 py-2 border border-black  cursor-pointer text-sm hover:bg-black hover:text-white transition duration-300'
+              className='px-6 py-2 border border-black cursor-pointer text-sm hover:bg-black hover:text-white transition duration-300'
             >
               Load More
             </button>
