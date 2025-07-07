@@ -14,6 +14,7 @@ const Add = ({ token }) => {
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
     const [price, setPrice] = useState("")
+    const [discountPrice, setDiscountPrice] = useState("")
     const [category, setCategory] = useState("Men");
     const [subCategory, setSubCategory] = useState("Topwear")
     const [bestseller, setBestseller] = useState(false)
@@ -29,7 +30,8 @@ const Add = ({ token }) => {
 
             formData.append("name", name.trim());
             formData.append("description", description.trim());
-            formData.append("price", price)
+            formData.append("price", price);
+            formData.append("discountPrice", discountPrice);
             formData.append("category", category)
             formData.append("subCategory", subCategory)
             formData.append("bestseller", bestseller)
@@ -54,6 +56,8 @@ const Add = ({ token }) => {
                 setImage3()
                 setImage4()
                 setPrice()
+                setDiscountPrice();
+
             } else {
                 toast.error(response.data.message || "Something went wrong");
             }
@@ -125,6 +129,10 @@ const Add = ({ token }) => {
                     <div>
                         <p className='capitalize mb-2'>product price</p>
                         <input onChange={(e) => setPrice(e.target.value)} value={price} type='number' placeholder='price' className='w-full px-3 py-2 sm:w-[120px]' />
+                    </div>
+                    <div>
+                        <p className='capitalize mb-2'>discount price</p>
+                        <input onChange={(e) => setDiscountPrice(e.target.value)} value={discountPrice} type='number' placeholder='discountPrice' className='w-full px-3 py-2 sm:w-[120px]' />
                     </div>
 
                 </div>

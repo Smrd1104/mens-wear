@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Heart, HeartOff } from "lucide-react";
 import { assets } from "../assets/frontend_assets/assets";
 
-const ProductItem = ({ id, image, name, price, bestseller, collection }) => {
+const ProductItem = ({ id, image, name, price, bestseller, collection ,discountPrice}) => {
   const { currency, wishlist, addToWishlist, removeFromWishlist } = useContext(ShopContext);
 
   const isWishlisted = wishlist.includes(id);
@@ -67,10 +67,16 @@ const ProductItem = ({ id, image, name, price, bestseller, collection }) => {
           <img src={assets.star_dull_icon} className="w-3.5" alt="" />
           <p className="pl-2">(122)</p>
         </div>
-        <p className="text-sm font-medium">
-          {currency}
-          {price}
-        </p>
+        <div className="flex flex-row gap-5">
+          <p className="text-sm font-medium">
+            {currency}
+            {price}
+          </p>
+          <p className="text-sm font-medium line-through">
+            {currency}
+            {discountPrice}
+          </p>
+        </div>
       </Link>
     </div>
   );

@@ -11,22 +11,29 @@ const addProduct = async (req, res) => {
   try {
     const {
       name,
-      'description ': descriptionWithSpace,
+      description,
       price,
+      discountPrice,
       category,
-      'subCategory ': subCategoryWithSpace,
+      subCategory,
       sizes,
       bestseller,
     } = req.body;
 
-    const description = descriptionWithSpace || req.body.description;
-    const subCategory = subCategoryWithSpace || req.body.subCategory;
+    // const description = descriptionWithSpace || req.body.description;
+    // const subCategory = subCategoryWithSpace || req.body.subCategory;
 
-    if (!name || !description || !price || !category || !subCategory || !sizes) {
+    if (!name || !description || !price || !discountPrice || !category || !subCategory || !sizes) {
       return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
     const numericPrice = Number(price);
+    const discountNumericPrice = Number(discountPrice);
+
+    if (isNaN(numericPrice) || isNaN(discountNumericPrice)) {
+      return res.status(400).json({ success: false, message: "Price values must be valid numbers." });
+    }
+
     const isBestseller = bestseller === "true";
     const sizesArray = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
 
@@ -47,6 +54,7 @@ const addProduct = async (req, res) => {
       name,
       description,
       price: numericPrice,
+      discountPrice: discountNumericPrice,
       image: images,
       category,
       subCategory,

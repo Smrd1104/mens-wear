@@ -52,6 +52,7 @@ const LatestCollection = () => {
                             image={item.image}
                             name={item.name}
                             price={item.price}
+                            discountPrice={item.discountPrice}
                             collection={item.collection}
 
                         />
@@ -73,6 +74,7 @@ const LatestCollection = () => {
                             image={item.image}
                             name={item.name}
                             price={item.price}
+                            discountPrice={item.discountPrice}
                             collection={item.collection}
 
                         />
