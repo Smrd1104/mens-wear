@@ -13,6 +13,8 @@ const Product = () => {
     const [image, setImage] = useState('')
     const [size, setSize] = useState('')
     const [cartSidebarOpen, setCartSidebarOpen] = useState(false);
+    const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+
 
     const sidebarRef = useRef(null);
 
@@ -77,17 +79,28 @@ const Product = () => {
                         <img src={assets.star_dull_icon} className="w-3.5" alt="" />
                         <p className="pl-2">(122)</p>
                     </div>
-                    <p className="mt-5 text-3xl font-medium">{currency}{productData.price}</p>
+                    <div className="flex flex-row gap-3">
+                        <p className="mt-5 text-3xl font-medium text-red-600">{currency}{productData.price}.00</p>
+                        <p className="mt-5 text-3xl font-medium line-through">{currency}{productData.discountPrice}.00</p>
+                    </div>
                     <p className="mt-5 text-gray-500 md:w-4/5">{productData.description}</p>
                     <div className="flex flex-col gap-4 my-8">
                         <p>Select Size</p>
                         <div className="flex gap-2">
-                            {productData.sizes.map((item, index) => (
-                                <button onClick={() => setSize(item)} className={` cursor-pointer px-4 py-2 bg-gray-100 border ${item === size ? "bg-orange-500 text-white" : ""}`} key={index}>
-                                    {item}
-                                </button>
-                            ))}
+                            {[...new Set(productData.sizes)] // ✅ removes duplicates
+                                .sort((a, b) => sizeOrder.indexOf(a) - sizeOrder.indexOf(b)) // ✅ sort properly
+                                .map((item, index) => (
+                                    <button
+                                        onClick={() => setSize(item)}
+                                        className={`cursor-pointer px-4 py-2 bg-gray-100 border ${item === size ? "bg-orange-500 text-white" : ""
+                                            }`}
+                                        key={index}
+                                    >
+                                        {item}
+                                    </button>
+                                ))}
                         </div>
+
 
                     </div>
                     <button onClick={() => {

@@ -54,6 +54,8 @@ const BestSeller = () => {
                             name={item.name}
                             price={item.price}
                             bestseller={item.bestseller}
+                            discountPrice={item.discountPrice}
+
 
                         />
                     </SwiperSlide>
@@ -75,6 +77,7 @@ const BestSeller = () => {
                             name={item.name}
                             price={item.price}
                             bestseller={item.bestseller}
+                            discountPrice={item.discountPrice}
 
                         />
                     </SwiperSlide>

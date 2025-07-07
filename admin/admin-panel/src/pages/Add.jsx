@@ -15,8 +15,8 @@ const Add = ({ token }) => {
     const [description, setDescription] = useState("")
     const [price, setPrice] = useState("")
     const [discountPrice, setDiscountPrice] = useState("")
-    const [category, setCategory] = useState("Men");
-    const [subCategory, setSubCategory] = useState("Topwear")
+    const [category, setCategory] = useState("");
+    const [subCategory, setSubCategory] = useState("")
     const [bestseller, setBestseller] = useState(false)
     const [sizes, setSizes] = useState([])
 
@@ -112,6 +112,7 @@ const Add = ({ token }) => {
                     <div className=''>
                         <p className='capitalize mb-2'>product category</p>
                         <select onChange={(e) => setCategory(e.target.value)} value={category} className='w-full px-3 py-2'>
+                            <option value="">Select Category</option>
                             <option value="Men">Men</option>
                             <option value="Women">Women</option>
                             <option value="Kids">Kids</option>
@@ -121,21 +122,26 @@ const Add = ({ token }) => {
                     <div>
                         <p className='capitalize mb-2'>product Subcategory</p>
                         <select onChange={(e) => setSubCategory(e.target.value)} value={subCategory} className='w-full px-3 py-2'>
+                            <option value="">Select Subcategory</option>
                             <option value="Topwear">Topwear</option>
                             <option value="Bottomwear">Bottomwear</option>
                             <option value="Winterwear">Winterwear</option>
                         </select>
                     </div>
+
+                </div>
+                <div className='flex flex-col sm:flex-row gap-2 w-full sm:gap-8'>
+
                     <div>
                         <p className='capitalize mb-2'>product price</p>
-                        <input onChange={(e) => setPrice(e.target.value)} value={price} type='number' placeholder='price' className='w-full px-3 py-2 sm:w-[120px]' />
+                        <input onChange={(e) => setPrice(e.target.value)} value={price} type='number' placeholder='price' className='w-full px-3 py-2 sm:w-[160px]' />
                     </div>
                     <div>
                         <p className='capitalize mb-2'>discount price</p>
-                        <input onChange={(e) => setDiscountPrice(e.target.value)} value={discountPrice} type='number' placeholder='discountPrice' className='w-full px-3 py-2 sm:w-[120px]' />
+                        <input onChange={(e) => setDiscountPrice(e.target.value)} value={discountPrice} type='number' placeholder='discountPrice' className='w-full px-3 py-2 sm:w-[160px]' />
                     </div>
-
                 </div>
+
 
                 <div>
                     <p className='capitalize mb-2'>product sizes</p>
