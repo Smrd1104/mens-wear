@@ -39,23 +39,23 @@ const ProductItem = ({ id, image, name, price, bestseller, collection, discountP
 
 
       {/* Wishlist Icon */}
-      <button
+      {/* <button
         onClick={handleWishlistToggle}
-        className="absolute top-2 right-2 z-10 bg-white p-1 rounded-full shadow hover:text-red-500 transition"
+        className="absolute top-2 md:right-2 right-2 z-10 bg-white p-1 rounded-full shadow hover:text-red-500 transition"
       >
         {isWishlisted ? (
           <Heart className="text-red-600" size={18} />
         ) : (
           <HeartOff className="text-gray-400 group-hover:text-red-600" size={18} />
         )}
-      </button>
+      </button> */}
 
       <Link to={`/product/${id}`} className="text-gray-700 cursor-pointer block">
-        <div className="overflow-hidden rounded">
+        <div className="overflow-hidden ">
           <img
             src={displayImage}
             alt={name}
-            className="hover:scale-110 transition-all ease-in-out duration-300"
+            className="hover:scale-110 w-[250px] md:h-[350px] h-[250px]  transition-all ease-in-out duration-300"
           />
         </div>
         <p className="pt-3 pb-1 text-sm">{name}</p>
@@ -74,7 +74,7 @@ const ProductItem = ({ id, image, name, price, bestseller, collection, discountP
           </p>
           <p className="text-sm font-medium line-through">
             {currency}
-            {discountPrice}.00 
+            {discountPrice}.00
           </p>
         </div>
       </Link>

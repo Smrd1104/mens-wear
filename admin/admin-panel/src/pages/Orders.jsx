@@ -8,8 +8,49 @@ const Orders = ({ token }) => {
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
     const [currentPage, setCurrentPage] = useState(1)
+    const [colorMap, setColorMap] = useState({}) // Store color mappings
     const ordersPerPage = 5
     const statusOptions = ['Order Placed', 'Processing', 'Out for Delivery', 'Delivered', 'Cancelled']
+
+    // Fetch color mappings from backend
+    const fetchColorMappings = async () => {
+        try {
+            const response = await axios.get(`${backendUrl}/api/colors`)
+            if (response.data.success) {
+                setColorMap(response.data.colors)
+            }
+        } catch (error) {
+            console.error("Error fetching color mappings:", error)
+            // Fallback to default colors if API fails
+            setColorMap({
+                '#25ad10': 'white',
+                '#000000': 'Black',
+                '#FFFFFF': 'White',
+                '#FF0000': 'Red',
+                '#0000FF': 'Blue',
+                '#00FF00': 'Green'
+            })
+        }
+    }
+
+    const getColorName = (hexColor) => {
+        if (!hexColor) return ''
+        const cleanHex = hexColor.replace('|', '').toUpperCase()
+        return colorMap[cleanHex] || cleanHex
+    }
+
+    const extractSizeAndColor = (variantString) => {
+        if (!variantString) return { size: '', color: '' }
+
+        const parts = variantString.split('|')
+        if (parts.length === 1) return { size: parts[0], color: '' }
+
+        return {
+            size: parts[0],
+            color: getColorName(parts[1]),
+            hexColor: parts[1]
+        }
+    }
 
     const fetchAllOrders = async () => {
         if (!token) {
@@ -24,7 +65,15 @@ const Orders = ({ token }) => {
                 { headers: { token } }
             )
             if (response.data.success) {
-                setOrders(response.data.orders || [])
+                // Process orders to extract color information
+                const processedOrders = response.data.orders.map(order => ({
+                    ...order,
+                    items: order.items.map(item => ({
+                        ...item,
+                        variantInfo: extractSizeAndColor(item.size)
+                    }))
+                }))
+                setOrders(processedOrders || [])
             } else {
                 toast.error(response.data.message)
             }
@@ -59,6 +108,7 @@ const Orders = ({ token }) => {
     }
 
     useEffect(() => {
+        fetchColorMappings()
         fetchAllOrders()
     }, [token])
 
@@ -95,8 +145,6 @@ const Orders = ({ token }) => {
                                         <p className="text-xs md:text-sm text-gray-600 break-all">{order._id}</p>
                                     </div>
 
-
-
                                     <div className="">
                                         <p className="font-semibold text-sm md:text-base">Amount:</p>
                                         <p className="text-sm md:text-base font-medium">
@@ -109,34 +157,44 @@ const Orders = ({ token }) => {
                                         <p className="text-xs md:text-sm text-gray-600">
                                             {new Date(order.date).toUTCString()}
                                         </p>
-
                                         <div>
                                             <p className="text-xs md:text-sm text-gray-600">Method: {order.paymentMethod}</p>
                                             <p className="text-xs md:text-sm text-gray-600">Payment: {order.payment ? "Done" : "Pending"}</p>
-
                                         </div>
                                     </div>
-
-
                                 </div>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-3">
                                     <div className='flex flex-col'>
                                         <h4 className="font-medium text-sm md:text-base">Items: {order.items.length}</h4>
-                                        <div className=" mt-1">
+                                        <div className="mt-1">
                                             {order.items?.map((item) => (
                                                 <div
                                                     key={`${order._id}-${item._id || item.name}`}
-                                                    className="flex items-start"
+                                                    className="flex items-start mb-2"
                                                 >
                                                     <span className="text-xs md:text-sm bg-gray-100 rounded-full px-2 py-1 mr-2">
                                                         {item.quantity}x
                                                     </span>
                                                     <div>
                                                         <p className="text-xs md:text-sm">{item.name}</p>
-                                                        {item.size && (
-                                                            <p className="text-xs text-gray-500">Size: {item.size}</p>
-                                                        )}
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {item.variantInfo.size && (
+                                                                <p className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                                                    Size: {item.variantInfo.size}
+                                                                </p>
+                                                            )}
+                                                            {item.variantInfo.color && (
+                                                                <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                                                    {/* Color: {item.variantInfo.color} */} Color:
+                                                                    <div
+                                                                        className="w-3 h-3 rounded-full border"
+                                                                        style={{ backgroundColor: item.variantInfo.hexColor }}
+                                                                        title={item.variantInfo.color}
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
@@ -157,7 +215,6 @@ const Orders = ({ token }) => {
                                     </div>
 
                                     <div className='flex flex-col gap-5'>
-
                                         <div>
                                             <p className="font-semibold text-sm md:text-base">Status:</p>
                                             <select
@@ -177,11 +234,8 @@ const Orders = ({ token }) => {
                                                 ))}
                                             </select>
                                         </div>
-
-
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     ))

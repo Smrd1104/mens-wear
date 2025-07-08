@@ -30,8 +30,8 @@ import image15 from "../assets/hero/image (15).jpg";
 
 const heroData = [
     { id: 1, title: "spring edit", subtitle: "our best sellers", cta: "Shop now", image: image8, type: "image" },
-    { id: 2, title: "influencer picks", subtitle: "trending now", cta: "Explore", image: image13, type: "image" },
-    { id: 3, title: "earth conscious", subtitle: "eco-friendly fits", cta: "Shop green", image: image10, type: "image" },
+    { id: 2, title: "Winter Season", subtitle: "trending now", cta: "Explore", image: image13, type: "image" },
+    { id: 3, title: "Natural One", subtitle: "eco-friendly fits", cta: "Shop green", image: image10, type: "image" },
     { id: 4, title: "limited drop", subtitle: "48 hours only", cta: "Grab Fast", image: image12, type: "image" },
     { id: 5, title: "festival edit", subtitle: "vibrant & bold", cta: "Discover now", image: image3, type: "image" },
     { id: 6, title: "summer Trends", subtitle: "up to 60% off", cta: "Don't Miss", image: image2, type: "image" },
