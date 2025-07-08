@@ -6,6 +6,10 @@ import { toast } from 'react-toastify';
 
 const Add = ({ token }) => {
 
+    const [colors, setColors] = useState([]);
+    const [newColor, setNewColor] = useState("#000000");
+
+
     const [image1, setImage1] = useState(false)
     const [image2, setImage2] = useState(false)
     const [image3, setImage3] = useState(false)
@@ -36,6 +40,8 @@ const Add = ({ token }) => {
             formData.append("subCategory", subCategory)
             formData.append("bestseller", bestseller)
             formData.append("sizes", JSON.stringify(sizes))
+            formData.append("colors", JSON.stringify(colors));
+
 
 
             image1 && formData.append("image1", image1)
@@ -57,6 +63,8 @@ const Add = ({ token }) => {
                 setImage4()
                 setPrice()
                 setDiscountPrice();
+                setColors([]);
+
 
             } else {
                 toast.error(response.data.message || "Something went wrong");
@@ -168,9 +176,47 @@ const Add = ({ token }) => {
                     <input onChange={() => setBestseller(prev => !prev)} checked={bestseller} type='checkbox' id='bestseller' />
                     <label className='cursor-pointer' htmlFor='bestseller'> Add to bestseller</label>
                 </div>
+                {/* <button className='w-28 py-3 mt-4 bg-black text-white cursor-pointer' type='submit'>Add</button> */}
+
+                <div className='mt-4 w-full'>
+                    <p className='capitalize mb-2'>product color varieties</p>
+                    <div className='flex gap-3 items-center'>
+                        <input
+                            type="color"
+                            value={newColor}
+                            onChange={(e) => setNewColor(e.target.value)}
+                            className='w-10 h-10 border cursor-pointer'
+                        />
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (!colors.includes(newColor)) {
+                                    setColors(prev => [...prev, newColor]);
+                                }
+                            }}
+                            className='px-3 py-1 bg-black text-white rounded'
+                        >
+                            Add Color
+                        </button>
+                    </div>
+
+                    {/* Show selected colors */}
+                    <div className='flex gap-2 mt-2 flex-wrap'>
+                        {colors.map((color, index) => (
+                            <div
+                                key={index}
+                                style={{ backgroundColor: color }}
+                                className='w-8 h-8 border-2 rounded cursor-pointer relative'
+                                title={color}
+                                onClick={() => setColors(prev => prev.filter(c => c !== color))}
+                            >
+                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 cursor-pointer">x</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 <button className='w-28 py-3 mt-4 bg-black text-white cursor-pointer' type='submit'>Add</button>
-
-
 
 
             </div>

@@ -18,6 +18,7 @@ const addProduct = async (req, res) => {
       subCategory,
       sizes,
       bestseller,
+      colors
     } = req.body;
 
     // const description = descriptionWithSpace || req.body.description;
@@ -36,6 +37,16 @@ const addProduct = async (req, res) => {
 
     const isBestseller = bestseller === "true";
     const sizesArray = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
+    const colorsArray = typeof colors === "string" ? JSON.parse(colors) : colors;
+
+
+    const validHexColor = /^#([0-9A-F]{3}){1,2}$/i;
+    const isColorsValid = Array.isArray(colorsArray) && colorsArray.every(color => validHexColor.test(color));
+
+    if (!isColorsValid) {
+      return res.status(400).json({ success: false, message: "Invalid color format" });
+    }
+
 
     // ✅ Upload images to Cloudinary
     const images = [];
@@ -59,6 +70,7 @@ const addProduct = async (req, res) => {
       category,
       subCategory,
       sizes: sizesArray,
+      colors: colorsArray,
       bestseller: isBestseller,
       date: Date.now(),
     });
