@@ -3,6 +3,8 @@ import Title from "../components/Title"
 import NewsLetter from "../components/NewsLetter"
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import img from "../assets/frontend_assets/contact.jpeg"
+
 const Contact = () => {
     const [breadcrumbs] = useState([ // Removed setBreadcrumbs since we're not changing it
         { name: "Home", path: "/" },
@@ -44,7 +46,7 @@ const Contact = () => {
             </div>
 
             <div className="my-10 flex flex-col md:flex-row justify-center gap-10 mb-28">
-                <img src={assets.contact_img} alt="" className=" w-full md:max-w-[480px]" />
+                <img src={img} alt="" className=" w-full md:max-w-[480px]" />
                 <div className="flex flex-col justify-center items-start gap-6">
                     <p className="fond-semibold text-xl text-gray-600">Our Store</p>
                     <p className="text-gray-500">5252,street <br /> Chennai, TamilNadu</p>
