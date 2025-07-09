@@ -54,6 +54,8 @@ const LatestCollection = () => {
                             price={item.price}
                             discountPrice={item.discountPrice}
                             collection={item.collection}
+                            latest={item.latest}
+
 
                         />
                     </SwiperSlide>
@@ -76,6 +78,8 @@ const LatestCollection = () => {
                             price={item.price}
                             discountPrice={item.discountPrice}
                             collection={item.collection}
+                            latest={item.latest}
+
 
                         />
                     </SwiperSlide>

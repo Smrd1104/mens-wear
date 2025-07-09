@@ -70,7 +70,7 @@ const Product = () => {
             setBreadcrumbs([
                 { name: "Home", path: "/" },
                 { name: productData.category, path: null },
-                { name: productData.subCategory,path: null },
+                { name: productData.subCategory, path: null },
                 { name: productData.name, path: null } // Current page
             ]);
 

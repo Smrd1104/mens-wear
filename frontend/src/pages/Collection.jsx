@@ -205,6 +205,7 @@ const Collection = () => {
                 bestseller={item.bestseller}
                 collection={item.collection}
                 discountPrice={item.discountPrice}
+                latest={item.latest}
               />
             ))}
           </div>

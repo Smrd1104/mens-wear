@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Heart, HeartOff } from "lucide-react";
 import { assets } from "../assets/frontend_assets/assets";
 
-const ProductItem = ({ id, image, name, price, bestseller, collection, discountPrice }) => {
+const ProductItem = ({ id, image, name, price, bestseller, latest, discountPrice }) => {
   const { currency, wishlist, addToWishlist, removeFromWishlist } = useContext(ShopContext);
 
   const isWishlisted = wishlist.includes(id);
@@ -38,9 +38,9 @@ const ProductItem = ({ id, image, name, price, bestseller, collection, discountP
       )}
 
       {/* New Tag */}
-      {collection === "latest" && (
-        <span className="absolute top-2 left-2 translate-x-full ml-2 z-10 bg-green-600 text-white text-xs font-semibold px-2 py-1 rounded shadow">
-          New
+      {latest && (
+        <span className="absolute top-2 left-2  z-10 bg-gray-100 text-black text-xs font-semibold px-2 py-1 rounded shadow">
+          Latest
         </span>
       )}
 
