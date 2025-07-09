@@ -32,14 +32,14 @@ const ProductItem = ({ id, image, name, price, bestseller, latest, discountPrice
     <div className="relative group">
       {/* Best Seller Tag */}
       {bestseller && (
-        <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded shadow">
+        <span className="absolute top-2 left-2 z-10 bg-red-500/70 text-white text-xs font-semibold px-2 py-1 rounded shadow">
           Best Seller
         </span>
       )}
 
       {/* New Tag */}
       {latest && (
-        <span className="absolute top-2 left-2  z-10 bg-gray-100 text-black text-xs font-semibold px-2 py-1 rounded shadow">
+        <span className="absolute top-2 left-2  z-10 bg-black/70 text-white text-xs font-semibold px-2 py-1 rounded shadow">
           Latest
         </span>
       )}
