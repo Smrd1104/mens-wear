@@ -88,6 +88,73 @@ const addProduct = async (req, res) => {
 };
 
 
+const editProduct = async (req, res) => {
+  try {
+    const {
+      id,
+      name,
+      description,
+      price,
+      discountPrice,
+      category,
+      subCategory,
+      sizes,
+      bestseller,
+      latest,
+      colors
+    } = req.body;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid Product ID" });
+    }
+
+    const numericPrice = Number(price);
+    const discountNumericPrice = Number(discountPrice);
+    const sizesArray = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
+    const colorsArray = typeof colors === "string" ? JSON.parse(colors) : colors;
+
+    // Upload new images if available
+    const images = [];
+
+    for (let i = 1; i <= 4; i++) {
+      const file = req.files?.[`image${i}`]?.[0];
+      if (file) {
+        const uploaded = await cloudinary.uploader.upload(file.path, {
+          folder: "mens-wear",
+        });
+        images.push(uploaded.secure_url);
+      }
+    }
+
+    const updatedData = {
+      name,
+      description,
+      price: numericPrice,
+      discountPrice: discountNumericPrice,
+      category,
+      subCategory,
+      sizes: sizesArray,
+      colors: colorsArray,
+      bestseller: bestseller === "true",
+      latest: latest === "true",
+    };
+
+    // Only update images if new ones were uploaded
+    if (images.length > 0) {
+      updatedData.image = images;
+    }
+
+    const updatedProduct = await productModel.findByIdAndUpdate(id, updatedData, { new: true });
+
+    res.json({ success: true, message: "Product updated successfully", product: updatedProduct });
+  } catch (error) {
+    console.error("❌ Error editing product:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+
 // list product 
 
 const listProducts = async (req, res) => {
