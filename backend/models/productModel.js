@@ -10,6 +10,7 @@ const productSchema = new mongoose.Schema({
     subCategory: { type: String, required: true },
     sizes: { type: Array, required: true },
     bestseller: { type: Boolean },
+latest: { type: Boolean, default: false },
     date: { type: Number, required: true },
     colors: {
         type: [String], // Array of color codes like "#ffffff"

@@ -18,6 +18,7 @@ const addProduct = async (req, res) => {
       subCategory,
       sizes,
       bestseller,
+      latest,
       colors
     } = req.body;
 
@@ -36,6 +37,7 @@ const addProduct = async (req, res) => {
     }
 
     const isBestseller = bestseller === "true";
+    const isLatest = latest === "true"
     const sizesArray = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
     const colorsArray = typeof colors === "string" ? JSON.parse(colors) : colors;
 
@@ -72,6 +74,7 @@ const addProduct = async (req, res) => {
       sizes: sizesArray,
       colors: colorsArray,
       bestseller: isBestseller,
+      latest: isLatest,
       date: Date.now(),
     });
 

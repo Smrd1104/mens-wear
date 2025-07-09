@@ -22,6 +22,7 @@ const Add = ({ token }) => {
     const [category, setCategory] = useState("");
     const [subCategory, setSubCategory] = useState("")
     const [bestseller, setBestseller] = useState(false)
+    const [latest, setLatest] = useState(false)
     const [sizes, setSizes] = useState([])
 
 
@@ -39,6 +40,8 @@ const Add = ({ token }) => {
             formData.append("category", category)
             formData.append("subCategory", subCategory)
             formData.append("bestseller", bestseller)
+            formData.append("latest", latest)
+
             formData.append("sizes", JSON.stringify(sizes))
             formData.append("colors", JSON.stringify(colors));
 
@@ -64,6 +67,7 @@ const Add = ({ token }) => {
                 setPrice()
                 setDiscountPrice();
                 setColors([]);
+                setLatest()
 
 
             } else {
@@ -171,10 +175,15 @@ const Add = ({ token }) => {
                         </div>
                     </div>
                 </div>
-
-                <div className='flex gap-2 mt-2'>
-                    <input onChange={() => setBestseller(prev => !prev)} checked={bestseller} type='checkbox' id='bestseller' />
-                    <label className='cursor-pointer' htmlFor='bestseller'> Add to bestseller</label>
+                <div className='flex  gap-5'>
+                    <div className='flex gap-2 mt-2'>
+                        <input onChange={() => setBestseller(prev => !prev)} checked={bestseller} type='checkbox' id='bestseller' />
+                        <label className='cursor-pointer' htmlFor='bestseller'> Add to bestseller</label>
+                    </div>
+                    <div className='flex gap-2 mt-2'>
+                        <input onChange={() => setLatest(prev => !prev)} checked={latest} type='checkbox' id='latest' />
+                        <label className='cursor-pointer' htmlFor='bestseller'> Add to latest</label>
+                    </div>
                 </div>
                 {/* <button className='w-28 py-3 mt-4 bg-black text-white cursor-pointer' type='submit'>Add</button> */}
 
