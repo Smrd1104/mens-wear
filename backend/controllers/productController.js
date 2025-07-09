@@ -222,4 +222,4 @@ const singleProduct = async (req, res) => {
 }
 
 
-export { addProduct, singleProduct, removeProduct, listProducts }
+export { addProduct, singleProduct,editProduct, removeProduct, listProducts }
