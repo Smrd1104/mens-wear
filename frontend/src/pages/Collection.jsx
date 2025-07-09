@@ -3,8 +3,11 @@ import { ShopContext } from "../context/ShopContext";
 import { assets } from '../assets/frontend_assets/assets';
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import { Link } from 'react-router-dom';
 
 const Collection = () => {
+  const [breadcrumbs, setBreadcrumbs] = useState([]);
+
   const { products, search, showSearch } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
@@ -74,103 +77,150 @@ const Collection = () => {
     setVisibleCount(prev => prev + 8);
   };
 
+
+  useEffect(() => {
+
+    setBreadcrumbs([
+      { name: "Home", path: "/" },
+      { name: "Collection", path: "/collection" },
+
+    ]);
+
+
+
+  }, []);
+
   return (
-    <div className='flex flex-col sm:flex-row gap-1 sm:gap-10 pt-22 border-t'>
-      {/* Filter Sidebar */}
-      <div className='min-w-60'>
-        <p
-          className='my-2 text-xl flex items-center uppercase cursor-pointer gap-2'
-          onClick={() => setShowFilter(!showFilter)}
-        >
-          filters
-          <img
-            src={assets.dropdown_icon}
-            className={`h-3 sm:hidden ${showFilter ? "rotate-90" : ""}`}
-            alt=''
-          />
-        </p>
 
-        {/* Category Filter */}
-        <div className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? "" : "hidden"}`}>
-          <p className='uppercase mb-3 text-sm font-medium'>categories</p>
-          <div className='flex flex-col gap-2 text-sm font-light text-gray-700'>
-            <label className='flex gap-2'>
-              <input className='w-3' type='checkbox' value='Men' onChange={toggleCategory} />Men
-            </label>
-            <label className='flex gap-2'>
-              <input className='w-3' type='checkbox' value='Women' onChange={toggleCategory} />Women
-            </label>
-            <label className='flex gap-2'>
-              <input className='w-3' type='checkbox' value='Kids' onChange={toggleCategory} />Kids
-            </label>
+    <div className=''>
+
+      <div className='flex flex-col sm:flex-row gap-1 sm:gap-10  border-t pt-22'>
+
+
+        {/* Filter Sidebar */}
+        <div className='min-w-60'>
+          {/* Breadcrumb Navigation */}
+          <div className="container mx-auto  sm:px-6 flex flex-col md:flex-row gap-6 sm:gap-10 mb-5">
+            <nav className="flex" aria-label="Breadcrumb">
+              <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                {breadcrumbs.map((crumb, index) => (
+                  <li key={index} className="inline-flex items-center">
+                    {index > 0 && (
+                      <svg className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4" />
+                      </svg>
+                    )}
+                    {crumb.path ? (
+                      <Link
+                        to={crumb.path}
+                        className="inline-flex items-center text-[1rem] font-medium text-gray-600 hover:text-black hover:underline"
+                      >
+                        {crumb.name}
+                      </Link>
+                    ) : (
+                      <span className="text-[1rem] font-medium text-gray-900 truncate max-w-[120px] md:max-w-none">
+                        {crumb.name}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </nav>
           </div>
-        </div>
-
-        {/* Subcategory Filter */}
-        <div className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? "" : "hidden"}`}>
-          <p className='uppercase mb-3 text-sm font-medium'>Type</p>
-          <div className='flex flex-col gap-2 text-sm font-light text-gray-700'>
-            <label className='flex gap-2'>
-              <input className='w-3' type='checkbox' value='Topwear' onChange={toggleSubCategory} />Top Wear
-            </label>
-            <label className='flex gap-2'>
-              <input className='w-3' type='checkbox' value='Bottomwear' onChange={toggleSubCategory} />Bottom Wear
-            </label>
-            <label className='flex gap-2'>
-              <input className='w-3' type='checkbox' value='Winterwear' onChange={toggleSubCategory} />Winter Wear
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {/* Product Grid */}
-      <div className='flex-1'>
-        <div className='flex justify-between text-base sm:text-2xl mb-4 '>
-          <Title text1={'ALL'} text2={'COLLECTIONS'} />
-          <select
-            className='border-2 border-gray-300 text-sm px-2'
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
+          <p
+            className='my-2 text-xl flex items-center uppercase cursor-pointer gap-2'
+            onClick={() => setShowFilter(!showFilter)}
           >
-            <option value="relevant">Sort by: Relevant</option>
-            <option value="low-high">Sort by: Low to High</option>
-            <option value="high-low">Sort by: High to Low</option>
-            <option value="best-seller">Sort by: Bestseller</option>
-          </select>
-        </div>
-
-        {/* ✅ Product Count */}
-        <p className="text-sm text-gray-600 mb-2">
-          Showing {Math.min(visibleCount, filterProducts.length)} of {filterProducts.length} products
-        </p>
-
-        {/* Product Items */}
-        <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6'>
-          {filterProducts.slice(0, visibleCount).map((item, index) => (
-            <ProductItem
-              key={index}
-              name={item.name}
-              id={item._id}
-              price={item.price}
-              image={item.image}
-              bestseller={item.bestseller}
-              collection={item.collection}
-              discountPrice={item.discountPrice}
+            filters
+            <img
+              src={assets.dropdown_icon}
+              className={`h-3 sm:hidden ${showFilter ? "rotate-90" : ""}`}
+              alt=''
             />
-          ))}
+          </p>
+
+          {/* Category Filter */}
+          <div className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? "" : "hidden"}`}>
+            <p className='uppercase mb-3 text-sm font-medium'>categories</p>
+            <div className='flex flex-col gap-2 text-sm font-light text-gray-700'>
+              <label className='flex gap-2'>
+                <input className='w-3' type='checkbox' value='Men' onChange={toggleCategory} />Men
+              </label>
+              <label className='flex gap-2'>
+                <input className='w-3' type='checkbox' value='Women' onChange={toggleCategory} />Women
+              </label>
+              <label className='flex gap-2'>
+                <input className='w-3' type='checkbox' value='Kids' onChange={toggleCategory} />Kids
+              </label>
+            </div>
+          </div>
+
+          {/* Subcategory Filter */}
+          <div className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? "" : "hidden"}`}>
+            <p className='uppercase mb-3 text-sm font-medium'>Type</p>
+            <div className='flex flex-col gap-2 text-sm font-light text-gray-700'>
+              <label className='flex gap-2'>
+                <input className='w-3' type='checkbox' value='Topwear' onChange={toggleSubCategory} />Top Wear
+              </label>
+              <label className='flex gap-2'>
+                <input className='w-3' type='checkbox' value='Bottomwear' onChange={toggleSubCategory} />Bottom Wear
+              </label>
+              <label className='flex gap-2'>
+                <input className='w-3' type='checkbox' value='Winterwear' onChange={toggleSubCategory} />Winter Wear
+              </label>
+            </div>
+          </div>
         </div>
 
-        {/* Load More Button */}
-        {visibleCount < filterProducts.length && (
-          <div className='text-center mt-8'>
-            <button
-              onClick={handleLoadMore}
-              className='px-6 py-2 border border-black cursor-pointer text-sm hover:bg-black hover:text-white transition duration-300'
+        {/* Product Grid */}
+        <div className='flex-1 sm:mt-12 mt-1'>
+          <div className='flex justify-between text-base sm:text-2xl mb-4 '>
+            <Title text1={'ALL'} text2={'COLLECTIONS'} />
+            <select
+              className='border-2 border-gray-300 text-sm px-2'
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
             >
-              Load More
-            </button>
+              <option value="relevant">Sort by: Relevant</option>
+              <option value="low-high">Sort by: Low to High</option>
+              <option value="high-low">Sort by: High to Low</option>
+              <option value="best-seller">Sort by: Bestseller</option>
+            </select>
           </div>
-        )}
+
+          {/* ✅ Product Count */}
+          <p className="text-sm text-gray-600 mb-2">
+            Showing {Math.min(visibleCount, filterProducts.length)} of {filterProducts.length} products
+          </p>
+
+          {/* Product Items */}
+          <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6'>
+            {filterProducts.slice(0, visibleCount).map((item, index) => (
+              <ProductItem
+                key={index}
+                name={item.name}
+                id={item._id}
+                price={item.price}
+                image={item.image}
+                bestseller={item.bestseller}
+                collection={item.collection}
+                discountPrice={item.discountPrice}
+              />
+            ))}
+          </div>
+
+          {/* Load More Button */}
+          {visibleCount < filterProducts.length && (
+            <div className='text-center mt-8'>
+              <button
+                onClick={handleLoadMore}
+                className='px-6 py-2 border border-black cursor-pointer text-sm hover:bg-black hover:text-white transition duration-300'
+              >
+                Load More
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

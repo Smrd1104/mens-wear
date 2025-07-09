@@ -6,10 +6,10 @@ import { useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 
 
-const Navbar = ({ currency }) => {
+const Navbar = () => {
 
   const [visible, setVisible] = useState(false)
-  const { updateQuantity, setShowSearch, getCartCount, getCartAmount, delivery_fee, products, navigate, token, setToken, setCartItems, cartItems } = useContext(ShopContext)
+  const { updateQuantity, setShowSearch, getCartCount, getCartAmount, currency, products, navigate, token, setToken, setCartItems, cartItems } = useContext(ShopContext)
   const [accountOpen, setAccountOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
@@ -312,29 +312,39 @@ const Navbar = ({ currency }) => {
                             </div>
                             <div className="flex justify-between items-center mt-1">
                               <p className="text-sm font-semibold text-gray-700">
-                                {currency}{product.price} × {quantity} = {currency}{product.price * quantity}
-                              </p>
-                              <div className="flex gap-2 items-center">
-                                <button
-                                  onClick={() => updateQuantity(itemId, size, Math.max(quantity - 1, 1))}
-                                  className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
-                                >
-                                  −
-                                </button>
-                                <span className="text-sm">{quantity}</span>
-                                <button
-                                  onClick={() => updateQuantity(itemId, size, quantity + 1)}
-                                  className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
-                                >
-                                  +
-                                </button>
-                              </div>
+                                {currency}
+                                {Number(product?.price || 0).toLocaleString('en-IN', {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2
+                                })}
+                                × {quantity} =
+                                {currency}
+                                {Number((product?.price || 0) * quantity).toLocaleString('en-IN', {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2
+                                })}                              </p>
+
                               <img
                                 onClick={() => updateQuantity(itemId, size, 0)}
                                 src={assets.bin_icon}
                                 alt="Remove"
                                 className="w-4 h-4 cursor-pointer"
                               />
+                            </div>
+                            <div className="flex gap-2 mt-2 items-center">
+                              <button
+                                onClick={() => updateQuantity(itemId, size, Math.max(quantity - 1, 1))}
+                                className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
+                              >
+                                −
+                              </button>
+                              <span className="text-sm">{quantity}</span>
+                              <button
+                                onClick={() => updateQuantity(itemId, size, quantity + 1)}
+                                className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
+                              >
+                                +
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -348,7 +358,13 @@ const Navbar = ({ currency }) => {
                   {Object.keys(cartItems).length > 0 && (
                     <div className="flex justify-between text-sm font-semibold mb-4">
                       <p>Total (exclude shipping fee)</p>
-                      <p>{currency}{getCartAmount() === 0 ? 0 : getCartAmount()}.00</p>
+                      {currency}
+                      {Number(
+                        getCartAmount() === 0 ? 0 : getCartAmount()
+                      ).toLocaleString('en-IN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
                     </div>
                   )}
                   <div className="flex flex-col gap-3">

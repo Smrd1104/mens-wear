@@ -102,8 +102,13 @@ const Orders = () => {
                             <div>
                                 <p className='sm:text-base font-medium'>{item.name}</p>
                                 <div className='flex items-center gap-3 mt-1 text-base text-gray-700 flex-wrap'>
-                                    <p className='text-md'>{currency}{item.price}</p>
-                                    <p>Quantity: {item.quantity}</p>
+                                    <p className='text-md'>
+                                        {currency}
+                                        {Number(item?.price || 0).toLocaleString('en-IN', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}
+                                    </p>                                    <p>Quantity: {item.quantity}</p>
                                     {item.size && <p>Size: {item.size}</p>}
                                     {item.hexColor && (
                                         <div className="flex items-center gap-1">

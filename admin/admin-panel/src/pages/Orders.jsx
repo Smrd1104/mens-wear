@@ -148,7 +148,10 @@ const Orders = ({ token }) => {
                                     <div className="">
                                         <p className="font-semibold text-sm md:text-base">Amount:</p>
                                         <p className="text-sm md:text-base font-medium">
-                                            ₹{order.amount?.toFixed(2)}
+                                            ₹{Number(order?.amount || 0).toLocaleString('en-IN', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })}
                                         </p>
                                     </div>
 

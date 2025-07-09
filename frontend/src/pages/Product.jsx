@@ -1,11 +1,13 @@
 import { useContext, useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { ShopContext } from "../context/ShopContext"
 import { assets } from "../assets/frontend_assets/assets"
 import RelatedProducts from "../components/RelatedProducts"
 import { useRef } from "react";
 
 const Product = () => {
+    const [breadcrumbs, setBreadcrumbs] = useState([]);
+
     const { productId } = useParams()
     const { products, currency, addToCart, cartItems, updateQuantity, getCartAmount, delivery_fee, navigate } = useContext(ShopContext)
     const [productData, setProductData] = useState(false)
@@ -63,8 +65,56 @@ const Product = () => {
         setCartSidebarOpen(true)
     }
 
+    useEffect(() => {
+        if (productData) {
+            setBreadcrumbs([
+                { name: "Home", path: "/" },
+                { name: productData.category, path: null },
+                { name: productData.subCategory,path: null },
+                { name: productData.name, path: null } // Current page
+            ]);
+
+
+        }
+    }, [productData]);
+
+
+    // path: `/collection/${productData.category.toLowerCase()
+
+
+
     return productData ? (
         <div className="border-t-2 pt-22 transition-opacity ease-in duration-500 opacity-100">
+
+            {/* Breadcrumb Navigation */}
+            <div className="container mx-auto px-4 sm:px-6 py-4">
+                <nav className="flex" aria-label="Breadcrumb">
+                    <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                        {breadcrumbs.map((crumb, index) => (
+                            <li key={index} className="inline-flex items-center">
+                                {index > 0 && (
+                                    <svg className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4" />
+                                    </svg>
+                                )}
+                                {crumb.path ? (
+                                    <Link
+                                        to={crumb.path}
+                                        className="inline-flex items-center text-md font-medium text-gray-600 hover:text-black hover:underline"
+                                    >
+                                        {crumb.name}
+                                    </Link>
+                                ) : (
+                                    <span className="text-md font-medium text-gray-900 truncate max-w-[120px] md:max-w-none">
+                                        {crumb.name}
+                                    </span>
+                                )}
+                            </li>
+                        ))}
+                    </ol>
+                </nav>
+            </div>
+
             {/* Product Data */}
             <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
                 {/* Product Images */}
@@ -97,8 +147,22 @@ const Product = () => {
                         <p className="pl-2">(122)</p>
                     </div>
                     <div className="flex flex-row gap-3">
-                        <p className="mt-5 text-3xl font-medium text-red-600">{currency}{productData.price}.00</p>
-                        <p className="mt-5 text-3xl font-medium line-through">{currency}{productData.discountPrice}.00</p>
+                        <p className="mt-5 text-3xl font-medium text-red-600">
+                            {currency}
+                            {Number(productData?.price || 0).toLocaleString('en-IN', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            })}
+                        </p>
+                        {productData?.discountPrice && (
+                            <p className="mt-5 text-3xl font-medium line-through">
+                                {currency}
+                                {Number(productData.discountPrice).toLocaleString('en-IN', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })}
+                            </p>
+                        )}
                     </div>
                     <p className="mt-5 text-gray-500 md:w-4/5">{productData.description}</p>
 

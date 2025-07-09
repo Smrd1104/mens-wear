@@ -21,6 +21,13 @@ const ProductItem = ({ id, image, name, price, bestseller, collection, discountP
     }
   };
 
+  const formatPrice = (value) => {
+    return Number(value).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   return (
     <div className="relative group">
       {/* Best Seller Tag */}
@@ -70,11 +77,11 @@ const ProductItem = ({ id, image, name, price, bestseller, collection, discountP
         <div className="flex flex-row gap-2">
           <p className="text-sm font-medium text-red-600">
             {currency}
-            {price}.00
+            {formatPrice(price)}
           </p>
           <p className="text-sm font-medium line-through">
             {currency}
-            {discountPrice}.00
+            {formatPrice(discountPrice)}
           </p>
         </div>
       </Link>

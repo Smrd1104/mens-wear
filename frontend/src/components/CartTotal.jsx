@@ -14,17 +14,37 @@ const CartTotal = () => {
             <div className='flex flex-col gap-2 mt-2 text-sm'>
                 <div className='flex justify-between'>
                     <p>Sub Total</p>
-                    <p>{currency}{getCartAmount()}.00</p>
+                    <p>
+                        {currency}
+                        {Number(getCartAmount() || 0).toLocaleString('en-IN', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}
+                    </p>
                 </div>
                 <hr />
                 <div className='flex justify-between'>
                     <p>Shipping fee</p>
-                    <p>{currency}{delivery_fee}.00</p>
+                    <p>
+                        {currency}
+                        {Number(delivery_fee || 0).toLocaleString('en-IN', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}
+                    </p>
                 </div>
                 <hr />
                 <div className='flex justify-between'>
                     <p>Total</p>
-                    <p>{currency}{getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee}.00</p>
+                    <p>
+                        {currency}
+                        {Number(
+                            getCartAmount() === 0 ? 0 : getCartAmount() + (delivery_fee || 0)
+                        ).toLocaleString('en-IN', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}
+                    </p>
                 </div>
             </div>
         </div>

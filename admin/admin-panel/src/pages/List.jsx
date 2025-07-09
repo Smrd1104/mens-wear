@@ -67,7 +67,11 @@ const List = ({ currency, token }) => {
                             <img className="w-12" src={item.image[0]} alt='' />
                             <p>{item.name}</p>
                             <p>{item.category}</p>
-                            <p>{currency}{item.price}</p>
+                            <p> {currency}
+                                {Number(item?.price || 0).toLocaleString('en-IN', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })}</p>
 
                             <p onClick={() => removeProduct(item._id)} className='text-tight md:text-center cursor-pointer text-lg'>X</p>
 

@@ -76,7 +76,11 @@ const Cart = () => {
                     <div>
                       <p className='text-xs sm:text-lg font-medium'>{productData.name}</p>
                       <div className='flex items-center gap-3 mt-2 flex-wrap'>
-                        <p>{currency}{productData.price}</p>
+                        <p> {currency}
+                          {Number(productData?.price || 0).toLocaleString('en-IN', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}</p>
                         {item.size && (
                           <p className='px-2 sm:px-3 py-0.5 border bg-slate-50 text-xs'>
                             Size: {item.size}
