@@ -31,54 +31,68 @@ export const ShopProvider = ({ children }) => {
 
 
 
-// ✅ Fetch wishlist
-const fetchWishlist = async () => {
-  if (!token) return;
+  // ✅ Fetch wishlist
+  const fetchWishlist = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/api/wishlist/${userId}`, {
+        headers: { token }
+      });
 
-  try {
-    const res = await axios.get(`${backendUrl}/api/wishlist`, {
-      headers: { token },
-    });
+      const items = res.data?.data?.items;
 
-    const wishlistData = res.data?.data?.items || [];
-    const productIds = wishlistData.map(item => item.productId);
-    setWishlist(productIds);
-  } catch (error) {
-    console.error("Fetch Wishlist Error:", error);
-    toast.error("Failed to load wishlist");
+      if (res.data.success && Array.isArray(items)) {
+        const productIds = items
+          .filter(item => item?.productId?._id)
+          .map(item => item.productId._id);
+
+        setWishlist(productIds);
+      } else {
+        toast.error("Failed to load wishlist.");
+      }
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+      toast.error(error.response?.data?.message || "Error fetching wishlist.");
+    }
+  };
+
+
+  // ✅ Add to wishlist
+  const addToWishlist = async (productId) => {
+    try {
+      await axios.post(`${backendUrl}/api/wishlist`, { productId }, {
+        headers: { token },
+      });
+
+      setWishlist((prev) => [...new Set([...prev, productId])]);
+      toast.success("Added to wishlist");
+    } catch (error) {
+      console.error("Add Wishlist Error:", error);
+      toast.error("Failed to add to wishlist");
+    }
+  };
+
+  // ✅ Remove from wishlist
+  const removeFromWishlist = async (productId) => {
+    try {
+      await axios.delete(`${backendUrl}/api/wishlist`, {
+        headers: { token },
+        data: { productId },
+      });
+
+      setWishlist((prev) => prev.filter((id) => id !== productId));
+      toast.success("Removed from wishlist");
+    } catch (error) {
+      console.error("Remove Wishlist Error:", error);
+      toast.error("Failed to remove from wishlist");
+    }
+  };
+
+  useEffect(() => {
+  if (token && userId) {
+    fetchWishlist();
   }
-};
+}, [token, userId]);
 
-// ✅ Add to wishlist
-const addToWishlist = async (productId) => {
-  try {
-    await axios.post(`${backendUrl}/api/wishlist`, { productId }, {
-      headers: { token },
-    });
-
-    setWishlist((prev) => [...new Set([...prev, productId])]);
-    toast.success("Added to wishlist");
-  } catch (error) {
-    console.error("Add Wishlist Error:", error);
-    toast.error("Failed to add to wishlist");
-  }
-};
-
-// ✅ Remove from wishlist
-const removeFromWishlist = async (productId) => {
-  try {
-    await axios.delete(`${backendUrl}/api/wishlist`, {
-      headers: { token },
-      data: { productId },
-    });
-
-    setWishlist((prev) => prev.filter((id) => id !== productId));
-    toast.success("Removed from wishlist");
-  } catch (error) {
-    console.error("Remove Wishlist Error:", error);
-    toast.error("Failed to remove from wishlist");
-  }
-};
 
 
   // ✅ Fetch wishlist using Axios
@@ -347,7 +361,7 @@ const removeFromWishlist = async (productId) => {
     addToWishlist,
     removeFromWishlist,
     userId, setUserId,
-    setProducts
+    setProducts, fetchWishlist
   }), [
     products,
     currency,
@@ -366,7 +380,7 @@ const removeFromWishlist = async (productId) => {
     addToWishlist,
     removeFromWishlist,
     userId,
-    setProducts
+    setProducts, fetchWishlist
   ]);
 
 
