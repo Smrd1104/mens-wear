@@ -1,14 +1,17 @@
 import Wishlist from '../models/wishlistModel.js';
 
 // GET wishlist
+// GET wishlist
 export const getWishlist = async (req, res) => {
   try {
-    const wishlist = await Wishlist.findOne({ userId: req.body.userId }).populate('items.productId');
+    const userId = req.params.userId; // ✅ from URL param
+    const wishlist = await Wishlist.findOne({ userId }).populate('items.productId');
     res.status(200).json({ success: true, data: wishlist || { items: [] } });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error fetching wishlist" });
   }
 };
+
 
 // ADD to wishlist
 export const addToWishlist = async (req, res) => {

@@ -32,23 +32,23 @@ export const ShopProvider = ({ children }) => {
 
 
 
-  // ✅ Fetch wishlist
-  const fetchWishlist = async () => {
-    if (!token) return;
+ const fetchWishlist = async () => {
+  if (!token || !userId) return;
 
-    try {
-      const res = await axios.get(`${backendUrl}/api/wishlist`, {
-        headers: { token },
-      });
+  try {
+    const res = await axios.get(`${backendUrl}/api/wishlist/${userId}`, {
+      headers: { token },
+    });
 
-      const wishlistData = res.data?.data?.items || [];
-      const productIds = wishlistData.map(item => item.productId);
-      setWishlist(productIds);
-    } catch (error) {
-      console.error("Fetch Wishlist Error:", error);
-      toast.error("Failed to load wishlist");
-    }
-  };
+    const wishlistData = res.data?.data?.items || [];
+    const productIds = wishlistData.map(item => item.productId._id); // ✅ use populated data
+    setWishlist(productIds);
+  } catch (error) {
+    console.error("Fetch Wishlist Error:", error);
+    toast.error("Failed to load wishlist");
+  }
+};
+
 
   // ✅ Add to wishlist
   const addToWishlist = async (productId) => {
@@ -81,12 +81,11 @@ export const ShopProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (token && userId && productsLoaded) {
-      fetchWishlist();
-    }
-  }, [token, userId, productsLoaded]);
-
+ useEffect(() => {
+  if (token && userId && productsLoaded) {
+    fetchWishlist();
+  }
+}, [token, userId, productsLoaded]);
 
 
 
