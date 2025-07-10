@@ -224,6 +224,7 @@ const Product = () => {
                     <div
                         className="fixed inset-0 bg-black/40 bg-opacity-50 z-40"
                         onClick={() => setCartSidebarOpen(false)}
+                        ref={sidebarRef}
                     />
                     <div
                         ref={sidebarRef}
@@ -271,7 +272,17 @@ const Product = () => {
                                                     </div>
                                                     <div className="flex justify-between items-center mt-2">
                                                         <p className="text-sm font-semibold text-gray-700">
-                                                            {currency}{product.price} × {quantity} = {currency}{product.price * quantity}
+                                                            {currency}
+                                                            {Number(product.price).toLocaleString('en-IN', {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2
+                                                            })}
+                                                            × {quantity} = {currency}
+                                                            {Number(product.price * quantity).toLocaleString('en-IN', {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2
+                                                            })}
+
                                                         </p>
                                                         <div className="flex gap-2 items-center">
                                                             <button
@@ -307,7 +318,13 @@ const Product = () => {
                             {Object.keys(cartItems).length > 0 && (
                                 <div className="flex justify-between text-sm font-semibold mb-4">
                                     <p>Total</p>
-                                    <p>{currency}{getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee}.00</p>
+                                    <p> {currency}
+                                        {Number(
+                                            getCartAmount() === 0 ? 0 : getCartAmount()
+                                        ).toLocaleString('en-IN', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}</p>
                                 </div>
                             )}
                             <div className="flex flex-col gap-3">
