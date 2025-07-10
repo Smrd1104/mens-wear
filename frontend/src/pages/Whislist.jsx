@@ -3,11 +3,17 @@ import { ShopContext } from "../context/ShopContext";
 import ProductItem from "../components/ProductItem";
 
 const Wishlist = () => {
-  const { wishlist, products } = useContext(ShopContext);
+  const { wishlist, products, productsLoaded } = useContext(ShopContext);
 
-  
+  // ✅ Only show loading while product data is not ready
+  const isLoading = !productsLoaded;
 
+  // ✅ Filter products that exist in the wishlist
   const wishlistProducts = products.filter((p) => wishlist.includes(p._id));
+
+  if (isLoading) {
+    return <div className="text-center py-10">Loading wishlist...</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

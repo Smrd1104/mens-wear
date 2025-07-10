@@ -28,6 +28,7 @@ export const ShopProvider = ({ children }) => {
   const hasFetched = useRef(false); // 👈 this line is important
 
   const [wishlist, setWishlist] = useState([]);
+  const [productsLoaded, setProductsLoaded] = useState(false);
 
 
 
@@ -81,73 +82,14 @@ export const ShopProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (token && userId) {
+    if (token && userId && productsLoaded) {
       fetchWishlist();
     }
-  }, [token, userId]);
-
-
-
-  // ✅ Fetch wishlist using Axios
-  // const fetchWishlist = async () => {
-  //   if (!token) return; // Prevent empty token calls
-
-  //   try {
-  //     const res = await axios.get(`${backendUrl}/api/wishlist/${userId}`, {
-  //       headers: { Authorization: `Bearer ${token}` }, // ✅ required by auth middleware
-  //     });
-
-  //     console.log("Fetched wishlist response:", res.data);
-
-  //     if (Array.isArray(res.data)) {
-  //       setWishlist(res.data.map(item => item.productId));
-  //     } else {
-  //       toast.error("Unexpected wishlist response format");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching wishlist:", error);
-  //     toast.error(error.response?.data?.message || "Failed to load wishlist");
-  //   }
-  // };
-
-
-
-  // // ✅ Add to wishlist using Axios
-  // const addToWishlist = async (productId) => {
-  //   try {
-  //     await axios.post(`${backendUrl}/api/wishlist`, { userId, productId }, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-  //     setWishlist((prev) => [...prev, productId]);
-  //     toast.success("Added to wishlist");
-  //   } catch (error) {
-  //     console.error("Error adding to wishlist:", error);
-  //     toast.error(error.response?.data?.message || "Failed to add to wishlist");
-  //   }
-  // };
+  }, [token, userId, productsLoaded]);
 
 
 
 
-  // ✅ Remove from wishlist using Axios
-  // const removeFromWishlist = async (productId) => {
-  //   try {
-  //     await axios.delete(`${backendUrl}/api/wishlist`, {
-  //       data: { userId, productId }
-  //     });
-  //     setWishlist((prev) => [...prev, productId]);
-  //     toast.success("Removed from wishlist");
-  //   } catch (error) {
-  //     console.error("Error removing from wishlist:", error);
-  //     toast.error(error.response?.data?.message || "Failed to remove from wishlist");
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (token && userId) {
-  //     fetchWishlist();
-  //   }
-  // }, [token, userId]);
 
 
 
@@ -275,6 +217,8 @@ export const ShopProvider = ({ children }) => {
       if (response.data.success) {
         setProducts(response.data.products)
         toast.success(response.data.message)
+        setProductsLoaded(true);
+
 
       } else {
         toast.error(error.message)
@@ -354,7 +298,7 @@ export const ShopProvider = ({ children }) => {
     addToWishlist,
     removeFromWishlist,
     userId, setUserId,
-    setProducts, fetchWishlist
+    setProducts, fetchWishlist, productsLoaded, setProductsLoaded
   }), [
     products,
     currency,
@@ -373,7 +317,7 @@ export const ShopProvider = ({ children }) => {
     addToWishlist,
     removeFromWishlist,
     userId,
-    setProducts, fetchWishlist
+    setProducts, fetchWishlist, productsLoaded, setProductsLoaded
   ]);
 
 
