@@ -5,6 +5,8 @@ import ProductItem from "../components/ProductItem";
 const Wishlist = () => {
   const { wishlist, products } = useContext(ShopContext);
 
+  
+
   const wishlistProducts = products.filter((p) => wishlist.includes(p._id));
 
   return (
@@ -14,7 +16,7 @@ const Wishlist = () => {
       {wishlistProducts.length === 0 ? (
         <p className="text-gray-500">Your wishlist is empty.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {wishlistProducts.map((item) => (
             <ProductItem
               key={item._id}
