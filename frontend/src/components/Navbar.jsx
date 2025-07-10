@@ -172,7 +172,7 @@ const Navbar = () => {
           <Link to="/wishlist" className="relative">
             <Heart size={20} />
             {wishlist.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
+              <span className="absolute right-[-5px] top-[-5px] w-4 text-center leading-4 bg-red-600 text-white aspect-square rounded-full text-[8px]">
                 {wishlist.length}
               </span>
             )}
