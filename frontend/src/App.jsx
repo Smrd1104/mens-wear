@@ -15,6 +15,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import ForgotPassword from "./pages/ForgotPassword"
 import ScrollToTop from "./components/ScrollToTop"
+import Wishlist from "./pages/Whislist"
 
 
 function App() {
@@ -35,6 +36,8 @@ function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/place-order" element={<PlaceOrder />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+
 
       </Routes>
       <Footer />

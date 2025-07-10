@@ -4,6 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { useSelector } from 'react-redux';
 import { toast } from "react-toastify";
+import { Heart } from "lucide-react";
 
 
 const Navbar = () => {
@@ -16,6 +17,7 @@ const Navbar = () => {
   const hideTimeoutRef = useRef(null);
   const [cartSidebarOpen, setCartSidebarOpen] = useState(false);
   const scrollTimeoutRef = useRef(null);
+  const { wishlist } = useContext(ShopContext);
 
   const sidebarRef = useRef(null);
 
@@ -166,6 +168,15 @@ const Navbar = () => {
               {getCartCount()}
             </p>
           </div>
+
+          <Link to="/wishlist" className="relative">
+            <Heart size={20} />
+            {wishlist.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
+                {wishlist.length}
+              </span>
+            )}
+          </Link>
 
           <button
             onClick={() => setVisible(true)}

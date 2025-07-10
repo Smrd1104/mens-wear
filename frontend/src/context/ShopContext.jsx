@@ -31,66 +31,116 @@ export const ShopProvider = ({ children }) => {
 
 
 
+// ✅ Fetch wishlist
+const fetchWishlist = async () => {
+  if (!token) return;
+
+  try {
+    const res = await axios.get(`${backendUrl}/api/wishlist`, {
+      headers: { token },
+    });
+
+    const wishlistData = res.data?.data?.items || [];
+    const productIds = wishlistData.map(item => item.productId);
+    setWishlist(productIds);
+  } catch (error) {
+    console.error("Fetch Wishlist Error:", error);
+    toast.error("Failed to load wishlist");
+  }
+};
+
+// ✅ Add to wishlist
+const addToWishlist = async (productId) => {
+  try {
+    await axios.post(`${backendUrl}/api/wishlist`, { productId }, {
+      headers: { token },
+    });
+
+    setWishlist((prev) => [...new Set([...prev, productId])]);
+    toast.success("Added to wishlist");
+  } catch (error) {
+    console.error("Add Wishlist Error:", error);
+    toast.error("Failed to add to wishlist");
+  }
+};
+
+// ✅ Remove from wishlist
+const removeFromWishlist = async (productId) => {
+  try {
+    await axios.delete(`${backendUrl}/api/wishlist`, {
+      headers: { token },
+      data: { productId },
+    });
+
+    setWishlist((prev) => prev.filter((id) => id !== productId));
+    toast.success("Removed from wishlist");
+  } catch (error) {
+    console.error("Remove Wishlist Error:", error);
+    toast.error("Failed to remove from wishlist");
+  }
+};
+
+
   // ✅ Fetch wishlist using Axios
-  const fetchWishlist = async () => {
-    if (!token) return; // Prevent empty token calls
+  // const fetchWishlist = async () => {
+  //   if (!token) return; // Prevent empty token calls
 
-    try {
-      const res = await axios.get(`${backendUrl}/api/wishlist/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }, // ✅ required by auth middleware
-      });
+  //   try {
+  //     const res = await axios.get(`${backendUrl}/api/wishlist/${userId}`, {
+  //       headers: { Authorization: `Bearer ${token}` }, // ✅ required by auth middleware
+  //     });
 
-      console.log("Fetched wishlist response:", res.data);
+  //     console.log("Fetched wishlist response:", res.data);
 
-      if (Array.isArray(res.data)) {
-        setWishlist(res.data.map(item => item.productId));
-      } else {
-        toast.error("Unexpected wishlist response format");
-      }
-    } catch (error) {
-      console.error("Error fetching wishlist:", error);
-      toast.error(error.response?.data?.message || "Failed to load wishlist");
-    }
-  };
+  //     if (Array.isArray(res.data)) {
+  //       setWishlist(res.data.map(item => item.productId));
+  //     } else {
+  //       toast.error("Unexpected wishlist response format");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching wishlist:", error);
+  //     toast.error(error.response?.data?.message || "Failed to load wishlist");
+  //   }
+  // };
 
 
 
-  // ✅ Add to wishlist using Axios
-  const addToWishlist = async (productId) => {
-    try {
-      await axios.post(`${backendUrl}/api/wishlist`, { userId, productId }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setWishlist((prev) => [...prev, productId]);
-      toast.success("Added to wishlist");
-    } catch (error) {
-      console.error("Error adding to wishlist:", error);
-      toast.error(error.response?.data?.message || "Failed to add to wishlist");
-    }
-  };
+  // // ✅ Add to wishlist using Axios
+  // const addToWishlist = async (productId) => {
+  //   try {
+  //     await axios.post(`${backendUrl}/api/wishlist`, { userId, productId }, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     setWishlist((prev) => [...prev, productId]);
+  //     toast.success("Added to wishlist");
+  //   } catch (error) {
+  //     console.error("Error adding to wishlist:", error);
+  //     toast.error(error.response?.data?.message || "Failed to add to wishlist");
+  //   }
+  // };
 
 
 
 
   // ✅ Remove from wishlist using Axios
-  const removeFromWishlist = async (productId) => {
-    try {
-      await axios.delete(`${backendUrl}/api/wishlist`, {
-        data: { userId, productId }
-      });
-      setWishlist((prev) => [...prev, productId]);
-      toast.success("Removed from wishlist");
-    } catch (error) {
-      console.error("Error removing from wishlist:", error);
-      toast.error(error.response?.data?.message || "Failed to remove from wishlist");
-    }
-  };
+  // const removeFromWishlist = async (productId) => {
+  //   try {
+  //     await axios.delete(`${backendUrl}/api/wishlist`, {
+  //       data: { userId, productId }
+  //     });
+  //     setWishlist((prev) => [...prev, productId]);
+  //     toast.success("Removed from wishlist");
+  //   } catch (error) {
+  //     console.error("Error removing from wishlist:", error);
+  //     toast.error(error.response?.data?.message || "Failed to remove from wishlist");
+  //   }
+  // };
 
-  useEffect(() => {
-    if (token && userId) {
-      fetchWishlist();
-    }
-  }, [token, userId]);
+  // useEffect(() => {
+  //   if (token && userId) {
+  //     fetchWishlist();
+  //   }
+  // }, [token, userId]);
 
 
 
@@ -140,23 +190,23 @@ export const ShopProvider = ({ children }) => {
 
 
 
-const getCartCount = () => {
-  let totalCount = 0;
+  const getCartCount = () => {
+    let totalCount = 0;
 
-  for (const itemId in cartItems) {
-    for (const variantKey in cartItems[itemId]) {
-      try {
-        if (cartItems[itemId][variantKey] > 0) {
-          totalCount += cartItems[itemId][variantKey];
+    for (const itemId in cartItems) {
+      for (const variantKey in cartItems[itemId]) {
+        try {
+          if (cartItems[itemId][variantKey] > 0) {
+            totalCount += cartItems[itemId][variantKey];
+          }
+        } catch (error) {
+          console.log(error);
         }
-      } catch (error) {
-        console.log(error);
       }
     }
-  }
 
-  return totalCount;
-};
+    return totalCount;
+  };
 
 
 
@@ -279,48 +329,48 @@ const getCartCount = () => {
   }, [cartItems])
 
 
-const value = useMemo(() => ({
-  products,
-  currency,
-  delivery_fee,
-  search, setSearch,
-  showSearch, setShowSearch,
-  cartItems, setCartItems,
-  addToCart,
-  getCartCount,
-  updateQuantity,
-  getCartAmount,
-  navigate,
-  backendUrl,
-  token, setToken,
-  wishlist, setWishlist,
-  addToWishlist,
-  removeFromWishlist,
-  userId, setUserId,
-  setProducts,
-}), [
-  products,
-  currency,
-  delivery_fee,
-  search,
-  showSearch,
-  cartItems,
-  addToCart,
-  getCartCount,
-  updateQuantity,
-  getCartAmount,
-  navigate,
-  backendUrl,
-  token,
-  wishlist,
-  addToWishlist,
-  removeFromWishlist,
-  userId,
-  setProducts
-]);
+  const value = useMemo(() => ({
+    products,
+    currency,
+    delivery_fee,
+    search, setSearch,
+    showSearch, setShowSearch,
+    cartItems, setCartItems,
+    addToCart,
+    getCartCount,
+    updateQuantity,
+    getCartAmount,
+    navigate,
+    backendUrl,
+    token, setToken,
+    wishlist, setWishlist,
+    addToWishlist,
+    removeFromWishlist,
+    userId, setUserId,
+    setProducts
+  }), [
+    products,
+    currency,
+    delivery_fee,
+    search,
+    showSearch,
+    cartItems,
+    addToCart,
+    getCartCount,
+    updateQuantity,
+    getCartAmount,
+    navigate,
+    backendUrl,
+    token,
+    wishlist,
+    addToWishlist,
+    removeFromWishlist,
+    userId,
+    setProducts
+  ]);
 
 
- return (
+  return (
     <ShopContext.Provider value={value}>
       {children}
     </ShopContext.Provider>

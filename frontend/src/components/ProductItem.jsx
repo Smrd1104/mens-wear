@@ -57,6 +57,17 @@ const ProductItem = ({ id, image, name, price, bestseller, latest, discountPrice
         )}
       </button> */}
 
+      <button
+        onClick={handleWishlistToggle}
+        className="absolute top-2 lg:right-14 md:right-2 right-2 z-10 bg-white p-1 rounded-full shadow hover:text-red-500 transition"
+      >
+        {isWishlisted ? (
+          <Heart className="text-red-600" size={18} />
+        ) : (
+          <HeartOff className="text-gray-400 group-hover:text-red-600" size={18} />
+        )}
+      </button>
+
       <Link to={`/product/${id}`} className="text-gray-700 cursor-pointer block">
         <div className="overflow-hidden ">
           <img
