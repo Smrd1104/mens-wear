@@ -85,7 +85,7 @@ const Orders = () => {
         try {
             const response = await axios.get(`${backendUrl}/api/order/invoice/${orderId}`, {
                 headers: { token },
-                responseType: 'blob', // Important for file downloads
+                responseType: 'blob', // Needed to download file
             });
 
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -99,6 +99,7 @@ const Orders = () => {
             console.error("Error downloading invoice:", error);
         }
     };
+
 
 
     useEffect(() => {

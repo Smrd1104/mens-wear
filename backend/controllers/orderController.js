@@ -9,8 +9,8 @@ import path from 'path';
 
 
 const razorpayInstance = new Razorpay({
-    key_id: "rzp_test_PKroQEAnCB7ol3",
-    key_secret: "Fxjtaomc2wirn3D4T3TLV3YI"
+  key_id: "rzp_test_PKroQEAnCB7ol3",
+  key_secret: "Fxjtaomc2wirn3D4T3TLV3YI"
 });
 
 
@@ -22,56 +22,56 @@ const deliverCharge = 50
 
 // placing order using COD method
 const placeOrder = async (req, res) => {
-    try {
-        const { userId, items, amount, address } = req.body
+  try {
+    const { userId, items, amount, address } = req.body
 
-        const orderData = {
-            userId,
-            items,
-            address,
-            amount,
-            payment: false,
-            paymentMethod: "COD",
-            date: new Date()
-        }
-
-        const newOrder = new orderModel(orderData)
-        await newOrder.save()
-
-        // Clear user's cart after successful order
-        await userModel.findByIdAndUpdate(userId, { cartData: {} })
-
-        res.json({ success: true, message: "Order Placed", order: newOrder })
-
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ success: false, message: error.message })
+    const orderData = {
+      userId,
+      items,
+      address,
+      amount,
+      payment: false,
+      paymentMethod: "COD",
+      date: new Date()
     }
+
+    const newOrder = new orderModel(orderData)
+    await newOrder.save()
+
+    // Clear user's cart after successful order
+    await userModel.findByIdAndUpdate(userId, { cartData: {} })
+
+    res.json({ success: true, message: "Order Placed", order: newOrder })
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, message: error.message })
+  }
 }
 
 
 // verify payment razorpay
 
 const verifyRazorpay = async (req, res) => {
-    try {
-        const { userId, razorpay_order_id } = req.body
+  try {
+    const { userId, razorpay_order_id } = req.body
 
-        const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
-        if (orderInfo.status === 'paid') {
-            await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true })
-            await userModel.findByIdAndUpdate(userId, { cartData: {} })
-            res.json({ success: true, message: "Payment Successful" })
+    const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
+    if (orderInfo.status === 'paid') {
+      await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true })
+      await userModel.findByIdAndUpdate(userId, { cartData: {} })
+      res.json({ success: true, message: "Payment Successful" })
 
-        } else {
-            res.json({ success: false, message: "Payment Failed" })
-
-        }
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-
+    } else {
+      res.json({ success: false, message: "Payment Failed" })
 
     }
+  } catch (error) {
+    console.log(error)
+    res.json({ success: false, message: error.message })
+
+
+  }
 }
 
 
@@ -79,118 +79,118 @@ const verifyRazorpay = async (req, res) => {
 
 // placing order using razorpay method
 const placeOrderRazorPay = async (req, res) => {
-    try {
-        const { userId, items, amount, address } = req.body
+  try {
+    const { userId, items, amount, address } = req.body
 
-        const orderData = {
-            userId,
-            items,
-            address,
-            amount,
-            paymentMethod: "RazorPay",
-            payment: false,
-            date: new Date()
-        }
-
-        const newOrder = new orderModel(orderData)
-        await newOrder.save()
-
-        const options = {
-            amount: Number(amount) * 100, // ✅ convert rupees to paisa
-            currency: currency.toUpperCase(),
-            receipt: newOrder._id.toString()
-        }
-
-        const order = await razorpayInstance.orders.create(options);
-        res.json({ success: true, order });
-
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ success: false, message: error.message })
+    const orderData = {
+      userId,
+      items,
+      address,
+      amount,
+      paymentMethod: "RazorPay",
+      payment: false,
+      date: new Date()
     }
+
+    const newOrder = new orderModel(orderData)
+    await newOrder.save()
+
+    const options = {
+      amount: Number(amount) * 100, // ✅ convert rupees to paisa
+      currency: currency.toUpperCase(),
+      receipt: newOrder._id.toString()
+    }
+
+    const order = await razorpayInstance.orders.create(options);
+    res.json({ success: true, order });
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, message: error.message })
+  }
 }
 
 // All orders to admin panel
 const allOrders = async (req, res) => {
-    try {
-        // Sort by newest orders first
-        const orders = await orderModel.find({})
-            .sort({ date: -1 })
-            .populate('userId', 'name email') // Populate user details
+  try {
+    // Sort by newest orders first
+    const orders = await orderModel.find({})
+      .sort({ date: -1 })
+      .populate('userId', 'name email') // Populate user details
 
-        res.json({ success: true, orders })
+    res.json({ success: true, orders })
 
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ success: false, message: error.message })
-    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, message: error.message })
+  }
 }
 
 // User's orders
 const userOrders = async (req, res) => {
-    try {
-        const { userId } = req.body
-        // Sort by newest orders first
-        const orders = await orderModel.find({ userId })
-            .sort({ date: -1 })
+  try {
+    const { userId } = req.body
+    // Sort by newest orders first
+    const orders = await orderModel.find({ userId })
+      .sort({ date: -1 })
 
-        res.json({ success: true, orders })
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ success: false, message: error.message })
-    }
+    res.json({ success: true, orders })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, message: error.message })
+  }
 }
 
 // update order status from admin panel
 const updateStatus = async (req, res) => {
-    try {
-        const { orderId, status } = req.body;
+  try {
+    const { orderId, status } = req.body;
 
-        const messages = {
-            'Order Placed': 'Your order has been placed.',
-            'Processing': 'Seller has processed your order.',
-            'Out for Delivery': 'Your item is out for delivery.',
-            'Delivered': 'Your item has been delivered.',
-            'Cancelled': 'Your order has been cancelled.'
-        };
+    const messages = {
+      'Order Placed': 'Your order has been placed.',
+      'Processing': 'Seller has processed your order.',
+      'Out for Delivery': 'Your item is out for delivery.',
+      'Delivered': 'Your item has been delivered.',
+      'Cancelled': 'Your order has been cancelled.'
+    };
 
-        const order = await orderModel.findById(orderId);
-        if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    const order = await orderModel.findById(orderId);
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
-        order.status = status;
-        order.tracking.push({
-            status,
-            message: messages[status],
-            timestamp: new Date()
-        });
+    order.status = status;
+    order.tracking.push({
+      status,
+      message: messages[status],
+      timestamp: new Date()
+    });
 
-        if (status === 'Delivered' && order.paymentMethod === 'COD') {
-            order.payment = true;
-        }
-
-        await order.save();
-        res.json({ success: true, message: 'Status updated', order });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ success: false, message: err.message });
+    if (status === 'Delivered' && order.paymentMethod === 'COD') {
+      order.payment = true;
     }
+
+    await order.save();
+    res.json({ success: true, message: 'Status updated', order });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
 
 
 const whatsappOrder = async (req, res) => {
-    try {
-        const { address, items, amount } = req.body;
+  try {
+    const { address, items, amount } = req.body;
 
-        // Save WhatsApp order to DB (optional)
-        // Example: await Order.create({ type: 'whatsapp', address, items, amount });
+    // Save WhatsApp order to DB (optional)
+    // Example: await Order.create({ type: 'whatsapp', address, items, amount });
 
-        console.log("WhatsApp Order:", { address, items, amount });
+    console.log("WhatsApp Order:", { address, items, amount });
 
-        res.json({ success: true, message: "WhatsApp order logged successfully" });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Failed to log WhatsApp order" });
-    }
+    res.json({ success: true, message: "WhatsApp order logged successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to log WhatsApp order" });
+  }
 };
 
 
@@ -199,20 +199,19 @@ const whatsappOrder = async (req, res) => {
 
 
 
-const generateInvoice = async (req, res) => {
+// === Shared Invoice Logic ===
+const generateInvoiceCommon = async (orderId, res, mode = 'download') => {
   try {
-    const { orderId } = req.params;
+    const order = await orderModel.findById(orderId)
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' })
 
-    const order = await orderModel.findById(orderId);
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-
-    const user = await userModel.findById(order.userId);
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    const user = await userModel.findById(order.userId)
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' })
 
     const invoiceData = {
       invoiceNumber: `INV-${orderId.slice(-6).toUpperCase()}`,
       invoiceDate: new Date(order.date).toLocaleDateString('en-GB'),
-      dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB'),
+      dueDate: new Date(Date.now() + 15 * 86400000).toLocaleDateString('en-GB'),
       poNumber: `PO-${orderId.slice(0, 6).toUpperCase()}`,
       company: {
         name: 'Mens Wear',
@@ -220,11 +219,7 @@ const generateInvoice = async (req, res) => {
       },
       billTo: {
         name: user.name || 'Customer',
-        address: `${order.address?.street || ''}\n${order.address?.city}, ${order.address?.state} ${order.address?.zipcode}\n${order.address?.country}`
-      },
-      shipTo: {
-        name: user.name || 'Customer',
-        address: `${order.address?.street || ''}\n${order.address?.city}, ${order.address?.state} ${order.address?.zipcode}\n${order.address?.country}`
+        address: `${order.address?.street}\n${order.address?.city}, ${order.address?.state} ${order.address?.zipcode}\n${order.address?.country}`
       },
       items: order.items.map(item => ({
         qty: item.quantity,
@@ -233,132 +228,67 @@ const generateInvoice = async (req, res) => {
       })),
       subtotal: order.amount,
       taxRate: 6.25,
-      total: parseFloat((order.amount * 1.0625).toFixed(2)),
-      customerName: user.name
-    };
+      total: parseFloat((order.amount * 1.0625).toFixed(2))
+    }
 
-    const doc = new PDFDocument({ margin: 50 });
-    const buffers = [];
+    const doc = new PDFDocument({ margin: 50 })
+    const buffers = []
 
-    // Load fonts
-    const fontPathRegular = path.resolve('fonts/NotoSans-Regular.ttf');
-    const fontPathBold = path.resolve('fonts/NotoSans-Bold.ttf');
-    doc.registerFont('NotoSans', fontPathRegular);
-    doc.registerFont('NotoSans-Bold', fontPathBold);
+    const fontRegular = path.resolve('fonts/NotoSans-Regular.ttf')
+    const fontBold = path.resolve('fonts/NotoSans-Bold.ttf')
+    doc.registerFont('NotoSans', fontRegular)
+    doc.registerFont('NotoSans-Bold', fontBold)
 
-    // Set headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition',
+      mode === 'view'
+        ? `inline; filename=invoice-${orderId}.pdf`
+        : `attachment; filename=invoice-${orderId}.pdf`
+    )
 
-    doc.on('data', buffers.push.bind(buffers));
-    doc.on('end', () => res.end(Buffer.concat(buffers)));
+    doc.on('data', buffers.push.bind(buffers))
+    doc.on('end', () => res.end(Buffer.concat(buffers)))
 
-    // === Top Header Bar ===
-    doc.rect(0, 0, doc.page.width, 30).fill('#2e6cb8');
+    // === PDF Layout ===
+    doc.font('NotoSans-Bold').fontSize(14).text(invoiceData.company.name, 50, 40)
+    doc.font('NotoSans').fontSize(10).text(invoiceData.company.address, 50, 60)
 
-    // === Company Info ===
-    doc.fillColor('black')
-      .font('NotoSans-Bold')
-      .fontSize(14)
-      .text(invoiceData.company.name, 50, 40)
-      .font('NotoSans')
-      .fontSize(10)
-      .text(invoiceData.company.address, 50, 60);
+    doc.fontSize(10).font('NotoSans-Bold')
+      .text('INVOICE #', 400, 50).font('NotoSans')
+      .text(invoiceData.invoiceNumber, 480, 50)
 
-    // === Invoice Info Block ===
-    const infoY = 120;
-    doc.fontSize(10)
-      .font('NotoSans-Bold')
-      .text('BILL TO', 50, infoY)
-      .text('SHIP TO', 220, infoY)
-      .text('INVOICE #', 400, infoY)
+    doc.text('BILL TO', 50, 100).text(invoiceData.billTo.name, 50, 115).text(invoiceData.billTo.address, 50, 130)
 
-      .font('NotoSans')
-      .text(invoiceData.billTo.name, 50, infoY + 15)
-      .text(invoiceData.billTo.address, 50, infoY + 30)
-      .text(invoiceData.shipTo.name, 220, infoY + 15)
-      .text(invoiceData.shipTo.address, 220, infoY + 30)
-      .text(invoiceData.invoiceNumber, 480, infoY);
+    // Table headers
+    doc.moveDown(4).fontSize(12).font('NotoSans-Bold').text('QTY', 50).text('DESCRIPTION', 100).text('PRICE', 350).text('AMOUNT', 450)
 
-    doc.font('NotoSans-Bold')
-      .text('INVOICE DATE', 400, infoY + 60)
-      .text('P.O.#', 400, infoY + 75)
-      .text('DUE DATE', 400, infoY + 90);
-
-    doc.font('NotoSans')
-      .text(invoiceData.invoiceDate, 480, infoY + 60)
-      .text(invoiceData.poNumber, 480, infoY + 75)
-      .text(invoiceData.dueDate, 480, infoY + 90);
-
-    // === Invoice Total Heading ===
-    doc.moveDown(5)
-      .fontSize(16)
-      .font('NotoSans-Bold')
-      .text('Invoice Total', 50)
-      .text(`₹${invoiceData.total.toFixed(2)}`, 460, doc.y - 16, { align: 'right' });
-
-    doc.moveDown(0.5);
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-
-    // === Table Header ===
-    doc.moveDown(1.5)
-      .fontSize(10)
-      .font('NotoSans-Bold');
-
-    const tableTop = doc.y;
-    const itemX = { qty: 50, desc: 100, unit: 350, total: 450 };
-
-    doc.text('QTY', itemX.qty, tableTop)
-      .text('DESCRIPTION', itemX.desc, tableTop)
-      .text('UNIT PRICE', itemX.unit, tableTop)
-      .text('AMOUNT', itemX.total, tableTop);
-
-    doc.moveTo(50, doc.y + 12).lineTo(550, doc.y + 12).stroke();
-    doc.moveDown(1).font('NotoSans');
-
-    // === Table Rows ===
+    doc.font('NotoSans').fontSize(10)
     invoiceData.items.forEach(item => {
-      const y = doc.y;
-      const amount = item.qty * item.unitPrice;
+      const y = doc.y
+      doc.text(item.qty, 50, y)
+        .text(item.description, 100, y)
+        .text(`₹${item.unitPrice.toFixed(2)}`, 350, y)
+        .text(`₹${(item.unitPrice * item.qty).toFixed(2)}`, 450, y)
+      doc.moveDown(0.5)
+    })
 
-      doc.text(item.qty.toString(), itemX.qty, y)
-        .text(item.description, itemX.desc, y, { width: 240 })
-        .text(`₹${item.unitPrice.toFixed(2)}`, itemX.unit, y, { width: 80, align: 'right' })
-        .text(`₹${amount.toFixed(2)}`, itemX.total, y, { width: 80, align: 'right' });
-
-      doc.moveDown(0.5);
-    });
-
-    // === Totals Summary ===
-    const taxAmount = invoiceData.total - invoiceData.subtotal;
-    const summaryY = doc.y + 10;
-
-    doc.fontSize(10).font('NotoSans')
-      .text('Subtotal:', 400, summaryY)
-      .text(`₹${invoiceData.subtotal.toFixed(2)}`, 500, summaryY, { align: 'right' })
-      .text(`Sales Tax ${invoiceData.taxRate}%:`, 400, summaryY + 15)
-      .text(`₹${taxAmount.toFixed(2)}`, 500, summaryY + 15, { align: 'right' })
+    const taxAmount = invoiceData.total - invoiceData.subtotal
+    doc.moveDown(2)
+      .text(`Subtotal: ₹${invoiceData.subtotal.toFixed(2)}`, 400)
+      .text(`Tax (6.25%): ₹${taxAmount.toFixed(2)}`, 400)
       .font('NotoSans-Bold')
-      .text('Total:', 400, summaryY + 30)
-      .text(`₹${invoiceData.total.toFixed(2)}`, 500, summaryY + 30, { align: 'right' });
+      .text(`Total: ₹${invoiceData.total.toFixed(2)}`, 400)
 
-    // === Terms Section ===
-    doc.moveDown(4);
-    doc.font('NotoSans-Bold').text('TERMS & CONDITIONS');
-    doc.font('NotoSans')
-      .text('Payment is due within 15 days.')
-      .text(`Please make checks payable to: ${invoiceData.company.name}`);
-
-    // === Footer Bar ===
-    doc.rect(0, doc.page.height - 30, doc.page.width, 30).fill('#2e6cb8');
-
-    doc.end();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Failed to generate invoice' });
+    doc.end()
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ success: false, message: 'Failed to generate invoice' })
   }
-};
+}
+
+const generateInvoiceForView = (req, res) => generateInvoiceCommon(req.params.orderId, res, 'view')
+const generateInvoiceForDownload = (req, res) => generateInvoiceCommon(req.params.orderId, res, 'download')
 
 
 
@@ -374,13 +304,13 @@ const generateInvoice = async (req, res) => {
 
 
 export {
-    placeOrder,
-    placeOrderRazorPay,
-    allOrders,
-    userOrders,
-    updateStatus,
-    verifyRazorpay,
-    whatsappOrder, generateInvoice
+  placeOrder,
+  placeOrderRazorPay,
+  allOrders,
+  userOrders,
+  updateStatus,
+  verifyRazorpay,
+  whatsappOrder, generateInvoiceForView, generateInvoiceForDownload, 
 
 }
 

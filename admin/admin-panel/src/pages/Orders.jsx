@@ -123,6 +123,12 @@ const Orders = ({ token }) => {
         return <div className="flex justify-center items-center h-64">Loading orders...</div>
     }
 
+    const handleInvoiceView = (orderId) => {
+        const url = `${backendUrl}/api/order/invoice/${orderId}`;
+        window.open(url, '_blank'); // View PDF in new tab
+    };
+
+
     return (
         <div className="p-4 max-w-7xl mx-auto">
             <h3 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Order Management</h3>
@@ -229,6 +235,8 @@ const Orders = ({ token }) => {
                                                             order.status === 'Out for Delivery' ? 'text-blue-600 border-blue-200 bg-blue-50' :
                                                                 'text-yellow-600 border-yellow-200 bg-yellow-50'
                                                     }`}
+
+
                                             >
                                                 {statusOptions.map(option => (
                                                     <option key={option} value={option} className="bg-white">
@@ -237,6 +245,17 @@ const Orders = ({ token }) => {
                                                 ))}
                                             </select>
                                         </div>
+                                        {order.status === 'Delivered' && (
+                                            <button
+                                                className="mt-2 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                                                onClick={() => handleInvoiceView(order._id)}
+                                            >
+                                                View Invoice
+                                            </button>
+                                        )}
+
+
+
                                     </div>
                                 </div>
                             </div>

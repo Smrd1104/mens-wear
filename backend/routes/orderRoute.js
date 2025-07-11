@@ -1,5 +1,5 @@
 import express from "express"
-import { placeOrder, placeOrderRazorPay, allOrders, userOrders, updateStatus, verifyRazorpay, whatsappOrder, generateInvoice } from "../controllers/orderController.js"
+import { placeOrder, placeOrderRazorPay, allOrders, userOrders, generateInvoiceForView, generateInvoiceForDownload, updateStatus, verifyRazorpay, whatsappOrder } from "../controllers/orderController.js"
 
 import adminAuth from "../middleware/adminAuth.js"
 import authUser from "../middleware/auth.js"
@@ -55,8 +55,11 @@ orderRouter.post('/track', authUser, async (req, res) => {
 
 
 // generate invoice
+orderRouter.get('/invoice/view/:orderId', generateInvoiceForView)       // Admin
+orderRouter.get('/invoice/download/:orderId', generateInvoiceForDownload) // User
 
-orderRouter.get('/invoice/:orderId', generateInvoice)
+
+// orderRouter.get('/invoice/:orderId', generateInvoice)
 
 
 

@@ -10,6 +10,7 @@ import { toast, ToastContainer } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css'
 import { useEffect } from 'react'
 import EditProduct from './pages/EditProduct'
+import Invoice from './components/Invoice'
 
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -40,6 +41,7 @@ const App = () => {
                 <Route path='/list' element={<List token={token} />} />
                 <Route path='/orders' element={<Orders token={token} />} />
                 <Route path="/edit-product/:productId" element={<EditProduct token={token} />} />
+                <Route path="/invoice/:orderId" element={<Invoice />} />
 
 
               </Routes>
