@@ -194,48 +194,150 @@ const whatsappOrder = async (req, res) => {
 
 
 
+// controllers/invoiceController.js
+
+
 const generateInvoice = async (req, res) => {
     try {
         const { orderId } = req.params;
 
-        const order = await orderModel.findById(orderId).populate('userId', 'name email');
+        // 1. Fetch Order
+        const order = await orderModel.findById(orderId);
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        const doc = new PDFDocument();
+        // 2. Fetch User (since order.userId is a string)
+        const user = await userModel.findById(order.userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // 3. Prepare Invoice Data
+        const invoiceData = {
+            invoiceNumber: `INV-${orderId.slice(-6).toUpperCase()}`,
+            invoiceDate: new Date(order.date).toLocaleDateString('en-GB'),
+            dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB'),
+            poNumber: `PO-${orderId.slice(0, 6).toUpperCase()}`,
+            company: {
+                name: 'Mens Wear',
+                address: '123 Fashion Street\nMumbai, MH 400001'
+            },
+            billTo: {
+                name: user.name || 'Customer',
+                address: order.address?.line1 + '\n' + order.address?.city + ', ' + order.address?.state + ' ' + order.address?.zip
+            },
+            shipTo: {
+                name: user.name || 'Customer',
+                address: order.address?.line1 + '\n' + order.address?.city + ', ' + order.address?.state + ' ' + order.address?.zip
+            },
+            items: order.items.map(item => ({
+                qty: item.quantity,
+                description: item.name,
+                unitPrice: item.price
+            })),
+            subtotal: order.amount,
+            taxRate: 6.25,
+            total: parseFloat((order.amount * 1.0625).toFixed(2)),
+            customerName: user.name
+        };
+
+        // 4. Generate PDF using pdfkit
+        const doc = new PDFDocument({ margin: 50 });
         const buffers = [];
 
-        // Set CORS headers
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
 
         doc.on('data', buffers.push.bind(buffers));
         doc.on('end', () => {
             const pdfData = Buffer.concat(buffers);
-            res.send(pdfData);
+            res.end(pdfData);
         });
 
-        // Example content (you can design it as needed)
-        doc.fontSize(20).text('Invoice', { align: 'center' });
-        doc.moveDown();
-        doc.fontSize(12).text(`Order ID: ${order._id}`);
-        doc.text(`Customer: ${order.userId.name}`);
-        doc.text(`Email: ${order.userId.email}`);
-        doc.text(`Date: ${new Date(order.date).toDateString()}`);
-        doc.text(`Payment Method: ${order.paymentMethod}`);
-        doc.text(`Status: ${order.status}`);
-        doc.moveDown();
+        // Top Blue Bar
+        doc.rect(0, 0, doc.page.width, 30).fill('#2e6cb8').fillColor('black').moveDown(2);
 
-        order.items.forEach((item, index) => {
-            doc.text(`${index + 1}. ${item.name} - ₹${item.price} x ${item.quantity}`);
+        // Header
+        doc
+            .fontSize(14)
+            .font('Helvetica-Bold')
+            .text(invoiceData.company.name, 50, 50)
+            .font('Helvetica')
+            .fontSize(10)
+            .text(invoiceData.company.address)
+            .moveDown(2);
+
+        doc
+            .font('Helvetica-Bold')
+            .text('BILL TO', 50, 130)
+            .text('SHIP TO', 200, 130)
+            .text('INVOICE #', 370, 130)
+            .text('INVOICE DATE', 370, 150)
+            .text('P.O.#', 370, 170)
+            .text('DUE DATE', 370, 190)
+            .font('Helvetica')
+            .fontSize(10)
+            .text(invoiceData.billTo.name + '\n' + invoiceData.billTo.address, 50, 150)
+            .text(invoiceData.shipTo.name + '\n' + invoiceData.shipTo.address, 200, 150)
+            .text(invoiceData.invoiceNumber, 460, 130)
+            .text(invoiceData.invoiceDate, 460, 150)
+            .text(invoiceData.poNumber, 460, 170)
+            .text(invoiceData.dueDate, 460, 190);
+
+        // Invoice Title
+        doc
+            .moveDown(2)
+            .fontSize(20)
+            .font('Helvetica-Bold')
+            .text('Invoice Total', 50)
+            .fontSize(18)
+            .text(`₹${invoiceData.total}`, { align: 'right' });
+
+        doc.moveDown(0.5);
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+
+        // Table Header
+        doc
+            .fontSize(10)
+            .font('Helvetica-Bold')
+            .text('QTY', 50, doc.y + 10)
+            .text('DESCRIPTION', 100)
+            .text('UNIT PRICE', 350)
+            .text('AMOUNT', 450)
+            .moveDown();
+
+        // Items
+        doc.font('Helvetica');
+        invoiceData.items.forEach(item => {
+            const amount = item.qty * item.unitPrice;
+            doc
+                .text(item.qty, 50)
+                .text(item.description, 100)
+                .text(`₹${item.unitPrice.toFixed(2)}`, 350)
+                .text(`₹${amount.toFixed(2)}`, 450)
+                .moveDown();
         });
 
-        doc.text(`\nTotal: ₹${order.amount}`);
+        // Totals
+        const taxAmount = invoiceData.total - invoiceData.subtotal;
+        doc
+            .moveDown()
+            .text(`Subtotal: ₹${invoiceData.subtotal.toFixed(2)}`, 400)
+            .text(`Sales Tax ${invoiceData.taxRate}%: ₹${taxAmount.toFixed(2)}`, 400)
+            .font('Helvetica-Bold')
+            .text(`Total: ₹${invoiceData.total.toFixed(2)}`, 400);
+
+        // Terms
+        doc.moveDown(4);
+        doc.font('Helvetica-Bold').text('TERMS & CONDITIONS');
+        doc.font('Helvetica').text('Payment is due within 15 days');
+        doc.text('Please make checks payable to: ' + invoiceData.company.name);
+
+        // Bottom bar
+        doc.rect(0, doc.page.height - 30, doc.page.width, 30).fill('#2e6cb8');
+
         doc.end();
 
     } catch (err) {
