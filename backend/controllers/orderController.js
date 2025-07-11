@@ -244,10 +244,8 @@ const generateInvoice = async (req, res) => {
     }
 };
 
-export default generateInvoice;
 
 
-export { generateInvoice }
 
 
 
