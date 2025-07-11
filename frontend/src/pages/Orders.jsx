@@ -41,16 +41,15 @@ const Orders = () => {
             hexColor: parts[1] // Keep original hex for display
         };
     }
-
     const loadOrderData = async () => {
         try {
-            if (!token) return null;
+            if (!token) return;
 
             const response = await axios.post(
                 backendUrl + "/api/order/userorders",
                 { userId: localStorage.getItem("userId") },
                 { headers: { token } }
-            )
+            );
 
             if (response.data.success) {
                 let allOrderItem = [];
@@ -60,25 +59,63 @@ const Orders = () => {
 
                         allOrderItem.push({
                             ...item,
-                            size: size,
-                            color: color,
-                            hexColor: hexColor,
+                            size,
+                            color,
+                            hexColor,
                             status: order.status,
                             payment: order.payment,
                             paymentMethod: order.paymentMethod,
                             date: order.date,
-                            orderId: order._id
-                        })
-                    })
-                })
+                            orderId: order._id,
+                        });
+                    });
+                });
 
-                setOrderData(allOrderItem)
-                setVisibleOrders(allOrderItem.slice(0, itemsToShow));
+                setOrderData(allOrderItem); // ✅ Store full order list
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
-    }
+    };
+
+
+    // const loadOrderData = async () => {
+    //     try {
+    //         if (!token) return null;
+
+    //         const response = await axios.post(
+    //             backendUrl + "/api/order/userorders",
+    //             { userId: localStorage.getItem("userId") },
+    //             { headers: { token } }
+    //         )
+
+    //         if (response.data.success) {
+    //             let allOrderItem = [];
+    //             response.data.orders.forEach((order) => {
+    //                 order.items.forEach((item) => {
+    //                     const { size, color, hexColor } = extractSizeAndColor(item.size);
+
+    //                     allOrderItem.push({
+    //                         ...item,
+    //                         size: size,
+    //                         color: color,
+    //                         hexColor: hexColor,
+    //                         status: order.status,
+    //                         payment: order.payment,
+    //                         paymentMethod: order.paymentMethod,
+    //                         date: order.date,
+    //                         orderId: order._id
+    //                     })
+    //                 })
+    //             })
+
+    //             setOrderData(allOrderItem)
+    //             setVisibleOrders(allOrderItem.slice(0, itemsToShow));
+    //         }
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
 
 
     const handleInvoiceDownload = async (orderId) => {
@@ -178,7 +215,7 @@ const Orders = () => {
                 ))}
             </div>
 
-            {itemsToShow < orderData.length && (
+            {visibleOrders.length < orderData.length && (
                 <div className="text-center mt-6">
                     <button
                         onClick={() => setItemsToShow(prev => prev + 5)}
@@ -188,6 +225,18 @@ const Orders = () => {
                     </button>
                 </div>
             )}
+
+
+            {/* {itemsToShow < orderData.length && (
+                <div className="text-center mt-6">
+                    <button
+                        onClick={() => setItemsToShow(prev => prev + 5)}
+                        className="px-6 py-2 border border-black cursor-pointer text-sm hover:bg-black hover:text-white transition duration-300"
+                    >
+                        Load More
+                    </button>
+                </div>
+            )} */}
 
             {selectedOrderId && (
                 <TrackOrderTimeline
