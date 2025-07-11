@@ -215,7 +215,7 @@ const generateInvoice = async (req, res) => {
             poNumber: `PO-${orderId.slice(0, 6).toUpperCase()}`,
             company: {
                 name: 'Mens Wear',
-                address: '25,Street\Chennai, MH 400001\India'
+                address: '25, Street\nChennai, MH 400001\nIndia'
             },
             billTo: {
                 name: user.name || 'Customer',
@@ -238,9 +238,12 @@ const generateInvoice = async (req, res) => {
 
         const doc = new PDFDocument({ margin: 50 });
         const buffers = [];
-        const fontPath = path.resolve('fonts/NotoSans-Regular.ttf');
-        doc.registerFont('NotoSans', fontPath);
-        doc.font('NotoSans');
+
+        // Load fonts
+        const fontPathRegular = path.resolve('fonts/NotoSans-Regular.ttf');
+        const fontPathBold = path.resolve('fonts/NotoSans-Bold.ttf');
+        doc.registerFont('NotoSans', fontPathRegular);
+        doc.registerFont('NotoSans-Bold', fontPathBold);
 
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Content-Type', 'application/pdf');
@@ -250,45 +253,49 @@ const generateInvoice = async (req, res) => {
         doc.on('end', () => res.end(Buffer.concat(buffers)));
 
         // Header Bar
-        doc.rect(0, 0, doc.page.width, 30).fill('#2e6cb8').fillColor('black');
+        doc.rect(0, 0, doc.page.width, 30).fill('#2e6cb8');
 
         // Company Info
         doc.fillColor('black')
+            .font('NotoSans-Bold')
             .fontSize(14)
             .text(invoiceData.company.name, 50, 40)
+            .font('NotoSans')
             .fontSize(10)
             .text(invoiceData.company.address, 50, 60);
 
-        // Invoice Info Grid
+        // Invoice Info Section
+        const infoY = 120;
         doc.fontSize(10)
             .font('NotoSans-Bold')
-            .text('BILL TO', 50, 120)
-            .text('SHIP TO', 200, 120)
-            .text('INVOICE #', 370, 120)
+            .text('BILL TO', 50, infoY)
+            .text('SHIP TO', 200, infoY)
+            .text('INVOICE #', 370, infoY)
             .font('NotoSans')
-            .text(invoiceData.billTo.name, 50, 135)
-            .text(invoiceData.billTo.address, 50, 150)
-            .text(invoiceData.shipTo.name, 200, 135)
-            .text(invoiceData.shipTo.address, 200, 150)
-            .text(invoiceData.invoiceNumber, 450, 120);
+            .text(invoiceData.billTo.name, 50, infoY + 15)
+            .text(invoiceData.billTo.address, 50, infoY + 30)
+            .text(invoiceData.shipTo.name, 200, infoY + 15)
+            .text(invoiceData.shipTo.address, 200, infoY + 30)
+            .text(invoiceData.invoiceNumber, 450, infoY);
 
         doc.font('NotoSans-Bold')
-            .text('INVOICE DATE', 370, 180)
-            .text('P.O.#', 370, 195)
-            .text('DUE DATE', 370, 210)
+            .text('INVOICE DATE', 370, infoY + 60)
+            .text('P.O.#', 370, infoY + 75)
+            .text('DUE DATE', 370, infoY + 90)
             .font('NotoSans')
-            .text(invoiceData.invoiceDate, 450, 180)
-            .text(invoiceData.poNumber, 450, 195)
-            .text(invoiceData.dueDate, 450, 210);
+            .text(invoiceData.invoiceDate, 450, infoY + 60)
+            .text(invoiceData.poNumber, 450, infoY + 75)
+            .text(invoiceData.dueDate, 450, infoY + 90);
 
-        // Invoice Total
-        doc.moveDown(5)
+        // Invoice Total Section
+        doc.moveDown(6)
             .fontSize(18)
             .font('NotoSans-Bold')
             .text('Invoice Total', 50)
             .text(`₹${invoiceData.total}`, { align: 'right' });
 
-        doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke();
+        doc.moveDown(0.5);
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
 
         // Table Header
         doc.moveDown(1).fontSize(10).font('NotoSans-Bold');
@@ -303,7 +310,7 @@ const generateInvoice = async (req, res) => {
         doc.moveDown(0.5).font('NotoSans');
 
         // Table Rows
-        invoiceData.items.forEach((item, i) => {
+        invoiceData.items.forEach(item => {
             const y = doc.y;
             const amount = item.qty * item.unitPrice;
 
@@ -315,24 +322,23 @@ const generateInvoice = async (req, res) => {
             doc.moveDown(0.5);
         });
 
-        doc.moveDown(1);
-
-        // Totals
+        // Totals Summary
         const taxAmount = invoiceData.total - invoiceData.subtotal;
+        doc.moveDown(1);
         doc.font('NotoSans')
             .text(`Subtotal: ₹${invoiceData.subtotal.toFixed(2)}`, 400, doc.y, { align: 'right' })
             .text(`Sales Tax ${invoiceData.taxRate}%: ₹${taxAmount.toFixed(2)}`, 400, doc.y + 15, { align: 'right' })
             .font('NotoSans-Bold')
             .text(`Total: ₹${invoiceData.total.toFixed(2)}`, 400, doc.y + 30, { align: 'right' });
 
-        // Terms
+        // Terms Section
         doc.moveDown(3);
         doc.font('NotoSans-Bold').text('TERMS & CONDITIONS');
         doc.font('NotoSans')
             .text('Payment is due within 15 days.')
             .text(`Please make checks payable to: ${invoiceData.company.name}`);
 
-        // Footer
+        // Footer Bar
         doc.rect(0, doc.page.height - 30, doc.page.width, 30).fill('#2e6cb8');
 
         doc.end();
@@ -341,6 +347,7 @@ const generateInvoice = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to generate invoice' });
     }
 };
+
 
 
 
