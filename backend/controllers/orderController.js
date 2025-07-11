@@ -2,10 +2,10 @@
 import orderModel from "../models/orderModel.js"
 import userModel from "../models/userModel.js"
 import Razorpay from "razorpay"; // Note lowercase 'p'
+import PDFDocument from 'pdfkit';
+import { Readable } from 'stream';
 
-// Debug check (add this temporarily)
-console.log("RAZORPAY_KEY_ID:", process.env.RAZORPAY_KEY_ID);
-console.log("RAZORPAY_KEY_SECRET:", process.env.RAZORPAY_KEY_SECRET);
+
 
 const razorpayInstance = new Razorpay({
     key_id: "rzp_test_PKroQEAnCB7ol3",
@@ -193,8 +193,62 @@ const whatsappOrder = async (req, res) => {
 };
 
 
+const generateInvoice = async (req, res) => {
+    try {
+        const { orderId } = req.params;
 
-// tract order  
+        const order = await orderModel.findById(orderId).populate('userId', 'name email');
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+
+        // Convert PDF document to a readable stream
+        const stream = new Readable();
+        stream._read = () => {};
+        doc.pipe(stream);
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
+        doc.pipe(res);
+
+        // Header
+        doc.fontSize(20).text("Invoice", { align: 'center' });
+        doc.moveDown();
+
+        // User Info
+        doc.fontSize(12).text(`Customer Name: ${order.userId.name}`);
+        doc.text(`Email: ${order.userId.email}`);
+        doc.text(`Order ID: ${order._id}`);
+        doc.text(`Order Date: ${new Date(order.date).toLocaleDateString()}`);
+        doc.moveDown();
+
+        // Address
+        doc.fontSize(14).text("Shipping Address:");
+        doc.fontSize(12).text(order.address);
+        doc.moveDown();
+
+        // Order Items
+        doc.fontSize(14).text("Items:");
+        order.items.forEach((item, index) => {
+            doc.fontSize(12).text(`${index + 1}. ${item.name} - Qty: ${item.quantity} - ₹${item.price}`);
+        });
+        doc.moveDown();
+
+        // Summary
+        doc.fontSize(14).text(`Total Amount: ₹${order.amount}`);
+        doc.text(`Payment Method: ${order.paymentMethod}`);
+        doc.text(`Payment Status: ${order.payment ? 'Paid' : 'Unpaid'}`);
+
+        doc.end();
+
+    } catch (error) {
+        console.error("Error generating invoice:", error);
+        res.status(500).json({ success: false, message: "Failed to generate invoice" });
+    }
+};
+
 
 
 
@@ -207,7 +261,7 @@ export {
     userOrders,
     updateStatus,
     verifyRazorpay,
-    whatsappOrder,
+    whatsappOrder,generateInvoice
 
 }
 
