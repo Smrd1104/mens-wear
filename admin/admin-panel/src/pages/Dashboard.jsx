@@ -9,20 +9,22 @@ export const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:
 
 const Dashboard = ({ token }) => {
   const [stats, setStats] = useState(null);
+  const [page, setPage] = useState(1);
+
+   const fetchStats = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/api/dashboard/stats?page=${page}`, {
+        headers: { token }
+      });
+      setStats(res.data.data);
+    } catch (err) {
+      console.error("Failed to fetch dashboard stats", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await axios.get(`${backendUrl}/api/dashboard/stats`, {
-          headers: { token }
-        });
-        setStats(res.data.data);
-      } catch (err) {
-        console.error("Failed to fetch dashboard stats", err);
-      }
-    };
     fetchStats();
-  }, []);
+  }, [page]);
 
   const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042"];
 
@@ -50,6 +52,7 @@ const Dashboard = ({ token }) => {
       {/* Orders Table */}
       <div className="bg-white shadow rounded-xl p-4">
         <h2 className="text-lg font-semibold mb-4">All Orders</h2>
+
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left border-b">
@@ -72,7 +75,31 @@ const Dashboard = ({ token }) => {
             ))}
           </tbody>
         </table>
+
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={page === 1}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <p className="text-sm">
+            Page {stats.currentPage} of {stats.totalPages}
+          </p>
+
+          <button
+            onClick={() => setPage((prev) => Math.min(prev + 1, stats.totalPages))}
+            disabled={page === stats.totalPages}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
+
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
