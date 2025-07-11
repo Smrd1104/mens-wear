@@ -72,7 +72,7 @@ const Dashboard = ({ token }) => {
           <tbody>
             {stats.recentOrders.map((order) => (
               <tr key={order._id} className="border-b hover:bg-gray-50">
-                <td className="py-2">{order._id.slice(-6)}</td>
+                <td className="py-2 ">{order._id}</td>
                 <td>{order.userId?.name || "Guest"}</td>
                 <td>₹{order.amount}</td>
                 <td>{order.status}</td>
