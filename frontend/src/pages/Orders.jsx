@@ -80,6 +80,27 @@ const Orders = () => {
         }
     }
 
+
+    const handleInvoiceDownload = async (orderId) => {
+        try {
+            const response = await axios.get(`${backendUrl}/api/order/invoice/${orderId}`, {
+                headers: { token },
+                responseType: 'blob', // Important for file downloads
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `invoice-${orderId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Error downloading invoice:", error);
+        }
+    };
+
+
     useEffect(() => {
         setVisibleOrders(orderData.slice(0, itemsToShow));
     }, [itemsToShow, orderData]);
@@ -137,7 +158,16 @@ const Orders = () => {
                             >
                                 Track Order
                             </button>
+                            <button
+                                className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
+                                onClick={() => handleInvoiceDownload(item.orderId)}
+                            >
+                                Download Invoice
+                            </button>
                         </div>
+
+
+
                     </div>
                 ))}
             </div>
