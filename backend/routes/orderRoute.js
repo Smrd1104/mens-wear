@@ -59,7 +59,6 @@ orderRouter.get('/invoice/view/:orderId', generateInvoiceForView)       // Admin
 orderRouter.get('/invoice/download/:orderId', generateInvoiceForDownload) // User
 
 
-// orderRouter.get('/invoice/:orderId', generateInvoice)
 
 
 
