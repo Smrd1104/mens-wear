@@ -7,7 +7,7 @@ const trackingSchema = new mongoose.Schema({
 
 
 const orderSchema = new mongoose.Schema({
-    userId: { type: String, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true }, // ✅ FIXED
     items: { type: Array, required: true },
     amount: { type: Number, required: true },
     address: { type: Object, required: true },

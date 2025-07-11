@@ -12,9 +12,8 @@ export const getDashboardStats = async (req, res) => {
     const totalUsers = await userModel.countDocuments();
     const totalProducts = await productModel.countDocuments();
 
-    const recentOrders = await orderModel.find()
+    const allOrders = await orderModel.find()
       .sort({ date: -1 })
-      .limit(5)
       .populate("userId", "name");
 
     const paymentBreakdown = await orderModel.aggregate([
@@ -25,12 +24,14 @@ export const getDashboardStats = async (req, res) => {
       { $group: { _id: "$status", count: { $sum: 1 } } }
     ]);
 
-    const topProducts = await orderModel.aggregate([
+    const allProductSales = await orderModel.aggregate([
       { $unwind: "$items" },
       { $group: { _id: "$items.name", totalSold: { $sum: "$items.quantity" } } },
-      { $sort: { totalSold: -1 } },
-      { $limit: 5 }
+      { $sort: { totalSold: -1 } }
     ]);
+
+
+
 
     res.json({
       success: true,
@@ -41,10 +42,10 @@ export const getDashboardStats = async (req, res) => {
           totalUsers,
           totalProducts,
         },
-        recentOrders,
+        allOrders,
         paymentBreakdown,
         statusStats,
-        topProducts,
+        allProductSales,
       },
     });
   } catch (error) {
