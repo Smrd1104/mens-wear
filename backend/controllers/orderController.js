@@ -193,61 +193,63 @@ const whatsappOrder = async (req, res) => {
 };
 
 
+
 const generateInvoice = async (req, res) => {
     try {
         const { orderId } = req.params;
 
         const order = await orderModel.findById(orderId).populate('userId', 'name email');
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found" });
+            return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+        const doc = new PDFDocument();
+        const buffers = [];
 
-        // Convert PDF document to a readable stream
-        const stream = new Readable();
-        stream._read = () => {};
-        doc.pipe(stream);
+        // Set CORS headers
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
-        doc.pipe(res);
 
-        // Header
-        doc.fontSize(20).text("Invoice", { align: 'center' });
-        doc.moveDown();
-
-        // User Info
-        doc.fontSize(12).text(`Customer Name: ${order.userId.name}`);
-        doc.text(`Email: ${order.userId.email}`);
-        doc.text(`Order ID: ${order._id}`);
-        doc.text(`Order Date: ${new Date(order.date).toLocaleDateString()}`);
-        doc.moveDown();
-
-        // Address
-        doc.fontSize(14).text("Shipping Address:");
-        doc.fontSize(12).text(order.address);
-        doc.moveDown();
-
-        // Order Items
-        doc.fontSize(14).text("Items:");
-        order.items.forEach((item, index) => {
-            doc.fontSize(12).text(`${index + 1}. ${item.name} - Qty: ${item.quantity} - ₹${item.price}`);
+        doc.on('data', buffers.push.bind(buffers));
+        doc.on('end', () => {
+            const pdfData = Buffer.concat(buffers);
+            res.send(pdfData);
         });
+
+        // Example content (you can design it as needed)
+        doc.fontSize(20).text('Invoice', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(12).text(`Order ID: ${order._id}`);
+        doc.text(`Customer: ${order.userId.name}`);
+        doc.text(`Email: ${order.userId.email}`);
+        doc.text(`Date: ${new Date(order.date).toDateString()}`);
+        doc.text(`Payment Method: ${order.paymentMethod}`);
+        doc.text(`Status: ${order.status}`);
         doc.moveDown();
 
-        // Summary
-        doc.fontSize(14).text(`Total Amount: ₹${order.amount}`);
-        doc.text(`Payment Method: ${order.paymentMethod}`);
-        doc.text(`Payment Status: ${order.payment ? 'Paid' : 'Unpaid'}`);
+        order.items.forEach((item, index) => {
+            doc.text(`${index + 1}. ${item.name} - ₹${item.price} x ${item.quantity}`);
+        });
 
+        doc.text(`\nTotal: ₹${order.amount}`);
         doc.end();
 
-    } catch (error) {
-        console.error("Error generating invoice:", error);
-        res.status(500).json({ success: false, message: "Failed to generate invoice" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Failed to generate invoice' });
     }
 };
+
+export default generateInvoice;
+
+
+export { generateInvoice }
+
+
 
 
 
@@ -261,7 +263,7 @@ export {
     userOrders,
     updateStatus,
     verifyRazorpay,
-    whatsappOrder,generateInvoice
+    whatsappOrder, generateInvoice
 
 }
 
