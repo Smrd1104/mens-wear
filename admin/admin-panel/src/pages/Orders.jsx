@@ -124,7 +124,7 @@ const Orders = ({ token }) => {
     }
 
     const handleInvoiceView = (orderId) => {
-        const url = `${backendUrl}/api/order/invoice/${orderId}`;
+        const url = `${backendUrl}/api/order/invoice/view/${orderId}`;
         window.open(url, '_blank'); // View PDF in new tab
     };
 

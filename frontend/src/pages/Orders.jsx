@@ -83,7 +83,7 @@ const Orders = () => {
 
     const handleInvoiceDownload = async (orderId) => {
         try {
-            const response = await axios.get(`${backendUrl}/api/order/invoice/${orderId}`, {
+            const response = await axios.get(`${backendUrl}/api/order/invoice/download/${orderId}`, {
                 headers: { token },
                 responseType: 'blob', // Needed to download file
             });

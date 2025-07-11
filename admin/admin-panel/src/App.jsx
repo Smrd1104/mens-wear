@@ -41,7 +41,7 @@ const App = () => {
                 <Route path='/list' element={<List token={token} />} />
                 <Route path='/orders' element={<Orders token={token} />} />
                 <Route path="/edit-product/:productId" element={<EditProduct token={token} />} />
-                <Route path="/invoice/:orderId" element={<Invoice />} />
+                {/* <Route path="/invoice/:orderId" element={<Invoice />} /> */}
 
 
               </Routes>
