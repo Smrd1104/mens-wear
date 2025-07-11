@@ -4,6 +4,7 @@ import userModel from "../models/userModel.js"
 import Razorpay from "razorpay"; // Note lowercase 'p'
 import PDFDocument from 'pdfkit';
 import { Readable } from 'stream';
+import path from 'path';
 
 
 
@@ -201,19 +202,16 @@ const generateInvoice = async (req, res) => {
     try {
         const { orderId } = req.params;
 
-        // 1. Fetch Order
         const order = await orderModel.findById(orderId);
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // 2. Fetch User (since order.userId is a string)
         const user = await userModel.findById(order.userId);
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // 3. Prepare Invoice Data
         const invoiceData = {
             invoiceNumber: `INV-${orderId.slice(-6).toUpperCase()}`,
             invoiceDate: new Date(order.date).toLocaleDateString('en-GB'),
@@ -225,11 +223,19 @@ const generateInvoice = async (req, res) => {
             },
             billTo: {
                 name: user.name || 'Customer',
-                address: order.address?.line1 + '\n' + order.address?.city + ', ' + order.address?.state + ' ' + order.address?.zip
+                address: order.address?.line1 + '\n' +
+                    order.address?.city + ', ' +
+                    order.address?.state + ' ' +
+                    order.address?.zipcode + '\n' +
+                    order.address?.country
             },
             shipTo: {
                 name: user.name || 'Customer',
-                address: order.address?.line1 + '\n' + order.address?.city + ', ' + order.address?.state + ' ' + order.address?.zip
+                address: order.address?.line1 + '\n' +
+                    order.address?.city + ', ' +
+                    order.address?.state + ' ' +
+                    order.address?.zipcode + '\n' +
+                    order.address?.country
             },
             items: order.items.map(item => ({
                 qty: item.quantity,
@@ -242,9 +248,12 @@ const generateInvoice = async (req, res) => {
             customerName: user.name
         };
 
-        // 4. Generate PDF using pdfkit
         const doc = new PDFDocument({ margin: 50 });
         const buffers = [];
+
+        const fontPath = path.resolve('fonts/NotoSans-Regular.ttf');
+        doc.registerFont('NotoSans', fontPath);
+        doc.font('NotoSans');
 
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Content-Type', 'application/pdf');
@@ -256,29 +265,28 @@ const generateInvoice = async (req, res) => {
             res.end(pdfData);
         });
 
-        // Top Blue Bar
+        // Top Bar
         doc.rect(0, 0, doc.page.width, 30).fill('#2e6cb8').fillColor('black').moveDown(2);
 
-        // Header
+        // Company Info
         doc
             .fontSize(14)
-            .font('Helvetica-Bold')
             .text(invoiceData.company.name, 50, 50)
-            .font('Helvetica')
             .fontSize(10)
             .text(invoiceData.company.address)
             .moveDown(2);
 
+        // Billing/Shipping Info
         doc
-            .font('Helvetica-Bold')
+            .fontSize(10)
+            .font('NotoSans')
             .text('BILL TO', 50, 130)
             .text('SHIP TO', 200, 130)
             .text('INVOICE #', 370, 130)
             .text('INVOICE DATE', 370, 150)
             .text('P.O.#', 370, 170)
             .text('DUE DATE', 370, 190)
-            .font('Helvetica')
-            .fontSize(10)
+            .font('NotoSans')
             .text(invoiceData.billTo.name + '\n' + invoiceData.billTo.address, 50, 150)
             .text(invoiceData.shipTo.name + '\n' + invoiceData.shipTo.address, 200, 150)
             .text(invoiceData.invoiceNumber, 460, 130)
@@ -286,11 +294,10 @@ const generateInvoice = async (req, res) => {
             .text(invoiceData.poNumber, 460, 170)
             .text(invoiceData.dueDate, 460, 190);
 
-        // Invoice Title
+        // Invoice Total
         doc
             .moveDown(2)
             .fontSize(20)
-            .font('Helvetica-Bold')
             .text('Invoice Total', 50)
             .fontSize(18)
             .text(`₹${invoiceData.total}`, { align: 'right' });
@@ -301,7 +308,6 @@ const generateInvoice = async (req, res) => {
         // Table Header
         doc
             .fontSize(10)
-            .font('Helvetica-Bold')
             .text('QTY', 50, doc.y + 10)
             .text('DESCRIPTION', 100)
             .text('UNIT PRICE', 350)
@@ -309,11 +315,10 @@ const generateInvoice = async (req, res) => {
             .moveDown();
 
         // Items
-        doc.font('Helvetica');
         invoiceData.items.forEach(item => {
             const amount = item.qty * item.unitPrice;
             doc
-                .text(item.qty, 50)
+                .text(item.qty.toString(), 50)
                 .text(item.description, 100)
                 .text(`₹${item.unitPrice.toFixed(2)}`, 350)
                 .text(`₹${amount.toFixed(2)}`, 450)
@@ -326,16 +331,16 @@ const generateInvoice = async (req, res) => {
             .moveDown()
             .text(`Subtotal: ₹${invoiceData.subtotal.toFixed(2)}`, 400)
             .text(`Sales Tax ${invoiceData.taxRate}%: ₹${taxAmount.toFixed(2)}`, 400)
-            .font('Helvetica-Bold')
+            .fontSize(12)
             .text(`Total: ₹${invoiceData.total.toFixed(2)}`, 400);
 
         // Terms
         doc.moveDown(4);
-        doc.font('Helvetica-Bold').text('TERMS & CONDITIONS');
-        doc.font('Helvetica').text('Payment is due within 15 days');
+        doc.fontSize(10).text('TERMS & CONDITIONS', 50);
+        doc.text('Payment is due within 15 days.');
         doc.text('Please make checks payable to: ' + invoiceData.company.name);
 
-        // Bottom bar
+        // Bottom Bar
         doc.rect(0, doc.page.height - 30, doc.page.width, 30).fill('#2e6cb8');
 
         doc.end();
@@ -345,6 +350,7 @@ const generateInvoice = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to generate invoice' });
     }
 };
+
 
 
 
