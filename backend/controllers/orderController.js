@@ -203,14 +203,10 @@ const generateInvoice = async (req, res) => {
         const { orderId } = req.params;
 
         const order = await orderModel.findById(orderId);
-        if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
-        }
+        if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
         const user = await userModel.findById(order.userId);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
         const invoiceData = {
             invoiceNumber: `INV-${orderId.slice(-6).toUpperCase()}`,
@@ -219,23 +215,15 @@ const generateInvoice = async (req, res) => {
             poNumber: `PO-${orderId.slice(0, 6).toUpperCase()}`,
             company: {
                 name: 'Mens Wear',
-                address: '123 Fashion Street\nMumbai, MH 400001'
+                address: '25,Street\Chennai, MH 400001\India'
             },
             billTo: {
                 name: user.name || 'Customer',
-                address: order.address?.line1 + '\n' +
-                    order.address?.city + ', ' +
-                    order.address?.state + ' ' +
-                    order.address?.zipcode + '\n' +
-                    order.address?.country
+                address: `${order.address?.street || ''}\n${order.address?.city}, ${order.address?.state} ${order.address?.zipcode}\n${order.address?.country}`
             },
             shipTo: {
                 name: user.name || 'Customer',
-                address: order.address?.line1 + '\n' +
-                    order.address?.city + ', ' +
-                    order.address?.state + ' ' +
-                    order.address?.zipcode + '\n' +
-                    order.address?.country
+                address: `${order.address?.street || ''}\n${order.address?.city}, ${order.address?.state} ${order.address?.zipcode}\n${order.address?.country}`
             },
             items: order.items.map(item => ({
                 qty: item.quantity,
@@ -250,7 +238,6 @@ const generateInvoice = async (req, res) => {
 
         const doc = new PDFDocument({ margin: 50 });
         const buffers = [];
-
         const fontPath = path.resolve('fonts/NotoSans-Regular.ttf');
         doc.registerFont('NotoSans', fontPath);
         doc.font('NotoSans');
@@ -260,91 +247,95 @@ const generateInvoice = async (req, res) => {
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
 
         doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', () => {
-            const pdfData = Buffer.concat(buffers);
-            res.end(pdfData);
-        });
+        doc.on('end', () => res.end(Buffer.concat(buffers)));
 
-        // Top Bar
-        doc.rect(0, 0, doc.page.width, 30).fill('#2e6cb8').fillColor('black').moveDown(2);
+        // Header Bar
+        doc.rect(0, 0, doc.page.width, 30).fill('#2e6cb8').fillColor('black');
 
         // Company Info
-        doc
+        doc.fillColor('black')
             .fontSize(14)
-            .text(invoiceData.company.name, 50, 50)
+            .text(invoiceData.company.name, 50, 40)
             .fontSize(10)
-            .text(invoiceData.company.address)
-            .moveDown(2);
+            .text(invoiceData.company.address, 50, 60);
 
-        // Billing/Shipping Info
-        doc
-            .fontSize(10)
+        // Invoice Info Grid
+        doc.fontSize(10)
+            .font('NotoSans-Bold')
+            .text('BILL TO', 50, 120)
+            .text('SHIP TO', 200, 120)
+            .text('INVOICE #', 370, 120)
             .font('NotoSans')
-            .text('BILL TO', 50, 130)
-            .text('SHIP TO', 200, 130)
-            .text('INVOICE #', 370, 130)
-            .text('INVOICE DATE', 370, 150)
-            .text('P.O.#', 370, 170)
-            .text('DUE DATE', 370, 190)
+            .text(invoiceData.billTo.name, 50, 135)
+            .text(invoiceData.billTo.address, 50, 150)
+            .text(invoiceData.shipTo.name, 200, 135)
+            .text(invoiceData.shipTo.address, 200, 150)
+            .text(invoiceData.invoiceNumber, 450, 120);
+
+        doc.font('NotoSans-Bold')
+            .text('INVOICE DATE', 370, 180)
+            .text('P.O.#', 370, 195)
+            .text('DUE DATE', 370, 210)
             .font('NotoSans')
-            .text(invoiceData.billTo.name + '\n' + invoiceData.billTo.address, 50, 150)
-            .text(invoiceData.shipTo.name + '\n' + invoiceData.shipTo.address, 200, 150)
-            .text(invoiceData.invoiceNumber, 460, 130)
-            .text(invoiceData.invoiceDate, 460, 150)
-            .text(invoiceData.poNumber, 460, 170)
-            .text(invoiceData.dueDate, 460, 190);
+            .text(invoiceData.invoiceDate, 450, 180)
+            .text(invoiceData.poNumber, 450, 195)
+            .text(invoiceData.dueDate, 450, 210);
 
         // Invoice Total
-        doc
-            .moveDown(2)
-            .fontSize(20)
-            .text('Invoice Total', 50)
+        doc.moveDown(5)
             .fontSize(18)
+            .font('NotoSans-Bold')
+            .text('Invoice Total', 50)
             .text(`₹${invoiceData.total}`, { align: 'right' });
 
-        doc.moveDown(0.5);
-        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+        doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke();
 
         // Table Header
-        doc
-            .fontSize(10)
-            .text('QTY', 50, doc.y + 10)
-            .text('DESCRIPTION', 100)
-            .text('UNIT PRICE', 350)
-            .text('AMOUNT', 450)
-            .moveDown();
+        doc.moveDown(1).fontSize(10).font('NotoSans-Bold');
+        const tableTop = doc.y;
+        const itemX = { qty: 50, desc: 100, unit: 360, total: 460 };
 
-        // Items
-        invoiceData.items.forEach(item => {
+        doc.text('QTY', itemX.qty, tableTop)
+            .text('DESCRIPTION', itemX.desc, tableTop)
+            .text('UNIT PRICE', itemX.unit, tableTop)
+            .text('AMOUNT', itemX.total, tableTop);
+
+        doc.moveDown(0.5).font('NotoSans');
+
+        // Table Rows
+        invoiceData.items.forEach((item, i) => {
+            const y = doc.y;
             const amount = item.qty * item.unitPrice;
-            doc
-                .text(item.qty.toString(), 50)
-                .text(item.description, 100)
-                .text(`₹${item.unitPrice.toFixed(2)}`, 350)
-                .text(`₹${amount.toFixed(2)}`, 450)
-                .moveDown();
+
+            doc.text(item.qty.toString(), itemX.qty, y)
+                .text(item.description, itemX.desc, y)
+                .text(`₹${item.unitPrice.toFixed(2)}`, itemX.unit, y, { width: 80, align: 'right' })
+                .text(`₹${amount.toFixed(2)}`, itemX.total, y, { width: 80, align: 'right' });
+
+            doc.moveDown(0.5);
         });
+
+        doc.moveDown(1);
 
         // Totals
         const taxAmount = invoiceData.total - invoiceData.subtotal;
-        doc
-            .moveDown()
-            .text(`Subtotal: ₹${invoiceData.subtotal.toFixed(2)}`, 400)
-            .text(`Sales Tax ${invoiceData.taxRate}%: ₹${taxAmount.toFixed(2)}`, 400)
-            .fontSize(12)
-            .text(`Total: ₹${invoiceData.total.toFixed(2)}`, 400);
+        doc.font('NotoSans')
+            .text(`Subtotal: ₹${invoiceData.subtotal.toFixed(2)}`, 400, doc.y, { align: 'right' })
+            .text(`Sales Tax ${invoiceData.taxRate}%: ₹${taxAmount.toFixed(2)}`, 400, doc.y + 15, { align: 'right' })
+            .font('NotoSans-Bold')
+            .text(`Total: ₹${invoiceData.total.toFixed(2)}`, 400, doc.y + 30, { align: 'right' });
 
         // Terms
-        doc.moveDown(4);
-        doc.fontSize(10).text('TERMS & CONDITIONS', 50);
-        doc.text('Payment is due within 15 days.');
-        doc.text('Please make checks payable to: ' + invoiceData.company.name);
+        doc.moveDown(3);
+        doc.font('NotoSans-Bold').text('TERMS & CONDITIONS');
+        doc.font('NotoSans')
+            .text('Payment is due within 15 days.')
+            .text(`Please make checks payable to: ${invoiceData.company.name}`);
 
-        // Bottom Bar
+        // Footer
         doc.rect(0, doc.page.height - 30, doc.page.width, 30).fill('#2e6cb8');
 
         doc.end();
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Failed to generate invoice' });
