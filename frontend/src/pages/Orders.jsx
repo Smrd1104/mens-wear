@@ -152,19 +152,24 @@ const Orders = () => {
                                 <p className="min-w-2 h-2 rounded-full bg-green-500"></p>
                                 <p className="capitalize text-base md:text-sm">{item.status}</p>
                             </div>
+
                             <button
                                 className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
                                 onClick={() => setSelectedOrderId(item.orderId)}
                             >
                                 Track Order
                             </button>
-                            <button
-                                className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
-                                onClick={() => handleInvoiceDownload(item.orderId)}
-                            >
-                                Download Invoice
-                            </button>
+
+                            {item.status === 'Delivered' && (
+                                <button
+                                    className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
+                                    onClick={() => handleInvoiceDownload(item.orderId)}
+                                >
+                                    Download Invoice
+                                </button>
+                            )}
                         </div>
+
 
 
 
