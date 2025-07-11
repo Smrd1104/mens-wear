@@ -200,10 +200,6 @@ const whatsappOrder = async (req, res) => {
 
 
 // === Shared Invoice Logic ===
-import PDFDocument from 'pdfkit';
-import path from 'path';
-import orderModel from '../models/orderModel.js';
-import userModel from '../models/userModel.js';
 
 export const generateInvoiceCommon = async (orderId, res, mode = 'download') => {
   try {
