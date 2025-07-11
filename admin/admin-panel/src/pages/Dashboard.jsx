@@ -11,7 +11,7 @@ const Dashboard = ({ token }) => {
   const [stats, setStats] = useState(null);
   const [page, setPage] = useState(1);
 
-   const fetchStats = async () => {
+  const fetchStats = async () => {
     try {
       const res = await axios.get(`${backendUrl}/api/dashboard/stats?page=${page}`, {
         headers: { token }
@@ -87,19 +87,22 @@ const Dashboard = ({ token }) => {
           </button>
 
           <p className="text-sm">
-            Page {stats.currentPage} of {stats.totalPages}
+            Page {stats.pagination.currentPage} of {stats.pagination.totalPages}
           </p>
 
           <button
-            onClick={() => setPage((prev) => Math.min(prev + 1, stats.totalPages))}
-            disabled={page === stats.totalPages}
+            onClick={() =>
+              setPage((prev) =>
+                Math.min(prev + 1, stats.pagination.totalPages)
+              )
+            }
+            disabled={page === stats.pagination.totalPages}
             className="px-3 py-1 border rounded disabled:opacity-50"
           >
             Next
           </button>
         </div>
       </div>
-
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
