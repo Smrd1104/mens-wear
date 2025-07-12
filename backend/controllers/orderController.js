@@ -79,24 +79,42 @@ const placeOrder = async (req, res) => {
 
 const verifyRazorpay = async (req, res) => {
   try {
-    const { userId, razorpay_order_id } = req.body;
+    const {
+      userId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    } = req.body;
 
-    const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
-    if (orderInfo.status === 'paid') {
-      const order = await orderModel.findById(orderInfo.receipt); // ✅ fetch the order
-      if (!order) return res.json({ success: false, message: "Order not found" });
+    // 🔐 Signature verification
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_SECRET || "Fxjtaomc2wirn3D4T3TLV3YI")
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
 
-      await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true });
-      await updateSKUQuantities(order.items); // ✅ now this works
-      await userModel.findByIdAndUpdate(userId, { cartData: {} });
-
-      res.json({ success: true, message: "Payment Successful" });
-    } else {
-      res.json({ success: false, message: "Payment Failed" });
+    if (generatedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false, message: "Invalid signature. Payment verification failed." });
     }
+
+    // ✅ Fetch order using Razorpay order ID (receipt = our MongoDB order _id)
+    const razorpayOrder = await razorpayInstance.orders.fetch(razorpay_order_id);
+    const orderId = razorpayOrder.receipt;
+
+    const order = await orderModel.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // ✅ Update payment and SKUs
+    await orderModel.findByIdAndUpdate(orderId, { payment: true });
+    await updateSKUQuantities(order.items);
+    await userModel.findByIdAndUpdate(userId, { cartData: {} });
+
+    res.json({ success: true, message: "Payment verified successfully" });
+
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.error("Error verifying Razorpay:", error);
+    res.status(500).json({ success: false, message: "Payment verification failed" });
   }
 };
 

@@ -1,33 +1,50 @@
-import { useContext, useState } from "react"
-import { assets } from "../assets/frontend_assets/assets"
-import CartTotal from "../components/CartTotal"
-import Title from "../components/Title"
-import { ShopContext } from "../context/ShopContext"
-import axios from "axios"
-import { toast } from "react-toastify"
-import whatsapp_logo from '../assets/frontend_assets/whatsapp(1).png'
+import { useContext, useEffect, useMemo, useState } from "react";
+import { assets } from "../assets/frontend_assets/assets";
+import CartTotal from "../components/CartTotal";
+import Title from "../components/Title";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
+import whatsapp_logo from "../assets/frontend_assets/whatsapp(1).png";
 
 const PlaceOrder = () => {
-  const [method, setMethod] = useState('')
-  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext)
+  const [method, setMethod] = useState("");
+  const [loading, setLoading] = useState(false);
+  const {
+    navigate,
+    backendUrl,
+    token,
+    cartItems,
+    setCartItems,
+    getCartAmount,
+    delivery_fee,
+    products,
+    productId,
+    fetchSKUs,
+  } = useContext(ShopContext);
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    street: '',
-    city: '',
-    state: '',
-    zipcode: '',
-    country: '',
-    phone: '',
-  })
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+    phone: "",
+  });
 
   const onChangeHandler = (event) => {
-    const name = event.target.name
-    const value = event.target.value
-    setFormData(data => ({ ...data, [name]: value }))
-  }
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const productMap = useMemo(() => {
+    const map = new Map();
+    products.forEach((p) => map.set(p._id, p));
+    return map;
+  }, [products]);
 
   const initPay = (order) => {
     const options = {
@@ -41,80 +58,98 @@ const PlaceOrder = () => {
       handler: async (response) => {
         try {
           const { data } = await axios.post(
-            backendUrl + "/api/order/verifyRazorpay",
+            `${backendUrl}/api/order/verifyRazorpay`,
             response,
             { headers: { token } }
-          )
+          );
           if (data.success) {
-            navigate('/orders')
-            setCartItems({})
+            setCartItems({});
+            navigate("/orders");
           } else {
-            console.log("Payment verification failed")
+            toast.error("Payment verification failed.");
           }
         } catch (error) {
-          console.log("Error verifying payment:", error)
-          toast.error("Payment verification failed.")
+          toast.error("Payment verification failed.");
         }
-      }
-    }
+      },
+    };
 
-    const rzp = new window.Razorpay(options)
-    rzp.open()
-  }
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
 
   const onSubmitHandler = async (event) => {
-    event.preventDefault()
+    event.preventDefault();
+
+    if (!method) {
+      return toast.error("Please select a payment method.");
+    }
 
     try {
-      let orderItems = []
+      setLoading(true);
+
+      const orderItems = [];
 
       for (const productId in cartItems) {
         for (const size in cartItems[productId]) {
           if (cartItems[productId][size] > 0) {
-            const product = products.find(p => p._id === productId)
+            const product = productMap.get(productId);
             if (product) {
-              const quantity = cartItems[productId][size]
+              const quantity = cartItems[productId][size];
               orderItems.push({
                 productId: product._id,
                 name: product.name,
                 size,
-                color: product.color || 'default',
+                color: product.color?.name || "default",
                 price: product.price,
                 quantity,
-                image: product.image || [] // ✅ Include image array
-              })
+                image: product.image || [],
+              });
             }
           }
         }
       }
 
-      let orderData = {
+      const orderData = {
         address: formData,
         items: orderItems,
-        amount: Math.round(getCartAmount() + delivery_fee)
-      }
+        amount: Math.round(getCartAmount() + delivery_fee),
+      };
 
       switch (method) {
-        case 'cod': {
-          const response = await axios.post(backendUrl + "/api/order/place", orderData, { headers: { token } })
+        case "cod": {
+          const response = await axios.post(
+            `${backendUrl}/api/order/place`,
+            orderData,
+            { headers: { token } }
+          );
+
           if (response.data.success) {
-            setCartItems({})
-            navigate("/orders")
+            setCartItems({});
+            localStorage.setItem(
+              "refreshProductId",
+              JSON.stringify(orderItems.map((item) => item.productId))
+            );
+            navigate("/orders");
           } else {
-            toast.error(response.data.message)
+            toast.error(response.data.message);
           }
-          break
+          break;
         }
 
-        case 'razorpay': {
-          const responseRazorpay = await axios.post(backendUrl + "/api/order/razorpay", orderData, { headers: { token } })
+        case "razorpay": {
+          const responseRazorpay = await axios.post(
+            `${backendUrl}/api/order/razorpay`,
+            orderData,
+            { headers: { token } }
+          );
           if (responseRazorpay.data.success) {
-            initPay(responseRazorpay.data.order)
+            initPay(responseRazorpay.data.order);
           }
-          break
+          break;
         }
 
-        case 'whatsapp': {
+        case "whatsapp": {
           const message = `
 🛒 *Order Summary* 🛒
 
@@ -123,98 +158,225 @@ const PlaceOrder = () => {
 📱 Phone: ${formData.phone}
 
 📦 Products:
-${orderItems.map(item => `- ${item.name} (Size: ${item.size}) x${item.quantity}`).join('\n')}
+${orderItems
+  .map((item) => `- ${item.name} (Size: ${item.size}) x${item.quantity}`)
+  .join("\n")}
 
 🏠 Address:
 ${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, ${formData.country}
 
 💰 Total: ₹${Math.round(getCartAmount() + delivery_fee)}
 
-*Please confirm this order.*
-          `
-          const encodedMessage = encodeURIComponent(message)
-          const whatsappNumber = '919360103180'
-          const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
+*Please confirm this order.*`;
 
-          await axios.post(`${backendUrl}/api/order/whatsapp`, {
-            address: formData,
-            items: orderItems,
-            amount: Math.round(getCartAmount() + delivery_fee)
-          }, { headers: { token } })
+          const encodedMessage = encodeURIComponent(message);
+          const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || "919360103180";
+          const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
-          window.open(whatsappUrl, '_blank')
-          break
+          await axios.post(
+            `${backendUrl}/api/order/whatsapp`,
+            orderData,
+            { headers: { token } }
+          );
+
+          window.open(whatsappUrl, "_blank");
+          break;
         }
 
         default:
-          toast.error("Please select a payment method.")
-          break
+          toast.error("Invalid payment method.");
+          break;
       }
-
     } catch (error) {
-      console.log(error)
-      toast.error("Something went wrong.")
+      toast.error("Something went wrong.");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
+  useEffect(() => {
+    const loadSKUs = async () => {
+      const response = await axios.get(`${backendUrl}/api/sku/${productId}`);
+      if (response.data.success) {
+        fetchSKUs(); // Assuming this will update SKU list
+      }
+    };
+
+    const refreshIds = JSON.parse(localStorage.getItem("refreshProductId") || "[]");
+    if (refreshIds.includes(productId)) {
+      loadSKUs();
+      localStorage.setItem(
+        "refreshProductId",
+        JSON.stringify(refreshIds.filter((id) => id !== productId))
+      );
+    }
+  }, [productId]);
 
   return (
-    <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-22 sm:pt-22 min-h-[80vh] border-t'>
-      {/* --------left side-------- */}
-      <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
-        <div className='text-xl sm:text-2xl my-3'>
-          <Title text1={'delivery'} text2={'information'} />
+    <form
+      onSubmit={onSubmitHandler}
+      className="flex flex-col sm:flex-row justify-between gap-4 pt-22 sm:pt-22 min-h-[80vh] border-t"
+    >
+      {/* LEFT SIDE */}
+      <div className="flex flex-col gap-4 w-full sm:max-w-[480px]">
+        <div className="text-xl sm:text-2xl my-3">
+          <Title text1="delivery" text2="information" />
         </div>
         <div className="flex gap-3">
-          <input name="firstName" required onChange={onChangeHandler} value={formData.firstName} type="text" placeholder="First Name" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" />
-          <input name="lastName" required onChange={onChangeHandler} value={formData.lastName} type="text" placeholder="Last Name" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" />
+          <input
+            name="firstName"
+            required
+            onChange={onChangeHandler}
+            value={formData.firstName}
+            type="text"
+            placeholder="First Name"
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+          />
+          <input
+            name="lastName"
+            required
+            onChange={onChangeHandler}
+            value={formData.lastName}
+            type="text"
+            placeholder="Last Name"
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+          />
         </div>
-        <input name="email" required onChange={onChangeHandler} value={formData.email} type="email" placeholder="Email Address" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" />
-        <input name="street" required onChange={onChangeHandler} value={formData.street} type="text" placeholder="Street" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" />
+        <input
+          name="email"
+          required
+          onChange={onChangeHandler}
+          value={formData.email}
+          type="email"
+          placeholder="Email Address"
+          className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+        />
+        <input
+          name="street"
+          required
+          onChange={onChangeHandler}
+          value={formData.street}
+          type="text"
+          placeholder="Street"
+          className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+        />
         <div className="flex gap-3">
-          <input name="city" required onChange={onChangeHandler} value={formData.city} type="text" placeholder="City" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" />
-          <input name="state" required onChange={onChangeHandler} value={formData.state} type="text" placeholder="State" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" />
+          <input
+            name="city"
+            required
+            onChange={onChangeHandler}
+            value={formData.city}
+            type="text"
+            placeholder="City"
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+          />
+          <input
+            name="state"
+            required
+            onChange={onChangeHandler}
+            value={formData.state}
+            type="text"
+            placeholder="State"
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+          />
         </div>
         <div className="flex gap-3">
-          <input name="zipcode" required onChange={onChangeHandler} value={formData.zipcode} type="number" placeholder="Zipcode" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" />
-          <input name="country" required onChange={onChangeHandler} value={formData.country} type="text" placeholder="Country" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" />
+          <input
+            name="zipcode"
+            required
+            onChange={onChangeHandler}
+            value={formData.zipcode}
+            type="number"
+            placeholder="Zipcode"
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+          />
+          <input
+            name="country"
+            required
+            onChange={onChangeHandler}
+            value={formData.country}
+            type="text"
+            placeholder="Country"
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+          />
         </div>
-        <input name="phone" required onChange={onChangeHandler} value={formData.phone} type="number" placeholder="Phone/Mobile Number" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" />
+        <input
+          name="phone"
+          required
+          onChange={onChangeHandler}
+          value={formData.phone}
+          type="tel"
+          placeholder="Phone/Mobile Number"
+          className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+        />
       </div>
 
-      {/* --------right side-------- */}
+      {/* RIGHT SIDE */}
       <div>
         <div className="my-3 min-w-80">
           <CartTotal />
         </div>
         <div className="mt-3">
-          <div className='text-2xl'>
-            <Title text1={'payment'} text2={'methods'} />
+          <div className="text-2xl">
+            <Title text1="payment" text2="methods" />
           </div>
           <div className="flex gap-3 flex-col lg:flex-row">
-            <div onClick={() => setMethod('razorpay')} className="flex items-center gap-3 border px-3 p-2 cursor-pointer">
-              <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'razorpay' ? "bg-green-400" : ""}`}></p>
+            <div
+              onClick={() => setMethod("razorpay")}
+              className="flex items-center gap-3 border px-3 p-2 cursor-pointer"
+            >
+              <p
+                className={`min-w-3.5 h-3.5 border rounded-full ${
+                  method === "razorpay" ? "bg-green-400" : ""
+                }`}
+              ></p>
               <img src={assets.razorpay_logo} alt="razorpay" className="h-5 mx-4" />
             </div>
-            <div onClick={() => setMethod('cod')} className="flex items-center gap-3 border px-3 p-2 cursor-pointer">
-              <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'cod' ? "bg-green-400" : ""}`}></p>
+            <div
+              onClick={() => setMethod("cod")}
+              className="flex items-center gap-3 border px-3 p-2 cursor-pointer"
+            >
+              <p
+                className={`min-w-3.5 h-3.5 border rounded-full ${
+                  method === "cod" ? "bg-green-400" : ""
+                }`}
+              ></p>
               <p className="uppercase text-gray-400 font-medium mx-4">cash on delivery</p>
             </div>
-            <div onClick={() => setMethod('whatsapp')} className="flex items-center gap-3 border px-3 p-2 cursor-pointer">
-              <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'whatsapp' ? "bg-green-400" : ""}`}></p>
+            <div
+              onClick={() => setMethod("whatsapp")}
+              className="flex items-center gap-3 border px-3 p-2 cursor-pointer"
+            >
+              <p
+                className={`min-w-3.5 h-3.5 border rounded-full ${
+                  method === "whatsapp" ? "bg-green-400" : ""
+                }`}
+              ></p>
               <img src={whatsapp_logo} alt="whatsapp" className="min-w-3.5 h-5 mx-4" />
-              <p className="uppercase text-gray-400 font-medium -translate-x-4.5">WhatsApp</p>
+              <p className="uppercase text-gray-400 font-medium -translate-x-4.5">
+                WhatsApp
+              </p>
             </div>
           </div>
+
           <div className="w-full text-end mt-8">
-            <button type="submit" className="uppercase bg-black text-white px-16 py-3 text-sm">place order</button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="uppercase bg-black text-white px-16 py-3 text-sm"
+            >
+              {loading ? "Placing..." : "Place Order"}
+            </button>
           </div>
         </div>
       </div>
     </form>
-  )
-}
+  );
+};
 
-export default PlaceOrder
+export default PlaceOrder;
+
 
 
 

@@ -263,6 +263,19 @@ export const ShopProvider = ({ children }) => {
   }, []);
 
 
+  const fetchSKUs = async (productId) => {
+  try {
+    const res = await axios.get(`${backendUrl}/api/sku/${productId}`);
+    return res.data.data; // Return the latest SKU list
+  } catch (error) {
+    console.error("Fetch SKU Error:", error);
+    toast.error("Failed to fetch SKU data");
+    return [];
+  }
+};
+
+
+
 
   // useEffect(() => {
   //   if (!token && localStorage.getItem('token')) {
@@ -280,6 +293,7 @@ export const ShopProvider = ({ children }) => {
 
 
   const value = useMemo(() => ({
+    fetchSKUs,
     products,
     currency,
     delivery_fee,

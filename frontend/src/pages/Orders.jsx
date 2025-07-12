@@ -95,8 +95,15 @@ const Orders = () => {
   }, [itemsToShow, orderData]);
 
   useEffect(() => {
-    loadOrderData();
+    if (token) loadOrderData();
+
+    const interval = setInterval(() => {
+      if (token) loadOrderData();
+    }, 1500); // Refresh every 15s
+
+    return () => clearInterval(interval);
   }, [token]);
+
 
   return (
     <div className='border-t pt-22'>
@@ -151,8 +158,22 @@ const Orders = () => {
 
             <div className='w-full md:w-1/2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6'>
               <div className='flex items-center gap-2'>
-                <p className='min-w-2 h-2 rounded-full bg-green-500'></p>
-                <p className='capitalize text-base md:text-sm'>{item.status}</p>
+
+                <div className='flex items-center gap-2'>
+                  <span
+                    className={`w-2 h-2 rounded-full ${item.status === 'Delivered'
+                      ? 'bg-green-500'
+                      : item.status === 'Out for Delivery'
+                        ? 'bg-yellow-500'
+                        : item.status === 'Processing' || item.status === 'Order Processed'
+                          ? 'bg-blue-500'
+                          : item.status === 'Cancelled' || item.status === 'Rejected'
+                            ? 'bg-red-500'
+                            : 'bg-gray-400'
+                      }`}
+                  ></span>
+                  <p className='capitalize text-base md:text-sm'>{item.status}</p>
+                </div>
               </div>
 
               <button
