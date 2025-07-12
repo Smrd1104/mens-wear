@@ -25,6 +25,8 @@ const Add = ({ token }) => {
     const [latest, setLatest] = useState(false)
     const [sizes, setSizes] = useState([])
 
+    const [createdProductId, setCreatedProductId] = useState(null);
+    const [skuQuantities, setSKUQuantities] = useState({});
 
     const onSubmitHandler = async (e) => {
         e.preventDefault()
@@ -53,23 +55,23 @@ const Add = ({ token }) => {
             image4 && formData.append("image4", image4)
 
 
-            const response = await axios.post(backendUrl + "/api/product/add", formData, { headers: { token } })
-            console.log(response.data)
+            const response = await axios.post(backendUrl + "/api/product/add", formData, { headers: { token } });
+
+            console.log("Product add response:", response.data);
 
             if (response.data.success) {
+                const productId = response.data?.product?._id;
+
+
+                if (!productId) {
+                    toast.error("Product ID not found in response");
+                    return;
+                }
+
+                setCreatedProductId(productId);
                 toast.success("Product added successfully");
-                setName('')
-                setDescription('')
-                setImage1()
-                setImage2()
-                setImage3()
-                setImage4()
-                setPrice()
-                setDiscountPrice();
-                setColors([]);
-                setLatest()
 
-
+                // do not reset values yet — wait until SKU creation
             } else {
                 toast.error(response.data.message || "Something went wrong");
             }
@@ -80,6 +82,55 @@ const Add = ({ token }) => {
             toast.error(error.message)
         }
     }
+
+    const handleSKUQuantityChange = (skuCode, field, value) => {
+        setSKUQuantities((prev) => ({
+            ...prev,
+            [skuCode]: {
+                ...prev[skuCode],
+                [field]: Number(value),
+            },
+        }));
+    };
+
+
+    const handleSKUCreate = async () => {
+        try {
+            for (const skuCode in skuQuantities) {
+                const [productId, size, color] = skuCode.split("||");
+                const skuPayload = {
+                    productId,
+                    size,
+                    color,
+                    quantityAvailable: skuQuantities[skuCode]?.quantityAvailable || 0,
+                    quantityReserved: skuQuantities[skuCode]?.quantityReserved || 0,
+                };
+                await axios.post(`${backendUrl}/api/sku/create`, skuPayload, { headers: { token } });
+            }
+            toast.success("SKUs created successfully");
+            // ✅ Now reset all fields
+            setSKUQuantities({});
+            setCreatedProductId(null);
+            setName('');
+            setDescription('');
+            setImage1(false);
+            setImage2(false);
+            setImage3(false);
+            setImage4(false);
+            setPrice('');
+            setDiscountPrice('');
+            setColors([]);
+            setSizes([]);
+            setCategory('');
+            setSubCategory('');
+            setBestseller(false);
+            setLatest(false);
+        } catch (error) {
+            console.log(error);
+            toast.error("Failed to create SKUs");
+        }
+    };
+
 
 
 
@@ -226,7 +277,25 @@ const Add = ({ token }) => {
                 </div>
 
                 <button className='w-28 py-3 mt-4 bg-black text-white cursor-pointer' type='submit'>Add</button>
-
+                {/* SKU Form */}
+                {createdProductId && (
+                    <div className='mt-6 border-t pt-4'>
+                        <h3 className='text-lg font-semibold mb-2'>Add SKUs</h3>
+                        {colors.map((color) =>
+                            sizes.map((size) => {
+                                const skuCode = `${createdProductId}||${size}||${color}`;
+                                return (
+                                    <div key={skuCode} className='flex items-center gap-4 mb-2'>
+                                        <div className='w-64'>{skuCode}</div>
+                                        <input type='number' placeholder='Qty Available' className='border p-1 w-32' value={skuQuantities[skuCode]?.quantityAvailable || ''} onChange={(e) => handleSKUQuantityChange(skuCode, 'quantityAvailable', e.target.value)} />
+                                        <input type='number' placeholder='Qty Reserved' className='border p-1 w-32' value={skuQuantities[skuCode]?.quantityReserved || ''} onChange={(e) => handleSKUQuantityChange(skuCode, 'quantityReserved', e.target.value)} />
+                                    </div>
+                                );
+                            })
+                        )}
+                        <button className='mt-4 px-4 py-2 bg-blue-600 text-white rounded' onClick={handleSKUCreate}>Save SKUs</button>
+                    </div>
+                )}
 
             </div>
         </form>
