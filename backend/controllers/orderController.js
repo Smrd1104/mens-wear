@@ -5,6 +5,7 @@ import Razorpay from "razorpay"; // Note lowercase 'p'
 import PDFDocument from 'pdfkit';
 import { Readable } from 'stream';
 import path from 'path';
+import skuModel from "../models/skuModel.js"
 
 
 
@@ -15,9 +16,30 @@ const razorpayInstance = new Razorpay({
 
 
 
+
+
 const currency = "inr"
 const deliverCharge = 50
 
+
+// ✅ Place this here - after imports and before actual route/controller functions
+const updateSKUQuantities = async (items) => {
+  for (const item of items) {
+    const { productId, size, color, quantity } = item;
+    const skuCode = `${productId}-${size}-${color}`;
+
+    await skuModel.findOneAndUpdate(
+      { skuCode },
+      {
+        $inc: {
+          quantityAvailable: -quantity,
+          quantityReserved: 0 // optional reset
+        }
+      },
+      { new: true }
+    );
+  }
+};
 
 
 // placing order using COD method
@@ -38,6 +60,9 @@ const placeOrder = async (req, res) => {
     const newOrder = new orderModel(orderData)
     await newOrder.save()
 
+    // 🟢 UPDATE SKU QUANTITIES
+    await updateSKUQuantities(items);
+
     // Clear user's cart after successful order
     await userModel.findByIdAndUpdate(userId, { cartData: {} })
 
@@ -54,25 +79,50 @@ const placeOrder = async (req, res) => {
 
 const verifyRazorpay = async (req, res) => {
   try {
-    const { userId, razorpay_order_id } = req.body
+    const { userId, razorpay_order_id } = req.body;
 
-    const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
+    const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
     if (orderInfo.status === 'paid') {
-      await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true })
-      await userModel.findByIdAndUpdate(userId, { cartData: {} })
-      res.json({ success: true, message: "Payment Successful" })
+      const order = await orderModel.findById(orderInfo.receipt); // ✅ fetch the order
+      if (!order) return res.json({ success: false, message: "Order not found" });
 
+      await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true });
+      await updateSKUQuantities(order.items); // ✅ now this works
+      await userModel.findByIdAndUpdate(userId, { cartData: {} });
+
+      res.json({ success: true, message: "Payment Successful" });
     } else {
-      res.json({ success: false, message: "Payment Failed" })
-
+      res.json({ success: false, message: "Payment Failed" });
     }
   } catch (error) {
-    console.log(error)
-    res.json({ success: false, message: error.message })
-
-
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
-}
+};
+
+
+// const verifyRazorpay = async (req, res) => {
+//   try {
+//     const { userId, razorpay_order_id } = req.body
+
+//     const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
+//     if (orderInfo.status === 'paid') {
+//       await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true })
+//       await userModel.findByIdAndUpdate(userId, { cartData: {} })
+//       res.json({ success: true, message: "Payment Successful" })
+
+
+//     } else {
+//       res.json({ success: false, message: "Payment Failed" })
+
+//     }
+//   } catch (error) {
+//     console.log(error)
+//     res.json({ success: false, message: error.message })
+
+
+//   }
+// }
 
 
 
@@ -388,7 +438,7 @@ export {
   userOrders,
   updateStatus,
   verifyRazorpay,
-  whatsappOrder, generateInvoiceForView, generateInvoiceForDownload, 
+  whatsappOrder, generateInvoiceForView, generateInvoiceForDownload,
 
 }
 
