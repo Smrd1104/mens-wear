@@ -91,24 +91,44 @@ const PlaceOrder = () => {
       const orderItems = [];
 
       for (const productId in cartItems) {
-        for (const size in cartItems[productId]) {
-          if (cartItems[productId][size] > 0) {
-            const product = productMap.get(productId);
-            if (product) {
-              const quantity = cartItems[productId][size];
-              orderItems.push({
-                productId: product._id,
-                name: product.name,
-                size,
-                color: product.color?.name || "default",
-                price: product.price,
-                quantity,
-                image: product.image || [],
-              });
-            }
+        for (const variantKey in cartItems[productId]) {
+          const [size, color] = variantKey.split("|");
+          const quantity = cartItems[productId][variantKey];
+          const product = productMap.get(productId);
+          if (product) {
+            orderItems.push({
+              productId: product._id,
+              name: product.name,
+              size,
+              color,
+              price: product.price,
+              quantity,
+              image: product.image || [],
+            });
           }
         }
       }
+
+
+      // for (const productId in cartItems) {
+      //   for (const size in cartItems[productId]) {
+      //     if (cartItems[productId][size] > 0) {
+      //       const product = productMap.get(productId);
+      //       if (product) {
+      //         const quantity = cartItems[productId][size];
+      //         orderItems.push({
+      //           productId: product._id,
+      //           name: product.name,
+      //           size,
+      //           color: product.color?.name || "default",
+      //           price: product.price,
+      //           quantity,
+      //           image: product.image || [],
+      //         });
+      //       }
+      //     }
+      //   }
+      // }
 
       const orderData = {
         address: formData,
@@ -159,7 +179,7 @@ const PlaceOrder = () => {
 
 📦 Products:
 ${orderItems
-              .map((item) => `- ${item.name} (Size: ${item.size}) x${item.quantity}`)
+.map((item) => `- ${item.name} (Size: ${item.size}, Color: ${item.color}) x${item.quantity}`)
               .join("\n")}
 
 🏠 Address:
