@@ -46,7 +46,7 @@ const PlaceOrder = () => {
     return map;
   }, [products]);
 
-  const initPay = (order) => {
+  const initPay = (order, orderItems) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
@@ -62,7 +62,18 @@ const PlaceOrder = () => {
             response,
             { headers: { token } }
           );
+
           if (data.success) {
+            // 🔻 Reduce SKU quantities
+            const reduceItems = orderItems.map((item) => ({
+              skuCode: `${item.productId}-${item.size}-${item.color}`,
+              quantity: item.quantity,
+            }));
+
+            await axios.post(`${backendUrl}/api/sku/reduce-quantity`, {
+              items: reduceItems,
+            });
+
             setCartItems({});
             navigate("/orders");
           } else {
@@ -77,6 +88,39 @@ const PlaceOrder = () => {
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
+
+
+  // const initPay = (order) => {
+  //   const options = {
+  //     key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+  //     amount: order.amount,
+  //     currency: order.currency,
+  //     name: "Order Payment",
+  //     description: "Order Payment",
+  //     order_id: order.id,
+  //     receipt: order.receipt,
+  //     handler: async (response) => {
+  //       try {
+  //         const { data } = await axios.post(
+  //           `${backendUrl}/api/order/verifyRazorpay`,
+  //           response,
+  //           { headers: { token } }
+  //         );
+  //         if (data.success) {
+  //           setCartItems({});
+  //           navigate("/orders");
+  //         } else {
+  //           toast.error("Payment verification failed.");
+  //         }
+  //       } catch (error) {
+  //         toast.error("Payment verification failed.");
+  //       }
+  //     },
+  //   };
+
+  //   const rzp = new window.Razorpay(options);
+  //   rzp.open();
+  // };
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
@@ -125,6 +169,14 @@ const PlaceOrder = () => {
           );
 
           if (response.data.success) {
+            const reduceItems = orderItems.map((item) => ({
+              skuCode: `${item.productId}-${item.size}-${item.color}`,
+              quantity: item.quantity,
+            }));
+
+            await axios.post(`${backendUrl}/api/sku/reduce-quantity`, {
+              items: reduceItems,
+            });
             setCartItems({});
             localStorage.setItem(
               "refreshProductId",
@@ -144,7 +196,7 @@ const PlaceOrder = () => {
             { headers: { token } }
           );
           if (responseRazorpay.data.success) {
-            initPay(responseRazorpay.data.order);
+            initPay(responseRazorpay.data.order, orderItems);
           }
           break;
         }
@@ -159,8 +211,8 @@ const PlaceOrder = () => {
 
 📦 Products:
 ${orderItems
-  .map((item) => `- ${item.name} (Size: ${item.size}) x${item.quantity}`)
-  .join("\n")}
+              .map((item) => `- ${item.name} (Size: ${item.size}) x${item.quantity}`)
+              .join("\n")}
 
 🏠 Address:
 ${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, ${formData.country}
@@ -327,9 +379,8 @@ ${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, $
               className="flex items-center gap-3 border px-3 p-2 cursor-pointer"
             >
               <p
-                className={`min-w-3.5 h-3.5 border rounded-full ${
-                  method === "razorpay" ? "bg-green-400" : ""
-                }`}
+                className={`min-w-3.5 h-3.5 border rounded-full ${method === "razorpay" ? "bg-green-400" : ""
+                  }`}
               ></p>
               <img src={assets.razorpay_logo} alt="razorpay" className="h-5 mx-4" />
             </div>
@@ -338,9 +389,8 @@ ${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, $
               className="flex items-center gap-3 border px-3 p-2 cursor-pointer"
             >
               <p
-                className={`min-w-3.5 h-3.5 border rounded-full ${
-                  method === "cod" ? "bg-green-400" : ""
-                }`}
+                className={`min-w-3.5 h-3.5 border rounded-full ${method === "cod" ? "bg-green-400" : ""
+                  }`}
               ></p>
               <p className="uppercase text-gray-400 font-medium mx-4">cash on delivery</p>
             </div>
@@ -349,9 +399,8 @@ ${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, $
               className="flex items-center gap-3 border px-3 p-2 cursor-pointer"
             >
               <p
-                className={`min-w-3.5 h-3.5 border rounded-full ${
-                  method === "whatsapp" ? "bg-green-400" : ""
-                }`}
+                className={`min-w-3.5 h-3.5 border rounded-full ${method === "whatsapp" ? "bg-green-400" : ""
+                  }`}
               ></p>
               <img src={whatsapp_logo} alt="whatsapp" className="min-w-3.5 h-5 mx-4" />
               <p className="uppercase text-gray-400 font-medium -translate-x-4.5">

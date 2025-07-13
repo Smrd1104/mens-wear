@@ -5,7 +5,7 @@ import {
   createSKU,
   getSKUsByProduct,
   updateSKU,
-  deleteSKU
+  deleteSKU, reduceSKUQuantities
 } from '../controllers/skuController.js';
 import adminAuth from '../middleware/adminAuth.js';
 
@@ -23,5 +23,9 @@ skuRouter.put('/update/:skuId', adminAuth, updateSKU);
 
 // Delete SKU by skuCode (Admin only)
 skuRouter.delete('/delete/:skuCode', adminAuth, deleteSKU);
+
+// Reduce quantity after successful payment
+skuRouter.post('/reduce-quantity', reduceSKUQuantities); // No adminAuth, called by customer post-payment
+
 
 export default skuRouter;

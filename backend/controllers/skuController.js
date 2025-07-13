@@ -70,3 +70,41 @@ export const deleteSKU = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+// REDUCE SKU quantity after successful payment
+export const reduceSKUQuantities = async (req, res) => {
+  try {
+    const { items } = req.body;
+    // items = [{ skuCode: "productId-size-color", quantity: 2 }, ...]
+
+    const updatedSKUs = [];
+
+    for (const { skuCode, quantity } of items) {
+      const sku = await skuModel.findOne({ skuCode });
+
+      if (!sku) {
+        return res.status(404).json({ success: false, message: `SKU not found: ${skuCode}` });
+      }
+
+      if (sku.quantityAvailable < quantity) {
+        return res.status(400).json({ success: false, message: `Insufficient stock for SKU: ${skuCode}` });
+      }
+
+      sku.quantityAvailable -= quantity;
+
+      if (sku.quantityReserved >= quantity) {
+        sku.quantityReserved -= quantity;
+      }
+
+      await sku.save();
+      updatedSKUs.push(sku);
+    }
+
+    res.status(200).json({ success: true, message: "Stock reduced", data: updatedSKUs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
