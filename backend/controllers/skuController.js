@@ -35,10 +35,11 @@ export const getSKUsByProduct = async (req, res) => {
 // UPDATE a SKU (admin)
 export const updateSKU = async (req, res) => {
   try {
-    const { skuCode, quantityAvailable, quantityReserved } = req.body;
+    const { skuId } = req.params;
+    const { quantityAvailable, quantityReserved } = req.body;
 
-    const updatedSKU = await skuModel.findOneAndUpdate(
-      { skuCode },
+    const updatedSKU = await skuModel.findByIdAndUpdate(
+      skuId,
       { quantityAvailable, quantityReserved },
       { new: true }
     );

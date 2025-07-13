@@ -19,7 +19,7 @@ skuRouter.get('/product/:productId', getSKUsByProduct);
 
 // Update SKU details (Admin only)
 // Uses skuCode in body
-skuRouter.put('/update', adminAuth, updateSKU);
+skuRouter.put('/update/:skuId', adminAuth, updateSKU);
 
 // Delete SKU by skuCode (Admin only)
 skuRouter.delete('/delete/:skuCode', adminAuth, deleteSKU);
