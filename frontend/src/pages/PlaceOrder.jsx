@@ -10,7 +10,6 @@ import whatsapp_logo from "../assets/frontend_assets/whatsapp(1).png";
 const PlaceOrder = () => {
   const [method, setMethod] = useState("");
   const [loading, setLoading] = useState(false);
-
   const {
     navigate,
     backendUrl,
@@ -47,7 +46,7 @@ const PlaceOrder = () => {
     return map;
   }, [products]);
 
-  const initPay = (order, orderItems) => {
+  const initPay = (order) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
@@ -63,18 +62,7 @@ const PlaceOrder = () => {
             response,
             { headers: { token } }
           );
-
           if (data.success) {
-            // 🔻 Reduce SKU quantities
-            const reduceItems = orderItems.map((item) => ({
-              skuCode: `${item.productId}-${item.size}-${item.color}`,
-              quantity: item.quantity,
-            }));
-
-            await axios.post(`${backendUrl}/api/sku/reduce-quantity`, {
-              items: reduceItems,
-            });
-
             setCartItems({});
             navigate("/orders");
           } else {
@@ -89,39 +77,6 @@ const PlaceOrder = () => {
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
-
-
-  // const initPay = (order) => {
-  //   const options = {
-  //     key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-  //     amount: order.amount,
-  //     currency: order.currency,
-  //     name: "Order Payment",
-  //     description: "Order Payment",
-  //     order_id: order.id,
-  //     receipt: order.receipt,
-  //     handler: async (response) => {
-  //       try {
-  //         const { data } = await axios.post(
-  //           `${backendUrl}/api/order/verifyRazorpay`,
-  //           response,
-  //           { headers: { token } }
-  //         );
-  //         if (data.success) {
-  //           setCartItems({});
-  //           navigate("/orders");
-  //         } else {
-  //           toast.error("Payment verification failed.");
-  //         }
-  //       } catch (error) {
-  //         toast.error("Payment verification failed.");
-  //       }
-  //     },
-  //   };
-
-  //   const rzp = new window.Razorpay(options);
-  //   rzp.open();
-  // };
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
@@ -141,15 +96,11 @@ const PlaceOrder = () => {
             const product = productMap.get(productId);
             if (product) {
               const quantity = cartItems[productId][size];
-
-                const colorCode = product.color?.code || product.color?.split("|")[1] || "#000000";
-
               orderItems.push({
                 productId: product._id,
                 name: product.name,
                 size,
-                // color: product.color?.name || "default",
-                color:colorCode,
+                color: product.color?.name || "default",
                 price: product.price,
                 quantity,
                 image: product.image || [],
@@ -174,14 +125,6 @@ const PlaceOrder = () => {
           );
 
           if (response.data.success) {
-            const reduceItems = orderItems.map((item) => ({
-              skuCode: `${item.productId}-${item.size}-${item.color}`,
-              quantity: item.quantity,
-            }));
-
-            await axios.post(`${backendUrl}/api/sku/reduce-quantity`, {
-              items: reduceItems,
-            });
             setCartItems({});
             localStorage.setItem(
               "refreshProductId",
@@ -201,7 +144,7 @@ const PlaceOrder = () => {
             { headers: { token } }
           );
           if (responseRazorpay.data.success) {
-            initPay(responseRazorpay.data.order, orderItems);
+            initPay(responseRazorpay.data.order);
           }
           break;
         }
