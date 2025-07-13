@@ -8,6 +8,8 @@ import axios from "axios";
 const Product = () => {
     const [breadcrumbs, setBreadcrumbs] = useState([]);
     const { productId } = useParams();
+    const [skuLoading, setSkuLoading] = useState(false);
+
     const {
         products,
         currency,
@@ -55,15 +57,18 @@ const Product = () => {
         const fetchSKU = async () => {
             if (!productId) return;
             try {
+                setSkuLoading(true);
                 const res = await axios.get(`${backendUrl}/api/sku/${productId}`);
-                setSkuList(res.data.data);
+                setSkuList(res.data.data || []);
             } catch (error) {
-                console.error("SKU fetch error:", error);
+                console.error("SKU fetch error:", error.message);
+                setSkuList([]);
+            } finally {
+                setSkuLoading(false);
             }
         };
         fetchSKU();
     }, [productId]);
-
     useEffect(() => {
         if (productData) {
             setBreadcrumbs([

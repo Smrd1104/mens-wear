@@ -22,11 +22,15 @@ export const getSKUsByProduct = async (req, res) => {
 
     const skus = await skuModel.find({ productId });
 
-    res.status(200).json({ success: true, data: skus });
+    return res.status(200).json({
+      success: true,
+      data: skus || [],
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // UPDATE a SKU (admin)
 export const updateSKU = async (req, res) => {

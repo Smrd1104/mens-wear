@@ -57,9 +57,9 @@ const EditProduct = ({ token, onClose }) => {
       try {
         const res = await axios.get(`${backendUrl}/api/sku/byProduct/${productId}`, { headers: { token } });
         if (res.data.success) {
-          setSkuData(res.data.sku || []);
+          setSkuData(res.data.skus || []);
           const initialQuantities = {};
-          res.data.sku.forEach(sku => {
+          res.data.skus.forEach(sku => {
             const key = `${sku._id}`;
             initialQuantities[key] = {
               quantityAvailable: sku.quantityAvailable || 0,
