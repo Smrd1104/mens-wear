@@ -15,7 +15,7 @@ const skuRouter = express.Router();
 skuRouter.post('/create', adminAuth, createSKU);
 
 // Get all SKUs for a specific product
-skuRouter.get('/:productId', getSKUsByProduct);
+skuRouter.get('/product/:productId', getSKUsByProduct);
 
 // Update SKU details (Admin only)
 // Uses skuCode in body

@@ -55,7 +55,7 @@ const EditProduct = ({ token, onClose }) => {
 
     const fetchSKUs = async () => {
       try {
-        const res = await axios.get(`${backendUrl}/api/sku/byProduct/${productId}`, { headers: { token } });
+axios.get(`${backendUrl}/api/sku/product/${productId}`, { headers: { token } });
         if (res.data.success) {
           setSkuData(res.data.skus || []);
           const initialQuantities = {};

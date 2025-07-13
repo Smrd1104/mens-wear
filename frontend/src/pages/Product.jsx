@@ -58,7 +58,7 @@ const Product = () => {
             if (!productId) return;
             try {
                 setSkuLoading(true);
-                const res = await axios.get(`${backendUrl}/api/sku/${productId}`);
+                const res = await axios.get(`${backendUrl}/api/sku/product/${productId}`);
                 setSkuList(res.data.data || []);
             } catch (error) {
                 console.error("SKU fetch error:", error.message);
