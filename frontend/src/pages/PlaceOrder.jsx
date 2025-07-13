@@ -10,6 +10,7 @@ import whatsapp_logo from "../assets/frontend_assets/whatsapp(1).png";
 const PlaceOrder = () => {
   const [method, setMethod] = useState("");
   const [loading, setLoading] = useState(false);
+
   const {
     navigate,
     backendUrl,
@@ -140,11 +141,15 @@ const PlaceOrder = () => {
             const product = productMap.get(productId);
             if (product) {
               const quantity = cartItems[productId][size];
+
+                const colorCode = product.color?.code || product.color?.split("|")[1] || "#000000";
+
               orderItems.push({
                 productId: product._id,
                 name: product.name,
                 size,
-                color: product.color?.name || "default",
+                // color: product.color?.name || "default",
+                color:colorCode,
                 price: product.price,
                 quantity,
                 image: product.image || [],
