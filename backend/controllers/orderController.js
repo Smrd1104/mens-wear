@@ -7,6 +7,7 @@ import { Readable } from 'stream';
 import path from 'path';
 import skuModel from "../models/skuModel.js"
 
+import crypto from 'crypto'; // Node.js built-in module
 
 
 const razorpayInstance = new Razorpay({
@@ -80,43 +81,45 @@ const placeOrder = async (req, res) => {
 const verifyRazorpay = async (req, res) => {
   try {
     const {
-      userId,
       razorpay_order_id,
       razorpay_payment_id,
-      razorpay_signature
+      razorpay_signature,
+      userId
     } = req.body;
 
-    // 🔐 Signature verification
-    const generatedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_SECRET || "Fxjtaomc2wirn3D4T3TLV3YI")
+    // Step 1: Generate HMAC SHA256 signature
+    const generated_signature = crypto
+      .createHmac("sha256", razorpayInstance.key_secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
-    if (generatedSignature !== razorpay_signature) {
-      return res.status(400).json({ success: false, message: "Invalid signature. Payment verification failed." });
+    // Debug logs
+    console.log("🔒 Client Signature:", razorpay_signature);
+    console.log("🔑 Generated Signature:", generated_signature);
+    console.log("✅ Signature Match:", generated_signature === razorpay_signature);
+
+    if (generated_signature !== razorpay_signature) {
+      return res.json({ success: false, message: "Payment verification failed" });
     }
 
-    // ✅ Fetch order using Razorpay order ID (receipt = our MongoDB order _id)
+    // Step 2: Fetch order info
     const razorpayOrder = await razorpayInstance.orders.fetch(razorpay_order_id);
-    const orderId = razorpayOrder.receipt;
+    const mongoOrderId = razorpayOrder.receipt;
 
-    const order = await orderModel.findById(orderId);
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-
-    // ✅ Update payment and SKUs
-    await orderModel.findByIdAndUpdate(orderId, { payment: true });
-    await updateSKUQuantities(order.items);
+    // Step 3: Update order and clear cart
+    await orderModel.findByIdAndUpdate(mongoOrderId, { payment: true });
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
-    res.json({ success: true, message: "Payment verified successfully" });
+    res.json({ success: true, message: "Payment Verified & Successful" });
 
   } catch (error) {
-    console.error("Error verifying Razorpay:", error);
-    res.status(500).json({ success: false, message: "Payment verification failed" });
+    console.error("Verification error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+
 
 
 // const verifyRazorpay = async (req, res) => {
@@ -164,10 +167,16 @@ const placeOrderRazorPay = async (req, res) => {
     await newOrder.save()
 
     const options = {
-      amount: Number(amount) * 100, // ✅ convert rupees to paisa
+      amount: Number(amount) * 100,
       currency: currency.toUpperCase(),
-      receipt: newOrder._id.toString()
+      receipt: newOrder._id.toString(), // maps order to DB
+      notes: {
+        userId,
+        orderSource: 'website',
+        itemsCount: items.length.toString() // optional
+      }
     }
+
 
     const order = await razorpayInstance.orders.create(options);
     res.json({ success: true, order });
