@@ -1,3 +1,4 @@
+// imports
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -6,9 +7,9 @@ import { assets } from '../assets/admin_assets/assets';
 import { useParams } from 'react-router-dom';
 
 const EditProduct = ({ token, onClose }) => {
-  const [product, setProduct] = useState(null);
   const { productId } = useParams();
 
+  // product states
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -25,6 +26,7 @@ const EditProduct = ({ token, onClose }) => {
   const [image4, setImage4] = useState(null);
   const [newColor, setNewColor] = useState('#000000');
 
+  // SKU states
   const [skuData, setSkuData] = useState([]);
   const [skuQuantities, setSKUQuantities] = useState({});
 
@@ -34,7 +36,6 @@ const EditProduct = ({ token, onClose }) => {
         const res = await axios.post(`${backendUrl}/api/product/single`, { productId });
         if (res.data.success) {
           const p = res.data.product;
-          setProduct(p);
           setName(p.name);
           setDescription(p.description);
           setPrice(p.price);
@@ -55,21 +56,21 @@ const EditProduct = ({ token, onClose }) => {
 
     const fetchSKUs = async () => {
       try {
-axios.get(`${backendUrl}/api/sku/product/${productId}`, { headers: { token } });
+        const res = await axios.get(`${backendUrl}/api/sku/product/${productId}`, { headers: { token } });
         if (res.data.success) {
-          setSkuData(res.data.skus || []);
+          setSkuData(res.data.data || []);
           const initialQuantities = {};
-          res.data.skus.forEach(sku => {
-            const key = `${sku._id}`;
+          res.data.data.forEach((sku) => {
+            const key = sku._id;
             initialQuantities[key] = {
               quantityAvailable: sku.quantityAvailable || 0,
-              quantityReserved: sku.quantityReserved || 0
+              quantityReserved: sku.quantityReserved || 0,
             };
           });
           setSKUQuantities(initialQuantities);
         }
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
+        console.log(err);
         toast.error("Error fetching SKUs");
       }
     };
@@ -77,6 +78,36 @@ axios.get(`${backendUrl}/api/sku/product/${productId}`, { headers: { token } });
     fetchProduct();
     fetchSKUs();
   }, [productId, token]);
+
+  const toggleSize = (size) => {
+    setSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
+  };
+
+  const handleSKUQuantityChange = (skuId, field, value) => {
+    setSKUQuantities(prev => ({
+      ...prev,
+      [skuId]: {
+        ...prev[skuId],
+        [field]: Number(value),
+      },
+    }));
+  };
+
+  const saveSKUs = async () => {
+    try {
+      for (const skuId in skuQuantities) {
+        const payload = {
+          quantityAvailable: skuQuantities[skuId].quantityAvailable,
+          quantityReserved: skuQuantities[skuId].quantityReserved,
+        };
+        await axios.put(`${backendUrl}/api/sku/update/${skuId}`, payload, { headers: { token } });
+      }
+      toast.success("SKUs updated successfully");
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to update SKUs");
+    }
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -114,46 +145,108 @@ axios.get(`${backendUrl}/api/sku/product/${productId}`, { headers: { token } });
     }
   };
 
-  const toggleSize = (size) => {
-    setSizes(prev =>
-      prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
-    );
-  };
-
-  const handleSKUQuantityChange = (skuId, field, value) => {
-    setSKUQuantities((prev) => ({
-      ...prev,
-      [skuId]: {
-        ...prev[skuId],
-        [field]: Number(value),
-      },
-    }));
-  };
-
-  const saveSKUs = async () => {
-    try {
-      for (const skuId in skuQuantities) {
-        const payload = {
-          quantityAvailable: skuQuantities[skuId].quantityAvailable,
-          quantityReserved: skuQuantities[skuId].quantityReserved,
-        };
-        await axios.put(`${backendUrl}/api/sku/update/${skuId}`, payload, { headers: { token } });
-      }
-      toast.success("SKUs updated successfully");
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to update SKUs");
-    }
-  };
-
   return (
-    <>
-      <form onSubmit={onSubmitHandler} className="p-4 w-full">
-        <h2 className="text-xl font-semibold mb-4">Edit Product</h2>
-        {/* Product Fields - Omitted for brevity, same as previous code */}
-        {/* ...All other product fields remain unchanged... */}
-      </form>
+    <form onSubmit={onSubmitHandler} className="p-4 w-full">
+      <h2 className="text-xl font-semibold mb-4">Edit Product</h2>
 
+      {/* [Product Fields: name, desc, category, price, sizes, colors, images, etc.] */}
+      {/* [Include your same JSX as before for all product inputs here — skipped to save space] */}
+      {/* Product Name */}
+      <div className="mb-3">
+        <label>Product Name</label>
+        <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full px-3 py-2 border" />
+      </div>
+
+      {/* Description */}
+      <div className="mb-3">
+        <label>Description</label>
+        <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full px-3 py-2 border" />
+      </div>
+
+      {/* Price */}
+      <div className="flex gap-4 mb-3">
+        <input type="number" placeholder="Price" value={price} onChange={e => setPrice(e.target.value)} className="px-3 py-2 border w-1/2" />
+        <input type="number" placeholder="Discount Price" value={discountPrice} onChange={e => setDiscountPrice(e.target.value)} className="px-3 py-2 border w-1/2" />
+      </div>
+
+      {/* Category & Subcategory */}
+      <div className="flex gap-4 mb-3">
+        <select value={category} onChange={e => setCategory(e.target.value)} className="px-3 py-2 border w-1/2">
+          <option value="">Select Category</option>
+          <option value="Men">Men</option>
+          <option value="Women">Women</option>
+          <option value="Kids">Kids</option>
+        </select>
+
+        <select value={subCategory} onChange={e => setSubCategory(e.target.value)} className="px-3 py-2 border w-1/2">
+          <option value="">Select Subcategory</option>
+          <option value="Topwear">Topwear</option>
+          <option value="Bottomwear">Bottomwear</option>
+          <option value="Winterwear">Winterwear</option>
+        </select>
+      </div>
+
+      {/* Sizes */}
+      <div className="mb-3">
+        <p>Sizes</p>
+        <div className="flex gap-2 flex-wrap">
+          {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
+            <button type="button" key={size} onClick={() => toggleSize(size)}
+              className={`px-3 py-1 border ${sizes.includes(size) ? 'bg-pink-200' : 'bg-gray-100'}`}>
+              {size}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Bestseller & Latest */}
+      <div className="flex gap-5 mb-3">
+        <label className="flex items-center gap-2">
+          <input type="checkbox" checked={bestseller} onChange={() => setBestseller(prev => !prev)} />
+          Bestseller
+        </label>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" checked={latest} onChange={() => setLatest(prev => !prev)} />
+          Latest
+        </label>
+      </div>
+
+      {/* Colors */}
+      <div className="mb-3">
+        <p>Colors</p>
+        <div className="flex items-center gap-2 mb-2">
+          <input type="color" value={newColor} onChange={(e) => setNewColor(e.target.value)} />
+          <button type="button" onClick={() => {
+            if (!colors.includes(newColor)) setColors(prev => [...prev, newColor]);
+          }} className="px-3 py-1 bg-black text-white">Add Color</button>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {colors.map((c, i) => (
+            <div key={i} className="relative w-8 h-8 rounded-full border-2"
+              style={{ backgroundColor: c }}
+              onClick={() => setColors(prev => prev.filter(color => color !== c))}>
+              <span className="absolute -top-2 -right-2 text-red-500 text-xs cursor-pointer">x</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Images */}
+      <div className="mb-3">
+        <p>Upload Images</p>
+        <div className="flex gap-2">
+          {[image1, image2, image3, image4].map((img, i) => (
+            <label key={i} htmlFor={`image${i + 1}`}>
+              <img src={img ? URL.createObjectURL(img) : assets.upload_area} className="w-20 h-20 object-cover border cursor-pointer" />
+              <input type="file" hidden id={`image${i + 1}`} onChange={e => {
+                const setter = [setImage1, setImage2, setImage3, setImage4][i];
+                setter(e.target.files[0]);
+              }} />
+            </label>
+          ))}
+        </div>
+      </div>
+      {/* SKU Table */}
       {skuData.length > 0 && (
         <div className="mt-6 border-t pt-4">
           <h3 className="text-lg font-semibold mb-4">Update SKUs</h3>
@@ -185,18 +278,23 @@ axios.get(`${backendUrl}/api/sku/product/${productId}`, { headers: { token } });
           </div>
           <button
             type="button"
-            className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded shadow-sm"
             onClick={saveSKUs}
+            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
           >
-            Save SKUs
+            Save SKU Quantities
           </button>
         </div>
       )}
-    </>
+
+      <button type="submit" className="mt-6 px-6 py-2 bg-black text-white rounded">
+        Update Product
+      </button>
+    </form>
   );
 };
 
 export default EditProduct;
+
 
 
 
