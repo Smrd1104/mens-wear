@@ -12,8 +12,16 @@ const Product = () => {
     const [skuLoading, setSkuLoading] = useState(false);
     const [activeTab, setActiveTab] = useState("description");
     const [showReviewPopup, setShowReviewPopup] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [form, setForm] = useState({
+        username: "",
+        rating: 5,
+        comment: "",
+    });
 
     const reviewRef = useRef(null);
+    const reviewContentRef = useRef(null);
+
 
     const {
         products,
@@ -37,6 +45,40 @@ const Product = () => {
     const [stockStatus, setStockStatus] = useState("");
     const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
     const sidebarRef = useRef(null);
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                activeTab === "review" &&
+                reviewContentRef.current &&
+                !reviewContentRef.current.contains(event.target)
+            ) {
+                setActiveTab("description");
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [activeTab]);
+
+    useEffect(() => {
+        if (productData?._id) {
+            axios
+                .get(`${backendUrl}/api/reviews/${productData._id}`)
+                .then((res) => {
+                    if (Array.isArray(res.data)) {
+                        setReviews(res.data);
+                    } else {
+                        setReviews([]);
+                    }
+                })
+                .catch((err) => {
+                    console.error("Failed to fetch reviews:", err);
+                    setReviews([]);
+                });
+        }
+    }, [productData]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -250,36 +292,67 @@ const Product = () => {
                             }`}
                         onClick={() => setActiveTab("description")}
                     >
-                        description
+                        Description
                     </b>
                     <p
                         className={`border px-5 py-3 text-sm capitalize cursor-pointer ${activeTab === "review" ? "bg-black text-white" : ""
                             }`}
                         onClick={() => setActiveTab("review")}
                     >
-                        Review
+                        Review ({reviews.length})
                     </p>
                 </div>
 
-                <div className="border px-6 py-6 text-sm text-gray-500">
+                <div
+                    ref={reviewContentRef}
+                    className="border px-6 py-6 text-sm text-gray-500"
+                >
                     {activeTab === "description" ? (
-                        <p>{productData.description}</p>
+                        <p>{productData?.description}</p>
                     ) : (
-                        <ReviewSection productId={productData._id} />
+                        <div>
+                            <h2 className="text-lg font-semibold mb-4">Customer Reviews</h2>
+
+                            {reviews.length === 0 ? (
+                                <p className="text-gray-500">No reviews yet.</p>
+                            ) : (
+                                <div className="max-h-56 overflow-y-auto  pr-2 space-y-4">
+                                    {reviews.map((review, idx) => (
+                                        <div key={idx} className="border rounded-md p-4 mb-2">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <span className="font-semibold">{review.username}</span>
+                                                <span className="text-yellow-600">
+                                                    {Array.from({ length: review.rating }, (_, i) => (
+                                                        <span key={i}>⭐</span>
+                                                    ))}
+                                                </span>
+                                            </div>
+                                            <p className="text-gray-700">{review.comment}</p>
+                                            <p className="text-xs text-gray-400 mt-1">
+                                                {new Date(review.createdAt).toLocaleString()}
+                                            </p>
+                                        </div>
+                                    ))}
+
+                                </div>
+                            )}
+                        </div>
+
                     )}
                 </div>
             </div>
 
 
+
+
+
             {showReviewPopup && (
                 <>
-                    {/* Background overlay */}
                     <div
                         className="fixed inset-0 bg-black/40 bg-opacity-50 z-40"
                         onClick={() => setShowReviewPopup(false)}
                     ></div>
 
-                    {/* Review popup content */}
                     <div className="fixed z-50 top-1/2 left-1/2 w-full max-w-2xl transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-bold">Write a Review</h2>
@@ -291,11 +364,27 @@ const Product = () => {
                             </button>
                         </div>
 
-                        {/* Review form inside popup */}
-                        <ReviewSection productId={productData._id} />
+                        {/* ✅ Pass onClose callback here */}
+                        <ReviewSection
+                            productId={productData._id}
+                            onClose={() => setShowReviewPopup(false)}
+                            onSuccess={() => {
+                                // Re-fetch reviews after submission
+                                axios
+                                    .get(`${backendUrl}/api/reviews/${productData._id}`)
+                                    .then((res) => {
+                                        setReviews(Array.isArray(res.data) ? res.data : []);
+                                        // setActiveTab("review"); // optional: open review tab
+
+                                    })
+                                    .catch((err) => console.error("Failed to refresh reviews:", err));
+                            }}
+                        />
+
                     </div>
                 </>
             )}
+
 
 
 
