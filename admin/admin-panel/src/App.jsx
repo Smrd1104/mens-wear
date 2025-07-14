@@ -12,6 +12,7 @@ import { useEffect } from 'react'
 import EditProduct from './pages/EditProduct'
 import Invoice from './components/Invoice'
 import Dashboard from './pages/Dashboard'
+import ReviewPage from './pages/ReviewPage'
 
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -42,6 +43,7 @@ const App = () => {
                 <Route path='/list' element={<List token={token} />} />
                 <Route path='/orders' element={<Orders token={token} />} />
                 <Route path="/edit-product/:productId" element={<EditProduct token={token} />} />
+                <Route path='/reviews' element={<ReviewPage token={token} />} />
 
 
                 {/* <Route path="/invoice/:orderId" element={<Invoice />} /> */}
