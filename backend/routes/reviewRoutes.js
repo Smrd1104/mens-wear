@@ -1,5 +1,5 @@
 import express from "express";
-import { getReviewsByProduct, createReview, getAllReviews } from "../controllers/reviewController.js";
+import { getReviewsByProduct, createReview, getAllReviews, replyToReview } from "../controllers/reviewController.js";
 
 const reviewRouter = express.Router();
 
@@ -12,6 +12,9 @@ reviewRouter.get("/:productId", getReviewsByProduct);
 
 // POST /api/reviews
 reviewRouter.post("/", createReview);
+
+// reply to customer
+reviewRouter.patch("/reply/:id", replyToReview); // ✅ Add this
 
 
 export default reviewRouter;

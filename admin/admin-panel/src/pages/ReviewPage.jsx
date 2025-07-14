@@ -54,8 +54,46 @@ const ReviewPage = () => {
                             </div>
                             <p className="text-gray-600 mb-1">{review.comment}</p>
                             <p className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleString()}</p>
+
+                            {/* ✅ Insert this below */}
+                            {review.adminReply ? (
+                                <p className="text-sm text-green-700 mt-2">
+                                    <span className="font-semibold">Admin:</span> {review.adminReply}
+                                </p>
+                            ) : (
+                                <form
+                                    onSubmit={async (e) => {
+                                        e.preventDefault();
+                                        const reply = e.target.reply.value;
+
+                                        try {
+                                            await axios.patch(`${backendUrl}/api/reviews/reply/${review._id}`, { reply });
+                                            const updated = await axios.get(`${backendUrl}/api/reviews/all`);
+                                            setReviews(updated.data);
+                                        } catch (err) {
+                                            console.error("Error sending reply:", err);
+                                        }
+                                    }}
+                                    className="mt-2"
+                                >
+                                    <input
+                                        type="text"
+                                        name="reply"
+                                        placeholder="Write reply..."
+                                        className="w-full border px-2 py-1 rounded text-sm mb-1"
+                                        required
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                                    >
+                                        Send Reply
+                                    </button>
+                                </form>
+                            )}
                         </div>
                     ))}
+
                 </div>
             )}
         </div>

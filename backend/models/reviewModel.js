@@ -20,6 +20,11 @@ const reviewSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  adminReply: {
+    type: String, default: ""
+  }, // ✅ Add this line
+
   createdAt: {
     type: Date,
     default: Date.now,

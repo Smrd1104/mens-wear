@@ -316,25 +316,34 @@ const Product = () => {
                             {reviews.length === 0 ? (
                                 <p className="text-gray-500">No reviews yet.</p>
                             ) : (
-                                <div className="max-h-56 overflow-y-auto  pr-2 space-y-4">
-                                    {reviews.map((review, idx) => (
-                                        <div key={idx} className="border rounded-md p-4 mb-2">
-                                            <div className="flex justify-between items-center mb-1">
-                                                <span className="font-semibold">{review.username}</span>
-                                                <span className="text-yellow-600">
-                                                    {Array.from({ length: review.rating }, (_, i) => (
-                                                        <span key={i}>⭐</span>
-                                                    ))}
-                                                </span>
-                                            </div>
-                                            <p className="text-gray-700">{review.comment}</p>
-                                            <p className="text-xs text-gray-400 mt-1">
-                                                {new Date(review.createdAt).toLocaleString()}
-                                            </p>
-                                        </div>
-                                    ))}
+                                <div className="max-h-56 overflow-y-auto pr-2 space-y-4">
+  {reviews.map((review, idx) => (
+    <div key={idx} className="border rounded-md p-4 mb-2">
+      <div className="flex justify-between items-center mb-1">
+        <span className="font-semibold">{review.username}</span>
+        <span className="text-yellow-600">
+          {Array.from({ length: review.rating }, (_, i) => (
+            <span key={i}>⭐</span>
+          ))}
+        </span>
+      </div>
 
-                                </div>
+      <p className="text-gray-700">{review.comment}</p>
+
+      {review.adminReply && (
+        <div className="mt-2 bg-gray-50 border-l-4 border-green-600 px-3 py-2 rounded text-sm text-gray-800">
+          <span className="font-semibold text-green-600">Admin Reply: </span>
+          {review.adminReply}
+        </div>
+      )}
+
+      <p className="text-xs text-gray-400 mt-1">
+        {new Date(review.createdAt).toLocaleString()}
+      </p>
+    </div>
+  ))}
+</div>
+
                             )}
                         </div>
 
