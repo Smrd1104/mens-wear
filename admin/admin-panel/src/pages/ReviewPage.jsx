@@ -56,11 +56,71 @@ const ReviewPage = () => {
                             <p className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleString()}</p>
 
                             {/* ✅ Insert this below */}
-                            {review.adminReply ? (
-                                <p className="text-sm text-green-700 mt-2">
-                                    <span className="font-semibold">Admin:</span> {review.adminReply}
-                                </p>
+                            {review.adminReply && !review.isEditing ? (
+                                <div className="text-sm text-green-700 mt-2">
+                                    <p>
+                                        <span className="font-semibold">Admin:</span> {review.adminReply}
+                                    </p>
+                                    <button
+                                        onClick={() => {
+                                            setReviews((prev) =>
+                                                prev.map((r) =>
+                                                    r._id === review._id ? { ...r, isEditing: true } : r
+                                                )
+                                            );
+                                        }}
+                                        className="text-blue-500 text-xs underline mt-1"
+                                    >
+                                        Edit Reply
+                                    </button>
+                                </div>
+                            ) : review.isEditing ? (
+                                <form
+                                    onSubmit={async (e) => {
+                                        e.preventDefault();
+                                        const updatedReply = e.target.reply.value;
+
+                                        try {
+                                            await axios.patch(`${backendUrl}/api/reviews/reply/${review._id}`, { reply: updatedReply });
+                                            const updated = await axios.get(`${backendUrl}/api/reviews/all`);
+                                            setReviews(updated.data);
+                                        } catch (err) {
+                                            console.error("Error editing reply:", err);
+                                        }
+                                    }}
+                                    className="mt-2"
+                                >
+                                    <input
+                                        type="text"
+                                        name="reply"
+                                        defaultValue={review.adminReply}
+                                        className="w-full border px-2 py-1 rounded text-sm mb-1"
+                                        required
+                                    />
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="submit"
+                                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                                        >
+                                            Update Reply
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setReviews((prev) =>
+                                                    prev.map((r) =>
+                                                        r._id === review._id ? { ...r, isEditing: false } : r
+                                                    )
+                                                );
+                                            }}
+                                            className="text-gray-500 text-sm underline"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
                             ) : (
+                                // If there's no reply yet
                                 <form
                                     onSubmit={async (e) => {
                                         e.preventDefault();
@@ -91,6 +151,7 @@ const ReviewPage = () => {
                                     </button>
                                 </form>
                             )}
+
                         </div>
                     ))}
 
