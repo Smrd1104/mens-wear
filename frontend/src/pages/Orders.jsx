@@ -4,6 +4,7 @@ import Title from '../components/Title';
 import axios from 'axios';
 import TrackOrderTimeline from '../components/TrackOrderTimeline';
 import { getColorNameFromHex } from '../utils/colors';
+import { BsEye, BsEyeSlash } from "react-icons/bs";
 
 const Orders = () => {
   const { backendUrl, token, currency } = useContext(ShopContext);
@@ -11,6 +12,7 @@ const Orders = () => {
   const [visibleOrders, setVisibleOrders] = useState([]);
   const [itemsToShow, setItemsToShow] = useState(5);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [expandedOrders, setExpandedOrders] = useState({});
 
   const colorMap = {
     '#bf4922': 'Brown',
@@ -54,6 +56,43 @@ const Orders = () => {
     };
   };
 
+  // const loadOrderData = async () => {
+  //   try {
+  //     if (!token) return;
+
+  //     const response = await axios.post(
+  //       `${backendUrl}/api/order/userorders`,
+  //       { userId: localStorage.getItem('userId') },
+  //       { headers: { token } }
+  //     );
+
+  //     if (response.data.success) {
+  //       const allOrderItem = [];
+
+  //       response.data.orders.forEach((order) => {
+  //         order.items.forEach((item) => {
+  //           const { size, color, hexColor } = extractSizeAndColor(item.size, item.color);
+  //           allOrderItem.push({
+  //             ...item,
+  //             size,
+  //             color,
+  //             hexColor,
+  //             status: order.status,
+  //             payment: order.payment,
+  //             paymentMethod: order.paymentMethod,
+  //             date: order.date,
+  //             orderId: order._id,
+  //           });
+  //         });
+  //       });
+
+  //       setOrderData(allOrderItem);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error loading orders:', error);
+  //   }
+  // };
+
   const loadOrderData = async () => {
     try {
       if (!token) return;
@@ -65,31 +104,39 @@ const Orders = () => {
       );
 
       if (response.data.success) {
-        const allOrderItem = [];
-
-        response.data.orders.forEach((order) => {
-          order.items.forEach((item) => {
+        const groupedOrders = response.data.orders.map((order) => {
+          const processedItems = order.items.map((item) => {
             const { size, color, hexColor } = extractSizeAndColor(item.size, item.color);
-            allOrderItem.push({
+            return {
               ...item,
               size,
               color,
               hexColor,
-              status: order.status,
-              payment: order.payment,
-              paymentMethod: order.paymentMethod,
-              date: order.date,
-              orderId: order._id,
-            });
+            };
           });
+
+          return {
+            orderId: order._id,
+            status: order.status,
+            payment: order.payment,
+            paymentMethod: order.paymentMethod,
+            date: order.date,
+            items: processedItems,
+          };
         });
 
-        setOrderData(allOrderItem);
+        setOrderData(groupedOrders); // 👈 set grouped orders
       }
     } catch (error) {
       console.error('Error loading orders:', error);
     }
   };
+
+  useEffect(() => {
+    setVisibleOrders(orderData.slice(0, itemsToShow));
+  }, [itemsToShow, orderData]);
+
+
 
   const handleInvoiceDownload = async (orderId) => {
     try {
@@ -124,6 +171,14 @@ const Orders = () => {
     return () => clearInterval(interval);
   }, [token]);
 
+
+  const toggleOrder = (orderId) => {
+    setExpandedOrders((prev) => ({
+      ...prev,
+      [orderId]: !prev[orderId],
+    }));
+  };
+
   return (
     <div className="border-t pt-22">
       <div className="text-2xl">
@@ -131,91 +186,113 @@ const Orders = () => {
       </div>
 
       <div>
-        {visibleOrders.map((item, index) => (
+        {visibleOrders.map((order, index) => (
           <div
             key={index}
-            className="py-4 border-t border-b border-gray-500 text-gray-700 flex flex-col md:flex-row md:justify-between gap-4"
+            className="py-4 border-t border-b border-gray-500 text-gray-700 flex flex-col gap-4"
           >
-            {/* Product Info */}
-            <div className="flex items-start gap-6 text-sm">
-              <img
-                src={item?.image?.[0] || '/default-product.jpg'}
-                alt="product"
-                className="w-16 sm:w-20 object-cover rounded border"
-                onError={(e) => (e.target.src = '/default-product.jpg')}
-              />
+            {/* Header for order group */}
+            <div className="flex justify-between  items-center cursor-pointer" onClick={() => toggleOrder(order.orderId)}>
               <div>
-                <p className="sm:text-base font-medium">{item.name}</p>
+                <p className="text-base font-semibold text-black">Order ID: {order.orderId}</p>
+                <p className="text-sm text-gray-500">Date: {new Date(order.date).toDateString()}</p>
+                <p className="text-sm text-gray-500">Payment: {order.paymentMethod}</p>
+                <p className="text-sm text-gray-500">Status: {order.status}</p>
+              </div>
+              <span className="text-2xl">
+                {expandedOrders[order.orderId] ? <BsEye />
+                  : <BsEyeSlash />
+                }
+              </span>
+            </div>
 
-                <div className="flex items-center gap-3 mt-1 text-base text-gray-700 flex-wrap">
-                  <p>
-                    {currency}
-                    {Number(item?.price || 0).toLocaleString('en-IN', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </p>
-                  <p>Quantity: {item.quantity}</p>
-                  {item.size && <p>Size: {item.size}</p>}
-                  {item.hexColor && (
-                    <div className="flex items-center gap-1">
-                      <p>Color:</p>
-                      <div
-                        className="w-3 h-3 rounded-full border"
-                        style={{ backgroundColor: item.hexColor }}
-                        title={item.color}
-                      />
-                      <span className="text-sm text-gray-600">{getColorNameFromHex(item.hexColor)}</span>
+            {/* Order items - only show if expanded */}
+            {expandedOrders[order.orderId] && (
+              <div className="mt-3">
+                {order.items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-6 text-sm border-t py-3 px-2"
+                  >
+                    <img
+                      src={item?.image?.[0] || '/default-product.jpg'}
+                      alt="product"
+                      className="w-16 sm:w-20 h-[100px] object-cover object-top-right rounded border"
+                      onError={(e) => (e.target.src = '/default-product.jpg')}
+                    />
+                    <div>
+                      <p className="sm:text-base font-medium">{item.name}</p>
+                      <div className="flex items-center gap-3 mt-1 flex-wrap text-gray-700">
+                        <p>
+                          {currency}
+                          {Number(item?.price || 0).toLocaleString('en-IN', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                        <p>Quantity: {item.quantity}</p>
+                        {item.size && <p>Size: {item.size}</p>}
+                        {item.hexColor && (
+                          <div className="flex items-center gap-1">
+                            <p>Color:</p>
+                            <div
+                              className="w-3 h-3 rounded-full border"
+                              style={{ backgroundColor: item.hexColor }}
+                              title={item.color}
+                            />
+                            <span className="text-sm text-gray-600">{item.color}</span>
+                          </div>
+                        )}
+                      </div>
+
                     </div>
+
+                  </div>
+
+                ))}
+
+
+
+                {/* Actions for the order */}
+                <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-2 h-2 rounded-full ${order.status === 'Delivered'
+                        ? 'bg-green-500'
+                        : order.status === 'Out for Delivery'
+                          ? 'bg-yellow-500'
+                          : order.status === 'Processing' || order.status === 'Order Processed'
+                            ? 'bg-blue-500'
+                            : order.status === 'Cancelled' || order.status === 'Rejected'
+                              ? 'bg-red-500'
+                              : 'bg-gray-400'
+                        }`}
+                    />
+                    <p className="capitalize text-base md:text-sm">{order.status}</p>
+                  </div>
+
+                  <button
+                    className="border px-4 py-2 text-sm font-medium rounded-sm"
+                    onClick={() => setSelectedOrderId(order.orderId)}
+                  >
+                    Track Order
+                  </button>
+
+                  {order.status === 'Delivered' && (
+                    <button
+                      className="border px-4 py-2 text-sm font-medium rounded-sm"
+                      onClick={() => handleInvoiceDownload(order.orderId)}
+                    >
+                      Download Invoice
+                    </button>
                   )}
-
                 </div>
-
-                <p className="mt-2">
-                  Date: <span className="text-gray-400">{new Date(item.date).toDateString()}</span>
-                </p>
-                <p className="mt-1">
-                  Payment: <span className="text-gray-400">{item.paymentMethod}</span>
-                </p>
               </div>
-            </div>
-
-            {/* Status / Actions */}
-            <div className="w-full md:w-1/2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`w-2 h-2 rounded-full ${item.status === 'Delivered'
-                    ? 'bg-green-500'
-                    : item.status === 'Out for Delivery'
-                      ? 'bg-yellow-500'
-                      : item.status === 'Processing' || item.status === 'Order Processed'
-                        ? 'bg-blue-500'
-                        : item.status === 'Cancelled' || item.status === 'Rejected'
-                          ? 'bg-red-500'
-                          : 'bg-gray-400'
-                    }`}
-                ></span>
-                <p className="capitalize text-base md:text-sm">{item.status}</p>
-              </div>
-
-              <button
-                className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
-                onClick={() => setSelectedOrderId(item.orderId)}
-              >
-                Track Order
-              </button>
-
-              {item.status === 'Delivered' && (
-                <button
-                  className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
-                  onClick={() => handleInvoiceDownload(item.orderId)}
-                >
-                  Download Invoice
-                </button>
-              )}
-            </div>
+            )}
           </div>
         ))}
+
+
       </div>
 
       {visibleOrders.length < orderData.length && (
@@ -732,3 +809,100 @@ export default Orders;
 // }
 
 // export default Orders
+
+
+
+
+
+
+
+
+
+
+{/* <div>
+  {visibleOrders.map((item, index) => (
+    <div
+      key={index}
+      className="py-4 border-t border-b border-gray-500 text-gray-700 flex flex-col md:flex-row md:justify-between gap-4"
+    >
+      {/* Product Info */}
+//       <div className="flex items-start gap-6 text-sm">
+//         <img
+//           src={item?.image?.[0] || '/default-product.jpg'}
+//           alt="product"
+//           className="w-16 sm:w-20 object-cover rounded border"
+//           onError={(e) => (e.target.src = '/default-product.jpg')}
+//         />
+//         <div>
+//           <p className="sm:text-base font-medium">{item.name}</p>
+
+//           <div className="flex items-center gap-3 mt-1 text-base text-gray-700 flex-wrap">
+//             <p>
+//               {currency}
+//               {Number(item?.price || 0).toLocaleString('en-IN', {
+//                 minimumFractionDigits: 2,
+//                 maximumFractionDigits: 2,
+//               })}
+//             </p>
+//             <p>Quantity: {item.quantity}</p>
+//             {item.size && <p>Size: {item.size}</p>}
+//             {item.hexColor && (
+//               <div className="flex items-center gap-1">
+//                 <p>Color:</p>
+//                 <div
+//                   className="w-3 h-3 rounded-full border"
+//                   style={{ backgroundColor: item.hexColor }}
+//                   title={item.color}
+//                 />
+//                 <span className="text-sm text-gray-600">{getColorNameFromHex(item.hexColor)}</span>
+//               </div>
+//             )}
+
+//           </div>
+
+//           <p className="mt-2">
+//             Date: <span className="text-gray-400">{new Date(item.date).toDateString()}</span>
+//           </p>
+//           <p className="mt-1">
+//             Payment: <span className="text-gray-400">{item.paymentMethod}</span>
+//           </p>
+//         </div>
+//       </div>
+
+//       {/* Status / Actions */}
+//       <div className="w-full md:w-1/2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
+//         <div className="flex items-center gap-2">
+//           <span
+//             className={`w-2 h-2 rounded-full ${item.status === 'Delivered'
+//               ? 'bg-green-500'
+//               : item.status === 'Out for Delivery'
+//                 ? 'bg-yellow-500'
+//                 : item.status === 'Processing' || item.status === 'Order Processed'
+//                   ? 'bg-blue-500'
+//                   : item.status === 'Cancelled' || item.status === 'Rejected'
+//                     ? 'bg-red-500'
+//                     : 'bg-gray-400'
+//               }`}
+//           ></span>
+//           <p className="capitalize text-base md:text-sm">{item.status}</p>
+//         </div>
+
+//         <button
+//           className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
+//           onClick={() => setSelectedOrderId(item.orderId)}
+//         >
+//           Track Order
+//         </button>
+
+//         {item.status === 'Delivered' && (
+//           <button
+//             className="border px-4 py-2 text-sm font-medium rounded-sm w-fit"
+//             onClick={() => handleInvoiceDownload(item.orderId)}
+//           >
+//             Download Invoice
+//           </button>
+//         )}
+//       </div>
+//     </div>
+//   ))}
+// </div> */}
