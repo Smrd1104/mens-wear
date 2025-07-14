@@ -9,6 +9,8 @@ const Product = () => {
     const [breadcrumbs, setBreadcrumbs] = useState([]);
     const { productId } = useParams();
     const [skuLoading, setSkuLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState("description");
+
 
     const {
         products,
@@ -216,13 +218,39 @@ const Product = () => {
                 </div>
             </div>
 
-            <div className="mt-12">
+            {/* <div className="mt-12">
                 <div className="flex">
                     <b className="border px-5 py-3 text-sm capitalize">description</b>
                     <p className="border px-5 py-3 text-sm capitalize">Review (122)</p>
                 </div>
                 <div className="border px-6 py-6 text-sm text-gray-500">
                     <p>{productData.description}</p>
+                </div>
+            </div> */}
+            <div className="mt-12">
+                <div className="flex">
+                    <b
+                        className={`border px-5 py-3 text-sm capitalize cursor-pointer ${activeTab === "description" ? "bg-black text-white" : ""
+                            }`}
+                        onClick={() => setActiveTab("description")}
+                    >
+                        description
+                    </b>
+                    <p
+                        className={`border px-5 py-3 text-sm capitalize cursor-pointer ${activeTab === "review" ? "bg-black text-white" : ""
+                            }`}
+                        onClick={() => setActiveTab("review")}
+                    >
+                        Review (122)
+                    </p>
+                </div>
+
+                <div className="border px-6 py-6 text-sm text-gray-500">
+                    {activeTab === "description" ? (
+                        <p>{productData.description}</p>
+                    ) : (
+                        <p>No reviews yet. (or you can fetch and show reviews here)</p>
+                    )}
                 </div>
             </div>
 
@@ -278,48 +306,48 @@ const Product = () => {
                                                             )}
                                                         </div>
                                                     </div>
-                                                 <div className="flex flex-col  mt-2">
-                                <div className="flex flex-row justify-between">
-                                  <p className="text-sm font-semibold text-gray-700">
-                                    {currency}
-                                    {Number(product.price).toLocaleString('en-IN', {
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2
-                                    })}
-                                    × {quantity} = {currency}
-                                    {Number(product.price * quantity).toLocaleString('en-IN', {
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2
-                                    })}
-                                  </p>
-                                  <img
-                                    onClick={() => updateQuantity(itemId, variantKey, 0)}
-                                    src={assets.bin_icon}
-                                    alt="Remove"
-                                    className="w-4 h-4 cursor-pointer"
-                                  />
-                                </div>
-                                <div className="flex flex-row justify-between  mt-2 gap-2 items-center">
-                                  <div className="flex flex-row gap-2 ">
-                                    <button
-                                      onClick={() => updateQuantity(itemId, variantKey, Math.max(quantity - 1, 1))}
-                                      className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
-                                    >
-                                      −
-                                    </button>
-                                    <span className="text-sm">{quantity}</span>
-                                    <button
-                                      onClick={() => updateQuantity(itemId, variantKey, quantity + 1)}
-                                      className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
-                                    >
-                                      +
-                                    </button>
-                                  </div>
+                                                    <div className="flex flex-col  mt-2">
+                                                        <div className="flex flex-row justify-between">
+                                                            <p className="text-sm font-semibold text-gray-700">
+                                                                {currency}
+                                                                {Number(product.price).toLocaleString('en-IN', {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2
+                                                                })}
+                                                                × {quantity} = {currency}
+                                                                {Number(product.price * quantity).toLocaleString('en-IN', {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2
+                                                                })}
+                                                            </p>
+                                                            <img
+                                                                onClick={() => updateQuantity(itemId, variantKey, 0)}
+                                                                src={assets.bin_icon}
+                                                                alt="Remove"
+                                                                className="w-4 h-4 cursor-pointer"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-row justify-between  mt-2 gap-2 items-center">
+                                                            <div className="flex flex-row gap-2 ">
+                                                                <button
+                                                                    onClick={() => updateQuantity(itemId, variantKey, Math.max(quantity - 1, 1))}
+                                                                    className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
+                                                                >
+                                                                    −
+                                                                </button>
+                                                                <span className="text-sm">{quantity}</span>
+                                                                <button
+                                                                    onClick={() => updateQuantity(itemId, variantKey, quantity + 1)}
+                                                                    className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            </div>
 
-                                </div>
+                                                        </div>
 
 
-                              </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )
