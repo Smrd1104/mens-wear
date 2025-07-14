@@ -4,13 +4,16 @@ import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/frontend_assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
 import axios from "axios";
+import ReviewSection from "../components/ReviewSection";
 
 const Product = () => {
     const [breadcrumbs, setBreadcrumbs] = useState([]);
     const { productId } = useParams();
     const [skuLoading, setSkuLoading] = useState(false);
     const [activeTab, setActiveTab] = useState("description");
+    const [showReviewPopup, setShowReviewPopup] = useState(false);
 
+    const reviewRef = useRef(null);
 
     const {
         products,
@@ -215,8 +218,21 @@ const Product = () => {
                     >
                         Add to cart
                     </button>
+
+                    <button
+                        onClick={() => setShowReviewPopup(true)}
+                        className="mt-4 ml-4 text-sm underline text-black hover:text-gray-700"
+                    >
+                        Write a Review
+                    </button>
+
+
+
                 </div>
+
+
             </div>
+
 
             {/* <div className="mt-12">
                 <div className="flex">
@@ -227,7 +243,7 @@ const Product = () => {
                     <p>{productData.description}</p>
                 </div>
             </div> */}
-            <div className="mt-12">
+            <div className="mt-12" ref={reviewRef}>
                 <div className="flex">
                     <b
                         className={`border px-5 py-3 text-sm capitalize cursor-pointer ${activeTab === "description" ? "bg-black text-white" : ""
@@ -241,7 +257,7 @@ const Product = () => {
                             }`}
                         onClick={() => setActiveTab("review")}
                     >
-                        Review (122)
+                        Review
                     </p>
                 </div>
 
@@ -249,10 +265,40 @@ const Product = () => {
                     {activeTab === "description" ? (
                         <p>{productData.description}</p>
                     ) : (
-                        <p>No reviews yet. (or you can fetch and show reviews here)</p>
+                        <ReviewSection productId={productData._id} />
                     )}
                 </div>
             </div>
+
+
+            {showReviewPopup && (
+                <>
+                    {/* Background overlay */}
+                    <div
+                        className="fixed inset-0 bg-black/40 bg-opacity-50 z-40"
+                        onClick={() => setShowReviewPopup(false)}
+                    ></div>
+
+                    {/* Review popup content */}
+                    <div className="fixed z-50 top-1/2 left-1/2 w-full max-w-2xl transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-lg font-bold">Write a Review</h2>
+                            <button
+                                onClick={() => setShowReviewPopup(false)}
+                                className="text-2xl leading-none hover:text-red-600"
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        {/* Review form inside popup */}
+                        <ReviewSection productId={productData._id} />
+                    </div>
+                </>
+            )}
+
+
+
 
             {/* Cart Sidebar */}
             {cartSidebarOpen && (

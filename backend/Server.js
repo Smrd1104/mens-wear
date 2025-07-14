@@ -12,6 +12,7 @@ import subscriptionRouter from './routes/susubscriptionRoute.js';
 import wishlistRouter from './routes/wishlistRoute.js';
 import dashboardRouter from './routes/dashboardRoute.js';
 import skuRouter from './routes/skuRoute.js';
+import reviewRouter from './routes/reviewRoutes.js';
 
 
 dotenv.config();
@@ -51,6 +52,7 @@ app.use('/api/subscribe', subscriptionRouter);
 app.use('/api/wishlist', wishlistRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use('/api/sku', skuRouter);
+app.use("/api/reviews", reviewRouter);
 
 
 
