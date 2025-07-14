@@ -134,8 +134,17 @@ const Orders = ({ token }) => {
                     </p>
                     <div>
                       <p className="text-xs md:text-sm text-gray-600">Method: {order.paymentMethod}</p>
-                      <p className="text-xs md:text-sm text-gray-600">Payment: {order.status === 'Delivered' && order.payment ? "Done" : "Pending"}</p>
+                      <p className="text-xs md:text-sm text-gray-600">
+                        Payment: {
+                          order.paymentMethod === 'COD'
+                            ? order.status === 'Delivered' ? 'Done' : 'Pending'
+                            : order.payment
+                              ? 'Done'
+                              : 'Pending'
+                        }
+                      </p>
                     </div>
+
                   </div>
                 </div>
 

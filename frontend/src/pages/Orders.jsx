@@ -212,7 +212,7 @@ const Orders = () => {
                 {order.items.map((item, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start gap-6 text-sm border-t py-3 px-2"
+                    className="flex items-start gap-6 text-sm border-b py-3 px-2"
                   >
                     <img
                       src={item?.image?.[0] || '/default-product.jpg'}
@@ -254,7 +254,7 @@ const Orders = () => {
 
 
                 {/* Actions for the order */}
-                <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
+                <div className="flex flex-wrap items-center justify-between gap-4 mt-4">
                   <div className="flex items-center gap-2">
                     <span
                       className={`w-2 h-2 rounded-full ${order.status === 'Delivered'
