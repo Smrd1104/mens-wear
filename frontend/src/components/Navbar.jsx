@@ -338,40 +338,47 @@ const Navbar = () => {
                                   )}
                                 </div>
                               </div>
-                              <div className="flex justify-between items-center mt-2">
-                                <p className="text-sm font-semibold text-gray-700">
-                                  {currency}
-                                  {Number(product.price).toLocaleString('en-IN', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                  })}
-                                  × {quantity} = {currency}
-                                  {Number(product.price * quantity).toLocaleString('en-IN', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                  })}
-                                </p>
-                                <div className="flex gap-2 items-center">
-                                  <button
-                                    onClick={() => updateQuantity(itemId, variantKey, Math.max(quantity - 1, 1))}
-                                    className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
-                                  >
-                                    −
-                                  </button>
-                                  <span className="text-sm">{quantity}</span>
-                                  <button
-                                    onClick={() => updateQuantity(itemId, variantKey, quantity + 1)}
-                                    className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
-                                  >
-                                    +
-                                  </button>
+                              <div className="flex flex-col  mt-2">
+                                <div className="flex flex-row justify-between">
+                                  <p className="text-sm font-semibold text-gray-700">
+                                    {currency}
+                                    {Number(product.price).toLocaleString('en-IN', {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2
+                                    })}
+                                    × {quantity} = {currency}
+                                    {Number(product.price * quantity).toLocaleString('en-IN', {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2
+                                    })}
+                                  </p>
+                                  <img
+                                    onClick={() => updateQuantity(itemId, variantKey, 0)}
+                                    src={assets.bin_icon}
+                                    alt="Remove"
+                                    className="w-4 h-4 cursor-pointer"
+                                  />
                                 </div>
-                                <img
-                                  onClick={() => updateQuantity(itemId, variantKey, 0)}
-                                  src={assets.bin_icon}
-                                  alt="Remove"
-                                  className="w-4 h-4 cursor-pointer"
-                                />
+                                <div className="flex flex-row justify-between  mt-2 gap-2 items-center">
+                                  <div className="flex flex-row gap-2 ">
+                                    <button
+                                      onClick={() => updateQuantity(itemId, variantKey, Math.max(quantity - 1, 1))}
+                                      className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
+                                    >
+                                      −
+                                    </button>
+                                    <span className="text-sm">{quantity}</span>
+                                    <button
+                                      onClick={() => updateQuantity(itemId, variantKey, quantity + 1)}
+                                      className="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+
+                                </div>
+
+
                               </div>
                             </div>
                           </div>
