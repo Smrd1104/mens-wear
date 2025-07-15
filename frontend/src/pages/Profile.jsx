@@ -8,7 +8,7 @@ const Profile = () => {
     const [selectedTab, setSelectedTab] = useState('profile');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [userInfo, setUserInfo] = useState(null); // user details
-    const { backendUrl } = useContext(ShopContext)
+    const { backendUrl, token, navigate, setToken ,setCartItems} = useContext(ShopContext)
     const [orderHistory, setOrderHistory] = useState([]);
     const [itemsToShow, setItemsToShow] = useState(5);
 
@@ -56,6 +56,13 @@ const Profile = () => {
         setIsSidebarOpen(false);
     };
 
+    const logout = () => {
+        navigate('/login')
+        localStorage.removeItem('token', token)
+        setToken('')
+        setCartItems({})
+
+    }
 
 
 
@@ -91,7 +98,7 @@ const Profile = () => {
                         </li>
                     ))}
                     <li>
-                        <button className="text-red-500 hover:underline w-full text-left">🚪 Logout</button>
+                        <button onClick={logout} className="text-red-500 hover:underline w-full text-left">🚪 Logout</button>
                     </li>
                 </ul>
             </aside>
