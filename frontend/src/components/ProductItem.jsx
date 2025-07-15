@@ -125,7 +125,7 @@ const ProductItem = ({
           <img
             src={displayImage}
             alt={name}
-            className="hover:scale-110 object-cover md:object-top-right w-full max-w-[350px] md:h-[350px] h-[300px] transition-all ease-in-out duration-300"
+            className="hover:scale-110 object-cover lg:object-top-right w-full max-w-[350px] md:h-[350px] h-[300px] transition-all ease-in-out duration-300"
           />
         </div>
         <p className="pt-3 pb-1 text-sm">{name}</p>

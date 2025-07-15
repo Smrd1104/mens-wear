@@ -185,18 +185,18 @@ const Product = () => {
 
             <div className="flex flex-col sm:flex-row gap-12">
                 <div className="flex-1 flex-col-reverse flex gap-3 sm:flex-row">
-                    <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll sm:w-[18%] w-full">
+                    <div className="flex sm:flex-col overflow-x-auto sm:gap-0 gap-2 sm:overflow-y-scroll sm:w-[18%] w-full">
                         {productData.image.map((img, idx) => (
                             <img
                                 key={idx}
                                 src={img}
                                 onClick={() => setImage(img)}
-                                className="w-[24%] sm:w-full sm:mb-3 cursor-pointer"
+                                className="w-[24%] sm:h-[21%]  sm:w-full  object-cover sm:object-top sm:mb-3 cursor-pointer"
                             />
                         ))}
                     </div>
-                    <div className="w-full sm:w-[80%]">
-                        <img className="w-full" src={image} alt="" />
+                    <div className="w-full lg:w-[80%] ">
+                        <img className="w-full sm:h-[550px] object-cover lg:object-top-right" src={image} alt="" />
                     </div>
                 </div>
 
@@ -317,32 +317,32 @@ const Product = () => {
                                 <p className="text-gray-500">No reviews yet.</p>
                             ) : (
                                 <div className="max-h-56 overflow-y-auto pr-2 space-y-4">
-  {reviews.map((review, idx) => (
-    <div key={idx} className="border rounded-md p-4 mb-2">
-      <div className="flex justify-between items-center mb-1">
-        <span className="font-semibold">{review.username}</span>
-        <span className="text-yellow-600">
-          {Array.from({ length: review.rating }, (_, i) => (
-            <span key={i}>⭐</span>
-          ))}
-        </span>
-      </div>
+                                    {reviews.map((review, idx) => (
+                                        <div key={idx} className="border rounded-md p-4 mb-2">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <span className="font-semibold">{review.username}</span>
+                                                <span className="text-yellow-600">
+                                                    {Array.from({ length: review.rating }, (_, i) => (
+                                                        <span key={i}>⭐</span>
+                                                    ))}
+                                                </span>
+                                            </div>
 
-      <p className="text-gray-700">{review.comment}</p>
+                                            <p className="text-gray-700">{review.comment}</p>
 
-      {review.adminReply && (
-        <div className="mt-2 bg-gray-50 border-l-4 border-green-600 px-3 py-2 rounded text-sm text-gray-800">
-          <span className="font-semibold text-green-600">Admin Reply: </span>
-          {review.adminReply}
-        </div>
-      )}
+                                            {review.adminReply && (
+                                                <div className="mt-2 bg-gray-50 border-l-4 border-green-600 px-3 py-2 rounded text-sm text-gray-800">
+                                                    <span className="font-semibold text-green-600">Admin Reply: </span>
+                                                    {review.adminReply}
+                                                </div>
+                                            )}
 
-      <p className="text-xs text-gray-400 mt-1">
-        {new Date(review.createdAt).toLocaleString()}
-      </p>
-    </div>
-  ))}
-</div>
+                                            <p className="text-xs text-gray-400 mt-1">
+                                                {new Date(review.createdAt).toLocaleString()}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
 
                             )}
                         </div>
