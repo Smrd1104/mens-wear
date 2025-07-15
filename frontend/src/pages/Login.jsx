@@ -7,17 +7,20 @@ const Login = () => {
     const [currentState, setCurrentState] = useState("Login");
 
     const { token, setToken, navigate, backendUrl } = useContext(ShopContext)
+    const [email, setEmail] = useState(''); // for Sign Up
 
     const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
+    const [emailOrPhone, setEmailOrPhone] = useState('');
     const [password, setPassword] = useState('')
+    const [phone, setPhone] = useState('');
+
 
     const onSubmitHandler = async (event) => {
         event.preventDefault()
 
         try {
             if (currentState === "Sign Up") {
-                const response = await axios.post(backendUrl + "/api/user/register", { name, email, password })
+                const response = await axios.post(backendUrl + "/api/user/register", { name, email, password, phone })
 
                 if (response.data.success) {
                     console.log('response: ', response);
@@ -29,7 +32,7 @@ const Login = () => {
                     toast.error(response.data.message)
                 }
             } else {
-                const response = await axios.post(backendUrl + "/api/user/login", { email, password })
+                const response = await axios.post(backendUrl + "/api/user/login", { emailOrPhone, password })
                 if (response.data.success) {
                     setToken(response.data.token)
                     localStorage.setItem('token', response.data.token)
@@ -64,23 +67,45 @@ const Login = () => {
 
                 {/* Conditional Name Field */}
                 {currentState !== 'Login' && (
-                    <input
-                        type="text"
-                        placeholder="Name"
-                        className="w-full px-4 py-2 border border-gray-800 rounded-sm"
-                        onChange={(e) => setName(e.target.value)}
-                        value={name}
-                    />
+                    <>
+                        <input
+                            type="text"
+                            placeholder="Name"
+                            className="w-full px-4 py-2 border border-gray-800 rounded-sm"
+                            onChange={(e) => setName(e.target.value)}
+                            value={name}
+                        />
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            className="w-full px-4 py-2 border border-gray-800 rounded-sm"
+
+                            onChange={(e) => setEmail(e.target.value)}
+                            value={email}
+                        />
+                        <input
+                            type="tel"
+                            placeholder="Phone Number"
+                            className="w-full px-4 py-2 border border-gray-800 rounded-sm"
+                            onChange={(e) => setPhone(e.target.value)}
+                            value={phone}
+                        />
+                    </>
                 )}
 
                 {/* Email Field */}
-                <input
-                    type="email"
-                    placeholder="Email"
-                    className="w-full px-4 py-2 border border-gray-800 rounded-sm"
-                    onChange={(e) => setEmail(e.target.value)}
-                    value={email}
-                />
+                {/* Email/Phone field only for Login */}
+                {currentState === 'Login' && (
+                    <input
+                        type="text"
+                        placeholder="Email or Phone"
+                        className="w-full px-4 py-2 border border-gray-800 rounded-sm"
+
+                        onChange={(e) => setEmailOrPhone(e.target.value)}
+                        value={emailOrPhone}
+                    />
+                )}
+
 
                 {/* Password Field */}
                 <input

@@ -14,34 +14,66 @@ const createToken = (id) => {
 // route for user login
 
 const loginUser = async (req, res) => {
+  try {
+    const { emailOrPhone, password } = req.body;
 
-    try {
-        const { email, password } = req.body
+    // Find user by email or phone
+    const user = await userModel.findOne({
+      $or: [
+        { email: emailOrPhone.toLowerCase() }, // make email case-insensitive
+        { phone: emailOrPhone }
+      ]
+    });
 
-        const user = await userModel.findOne({ email })
-        if (!user) {
-            return res.json({ success: false, message: "user does not exists" })
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password)
-
-        if (isMatch) {
-            const token = createToken(user._id)
-            res.json({ success: true, token })
-        } else {
-            res.json({ success: false, message: "Invalid Credentials" })
-        }
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+    if (!user) {
+      return res.json({ success: false, message: "User does not exist" });
     }
-}
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.json({ success: false, message: "Invalid credentials" });
+    }
+
+    const token = createToken(user._id);
+    return res.json({ success: true, token });
+
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
+// const loginUser = async (req, res) => {
+
+//     try {
+//         const { email, password } = req.body
+
+//         const user = await userModel.findOne({ email })
+//         if (!user) {
+//             return res.json({ success: false, message: "user does not exists" })
+//         }
+
+//         const isMatch = await bcrypt.compare(password, user.password)
+
+//         if (isMatch) {
+//             const token = createToken(user._id)
+//             res.json({ success: true, token })
+//         } else {
+//             res.json({ success: false, message: "Invalid Credentials" })
+//         }
+//     } catch (error) {
+//         console.log(error)
+//         res.json({ success: false, message: error.message })
+//     }
+// }
 
 // routes for  user register
 const registerUser = async (req, res) => {
 
     try {
-        const { name, email, password } = req.body
+        const { name, email, password, phone } = req.body
 
         // checking user already exist or not
         const exists = await userModel.findOne({ email })
@@ -52,6 +84,9 @@ const registerUser = async (req, res) => {
         // validating email & strong password
         if (!validator.isEmail(email)) {
             return res.json({ success: false, message: "please enter valid email " })
+        }
+        if (!/^\d{10}$/.test(phone)) {
+            return res.json({ success: false, message: "Please enter a valid 10-digit phone number" });
         }
         if (password.length < 8) {
             return res.json({ success: false, message: "please enter strong password " })
@@ -65,6 +100,7 @@ const registerUser = async (req, res) => {
         const newUser = new userModel({
             name,
             email,
+            phone,
             password: hashPassword
         })
 
