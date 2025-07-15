@@ -3,7 +3,7 @@ import express from "express"
 import {
     loginUser, registerUser, adminLogin, forgotPassword,
     verifyOtp,
-    resetPassword
+    resetPassword, getUserDetails
 } from "../controllers/userController.js"
 
 
@@ -19,5 +19,9 @@ userRouter.post("/admin", adminLogin)
 userRouter.post('/forgot-password', forgotPassword);
 userRouter.post('/verify-otp', verifyOtp);
 userRouter.post('/reset-password', resetPassword);
+
+
+userRouter.get("/me", getUserDetails);
+
 
 export default userRouter

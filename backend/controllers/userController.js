@@ -165,6 +165,21 @@ const resetPassword = async (req, res) => {
 };
 
 
+const getUserDetails = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(" ")[1]; // Bearer <token>
+        if (!token) return res.status(401).json({ success: false, message: "No token provided" });
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await userModel.findById(decoded.id).select("-password");
+
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+        res.json({ success: true, user });
+    } catch (err) {
+        res.status(401).json({ success: false, message: "Invalid token" });
+    }
+};
 
 
 
@@ -172,4 +187,9 @@ const resetPassword = async (req, res) => {
 
 
 
-export { loginUser, registerUser, adminLogin, forgotPassword, resetPassword, verifyOtp }
+
+
+
+
+
+export { loginUser, registerUser, adminLogin, forgotPassword, resetPassword, verifyOtp, getUserDetails }

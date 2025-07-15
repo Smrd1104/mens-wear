@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useContext } from 'react';
+import { ShopContext } from '../context/ShopContext';
 
 const Profile = () => {
     const [selectedTab, setSelectedTab] = useState('profile');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // for mobile
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [userInfo, setUserInfo] = useState(null); // user details
+    const { backendUrl } = useContext(ShopContext)
+    // Fetch user data
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const res = await axios.get(`${backendUrl}/api/user/me`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (res.data.success) {
+                    setUserInfo(res.data.user);
+                }
+            } catch (err) {
+                console.error("Failed to fetch user data", err);
+            }
+        };
+        fetchUser();
+    }, []);
 
     const handleTabClick = (tab) => {
         setSelectedTab(tab);
-        setIsSidebarOpen(false); // close sidebar on mobile after selection
+        setIsSidebarOpen(false);
     };
 
     return (
         <div className="min-h-screen bg-gray-100 md:flex mt-22">
-            {/* Sidebar - Mobile Toggle */}
+            {/* Sidebar Toggle (Mobile) */}
             <div className="md:hidden p-4 bg-white flex justify-between items-center">
                 <h2 className="text-lg font-semibold">My Account</h2>
                 <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-blue-600 font-medium">
@@ -23,54 +45,23 @@ const Profile = () => {
             <aside className={`bg-white p-6 w-full md:w-64 z-10 md:block ${isSidebarOpen ? 'block' : 'hidden'} md:static absolute`}>
                 <h2 className="text-xl font-bold mb-6">My Account</h2>
                 <ul className="space-y-4">
-                    <li>
-                        <button
-                            onClick={() => handleTabClick('profile')}
-                            className={`w-full text-left ${selectedTab === 'profile' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'}`}
-                        >
-                            👤 Profile Info
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                            onClick={() => handleTabClick('orders')}
-                            className={`w-full text-left ${selectedTab === 'orders' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'}`}
-                        >
-                            📦 Order History
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                            onClick={() => handleTabClick('wishlist')}
-                            className={`w-full text-left ${selectedTab === 'wishlist' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'}`}
-                        >
-                            ❤️ Wishlist
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                            onClick={() => handleTabClick('address')}
-                            className={`w-full text-left ${selectedTab === 'address' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'}`}
-                        >
-                            🏠 Address Book
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                            onClick={() => handleTabClick('payment')}
-                            className={`w-full text-left ${selectedTab === 'payment' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'}`}
-                        >
-                            💳 Payment Methods
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                            onClick={() => handleTabClick('rewards')}
-                            className={`w-full text-left ${selectedTab === 'rewards' ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'}`}
-                        >
-                            🎁 Rewards
-                        </button>
-                    </li>
+                    {[
+                        { tab: 'profile', label: '👤 Profile Info' },
+                        { tab: 'orders', label: '📦 Order History' },
+                        { tab: 'wishlist', label: '❤️ Wishlist' },
+                        { tab: 'address', label: '🏠 Address Book' },
+                        { tab: 'payment', label: '💳 Payment Methods' },
+                        { tab: 'rewards', label: '🎁 Rewards' },
+                    ].map(({ tab, label }) => (
+                        <li key={tab}>
+                            <button
+                                onClick={() => handleTabClick(tab)}
+                                className={`w-full text-left ${selectedTab === tab ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'}`}
+                            >
+                                {label}
+                            </button>
+                        </li>
+                    ))}
                     <li>
                         <button className="text-red-500 hover:underline w-full text-left">🚪 Logout</button>
                     </li>
@@ -84,13 +75,20 @@ const Profile = () => {
 
                 {selectedTab === 'profile' && (
                     <Section title="👤 Personal Information">
-                        <p><strong>Name:</strong> John Doe</p>
-                        <p><strong>Email:</strong> johndoe@example.com</p>
-                        <p><strong>Phone:</strong> +91 98765 43210</p>
-                        <button className="mt-2 text-blue-600 hover:underline">Edit Profile</button>
+                        {userInfo ? (
+                            <>
+                                <p><strong>Name:</strong> {userInfo.name}</p>
+                                <p><strong>Email:</strong> {userInfo.email}</p>
+                                <p><strong>Phone:</strong> {userInfo.phone || 'Not Provided'}</p>
+                                <button className="mt-2 text-blue-600 hover:underline">Edit Profile</button>
+                            </>
+                        ) : (
+                            <p>Loading...</p>
+                        )}
                     </Section>
                 )}
 
+                {/* Other static sections remain same (you can make them dynamic later) */}
                 {selectedTab === 'orders' && (
                     <Section title="📦 Order History">
                         <p><strong>Order ID:</strong> #TW1024</p>
@@ -144,7 +142,7 @@ const Profile = () => {
     );
 };
 
-// Reusable section component
+// Reusable Section
 const Section = ({ title, children }) => (
     <div className="bg-white shadow-md rounded-lg p-4 mb-8">
         <h2 className="text-xl font-semibold mb-2">{title}</h2>
