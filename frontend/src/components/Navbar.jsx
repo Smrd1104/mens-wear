@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { assets } from "../assets/frontend_assets/assets";
-import { Link, NavLink } from "react-router-dom";
+import { Link, Navigate, NavLink } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { useSelector } from 'react-redux';
 import { toast } from "react-toastify";
@@ -155,7 +155,7 @@ const Navbar = () => {
             {/* dropdowm */}
             {token && <div className="group-hover:block hidden absolute z-10 dropdown-menu right-0 pt-4">
               <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-                <p className="cursor-pointer hover:text-black">My Profile</p>
+                <p onClick={() => navigate('/profile')} className="cursor-pointer hover:text-black">My Profile</p>
                 <p onClick={() => navigate('/orders')} className="cursor-pointer hover:text-black">Order</p>
                 <p onClick={logout} className="cursor-pointer hover:text-black">Logout</p>
               </div>
