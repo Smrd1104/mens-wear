@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useContext } from 'react';
 import { ShopContext } from '../context/ShopContext';
+import { calculateRewardPoints } from '../utils/rewards'; // 🔁 Add import
 
 const Profile = () => {
     const [selectedTab, setSelectedTab] = useState('profile');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [userInfo, setUserInfo] = useState(null); // user details
     const { backendUrl } = useContext(ShopContext)
+    const [orderHistory, setOrderHistory] = useState([]);
+    const [itemsToShow, setItemsToShow] = useState(5);
+
     // Fetch user data
     useEffect(() => {
         const fetchUser = async () => {
@@ -26,10 +30,34 @@ const Profile = () => {
         fetchUser();
     }, []);
 
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const res = await axios.post(
+                    `${backendUrl}/api/order/userorders`,
+                    { userId: localStorage.getItem('userId') },
+                    { headers: { token: localStorage.getItem("token") } }
+                );
+                if (res.data.success) {
+                    setOrderHistory(res.data.orders);
+                }
+            } catch (err) {
+                console.error("Failed to fetch order history", err);
+            }
+        };
+
+        fetchOrders();
+    }, []);
+
+
     const handleTabClick = (tab) => {
         setSelectedTab(tab);
         setIsSidebarOpen(false);
     };
+
+
+
 
     return (
         <div className="min-h-screen bg-gray-100 md:flex mt-22">
@@ -91,13 +119,50 @@ const Profile = () => {
                 {/* Other static sections remain same (you can make them dynamic later) */}
                 {selectedTab === 'orders' && (
                     <Section title="📦 Order History">
-                        <p><strong>Order ID:</strong> #TW1024</p>
-                        <p><strong>Date:</strong> 12 July 2025</p>
-                        <p><strong>Status:</strong> Delivered</p>
-                        <p><strong>Total:</strong> ₹2,199</p>
-                        <button className="mt-2 text-blue-600 hover:underline">View Details</button>
+                        {orderHistory.length === 0 ? (
+                            <p className="text-gray-500">You have no orders yet.</p>
+                        ) : (
+                            <>
+                                {orderHistory.slice(0, itemsToShow).map((order) => (
+                                    <div
+                                        key={order._id}
+                                        className="border-t py-4 mb-4 text-sm sm:text-base"
+                                    >
+                                        <p><strong>Order ID:</strong> {order._id}</p>
+                                        <p><strong>Date:</strong> {new Date(order.date).toDateString()}</p>
+                                        <p><strong>Status:</strong> {order.status}</p>
+                                        <p><strong>Payment:</strong> {order.paymentMethod}</p>
+                                        <p>
+                                            <strong>Total Items:</strong>{' '}
+                                            {order.items?.reduce((sum, item) => sum + item.quantity, 0)}
+                                        </p>
+                                        <button
+                                            className="mt-2 text-blue-600 hover:underline"
+                                            onClick={() => window.location.href = `/orders?orderId=${order._id}`}
+                                        >
+                                            View Details
+                                        </button>
+                                    </div>
+                                ))}
+
+                                {itemsToShow < orderHistory.length && (
+                                    <div className="text-center mt-6">
+                                        <button
+                                            onClick={() => setItemsToShow((prev) => prev + 5)}
+                                            className="px-6 py-2 border border-black cursor-pointer text-sm hover:bg-black hover:text-white transition duration-300"
+                                        >
+                                            Load More
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </Section>
                 )}
+
+
+
+
 
                 {selectedTab === 'wishlist' && (
                     <Section title="❤️ Saved Items">
@@ -133,11 +198,14 @@ const Profile = () => {
 
                 {selectedTab === 'rewards' && (
                     <Section title="🎁 My Rewards">
-                        <p><strong>Total Points:</strong> 180</p>
-                        <p><strong>Next reward in:</strong> 120 points</p>
+                        <p><strong>Total Points:</strong> {calculateRewardPoints(orderHistory)}</p>
+                        <p><strong>Next reward in:</strong> {100 - (calculateRewardPoints(orderHistory) % 100)} points</p>
                     </Section>
                 )}
+
             </main>
+
+
         </div>
     );
 };

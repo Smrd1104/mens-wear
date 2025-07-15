@@ -171,6 +171,19 @@ const Orders = () => {
     return () => clearInterval(interval);
   }, [token]);
 
+  // 👇 Auto-expand order from query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const orderIdFromUrl = params.get('orderId');
+    if (orderIdFromUrl) {
+      setExpandedOrders((prev) => ({
+        ...prev,
+        [orderIdFromUrl]: true,
+      }));
+      setSelectedOrderId(orderIdFromUrl); // Optional: Open tracking popup
+    }
+  }, []);
+
 
   const toggleOrder = (orderId) => {
     setExpandedOrders((prev) => ({
