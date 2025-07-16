@@ -37,7 +37,7 @@ const Profile = () => {
         const fetchAddresses = async () => {
             try {
                 const res = await axios.get(`${backendUrl}/api/user/addresses`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { token },
                 });
                 if (res.data.success) setAddresses(res.data.addresses);
             } catch (err) {
@@ -54,7 +54,7 @@ const Profile = () => {
     const handleAddAddress = async () => {
         try {
             const res = await axios.post(`${backendUrl}/api/user/addresses`, newAddress, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { token },
             });
             if (res.data.success) {
                 setAddresses(res.data.addresses);
@@ -73,7 +73,7 @@ const Profile = () => {
     const handleDeleteAddress = async (index) => {
         try {
             const res = await axios.delete(`${backendUrl}/api/user/addresses/${index}`, {
-                headers: { Authorization: `Bearer ${token}` },
+               headers: { token },
             });
             if (res.data.success) {
                 setAddresses(res.data.addresses);
