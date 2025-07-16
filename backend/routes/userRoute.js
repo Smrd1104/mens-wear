@@ -8,6 +8,8 @@ import {
     addUserAddress, deleteUserAddress
 } from "../controllers/userController.js"
 
+import authUser from "../middleware/auth.js"
+
 
 const userRouter = express.Router();
 
