@@ -9,9 +9,9 @@ const authUser = async (req, res, next) => {
     }
 
     try {
-        const decoded  = jwt.verify(token, process.env.JWT_SECRET)
+        const token_decode = jwt.verify(token, process.env.JWT_SECRET)
 
-        req.user = { id: decoded.id }; // ✅ Set user on request
+        req.body.userId = token_decode.id
         next()
     } catch (error) {
         console.log(error)

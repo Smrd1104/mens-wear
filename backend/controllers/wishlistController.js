@@ -15,8 +15,7 @@ export const getWishlist = async (req, res) => {
 
 // ADD to wishlist
 export const addToWishlist = async (req, res) => {
-  const { productId } = req.body;
-  const userId = req.user.id; // ✅ safe and clear
+  const { productId, userId } = req.body;
 
   try {
     let wishlist = await Wishlist.findOne({ userId });
