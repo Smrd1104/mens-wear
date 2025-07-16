@@ -5,12 +5,84 @@ import { ShopContext } from '../context/ShopContext';
 import { calculateRewardPoints } from '../utils/rewards'; // 🔁 Add import
 
 const Profile = () => {
+
+
+
+
+
+
+
     const [selectedTab, setSelectedTab] = useState('profile');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [userInfo, setUserInfo] = useState(null); // user details
-    const { backendUrl, token, navigate, setToken ,setCartItems} = useContext(ShopContext)
+    const { backendUrl, token, navigate, setToken, setCartItems } = useContext(ShopContext)
     const [orderHistory, setOrderHistory] = useState([]);
     const [itemsToShow, setItemsToShow] = useState(5);
+
+    const [addresses, setAddresses] = useState([]);
+    const [newAddress, setNewAddress] = useState({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        street: "",
+        city: "",
+        state: "",
+        zip: "",
+        country: ""
+    });
+    const [showAddressForm, setShowAddressForm] = useState(false);
+
+
+    useEffect(() => {
+        const fetchAddresses = async () => {
+            try {
+                const res = await axios.get(`${backendUrl}/api/user/addresses`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (res.data.success) setAddresses(res.data.addresses);
+            } catch (err) {
+                console.error("Failed to fetch addresses", err);
+            }
+        };
+
+        if (selectedTab === 'address') {
+            fetchAddresses();
+        }
+    }, [selectedTab]);
+
+
+    const handleAddAddress = async () => {
+        try {
+            const res = await axios.post(`${backendUrl}/api/user/addresses`, newAddress, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.data.success) {
+                setAddresses(res.data.addresses);
+                setNewAddress({
+                    firstName: "", lastName: "", phone: "",
+                    street: "", city: "", state: "", zip: "", country: ""
+                });
+                setShowAddressForm(false);
+            }
+        } catch (err) {
+            console.error("Error adding address", err);
+        }
+    };
+
+
+    const handleDeleteAddress = async (index) => {
+        try {
+            const res = await axios.delete(`${backendUrl}/api/user/addresses/${index}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.data.success) {
+                setAddresses(res.data.addresses);
+            }
+        } catch (err) {
+            console.error("Error deleting address", err);
+        }
+    };
+
 
     // Fetch user data
     useEffect(() => {
@@ -188,11 +260,67 @@ const Profile = () => {
 
                 {selectedTab === 'address' && (
                     <Section title="🏠 Address Book">
-                        <p>25, MG Road, Chennai, TN – 600001</p>
-                        <div className="space-x-4 mt-2">
-                            <button className="text-blue-600 hover:underline">Edit</button>
-                            <button className="text-red-500 hover:underline">Delete</button>
-                        </div>
+                        {addresses.length === 0 ? (
+                            <p className="text-gray-500">No addresses added yet.</p>
+                        ) : (
+                            addresses.map((addr, index) => (
+                                <div key={index} className="border p-4 rounded-lg mb-4">
+                                    <p><strong>Name:</strong> {addr.firstName} {addr.lastName}</p>
+                                    <p><strong>Phone:</strong> {addr.phone}</p>
+                                    <p><strong>Street:</strong> {addr.street}</p>
+                                    <p><strong>City:</strong> {addr.city}</p>
+                                    <p><strong>State:</strong> {addr.state}</p>
+                                    <p><strong>ZIP:</strong> {addr.zip}</p>
+                                    <p><strong>Country:</strong> {addr.country}</p>
+                                    <button
+                                        onClick={() => handleDeleteAddress(index)}
+                                        className="text-red-600 mt-2 hover:underline"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            ))
+                        )}
+
+                        <button
+                            onClick={() => setShowAddressForm(!showAddressForm)}
+                            className="mt-4 text-blue-600 hover:underline"
+                        >
+                            {showAddressForm ? "Cancel" : "➕ Add New Address"}
+                        </button>
+
+                        {showAddressForm && (
+                            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {[
+                                    { name: "firstName", label: "First Name" },
+                                    { name: "lastName", label: "Last Name" },
+                                    { name: "phone", label: "Phone" },
+                                    { name: "street", label: "Street Address" },
+                                    { name: "city", label: "City" },
+                                    { name: "state", label: "State" },
+                                    { name: "zip", label: "ZIP Code" },
+                                    { name: "country", label: "Country" },
+                                ].map(({ name, label }) => (
+                                    <input
+                                        key={name}
+                                        type="text"
+                                        name={name}
+                                        value={newAddress[name]}
+                                        onChange={(e) => setNewAddress({ ...newAddress, [name]: e.target.value })}
+                                        placeholder={label}
+                                        className="border p-2 rounded"
+                                    />
+                                ))}
+                                <div className="col-span-full">
+                                    <button
+                                        onClick={handleAddAddress}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                    >
+                                        Save Address
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </Section>
                 )}
 

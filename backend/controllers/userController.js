@@ -14,34 +14,34 @@ const createToken = (id) => {
 // route for user login
 
 const loginUser = async (req, res) => {
-  try {
-    const { emailOrPhone, password } = req.body;
+    try {
+        const { emailOrPhone, password } = req.body;
 
-    // Find user by email or phone
-    const user = await userModel.findOne({
-      $or: [
-        { email: emailOrPhone.toLowerCase() }, // make email case-insensitive
-        { phone: emailOrPhone }
-      ]
-    });
+        // Find user by email or phone
+        const user = await userModel.findOne({
+            $or: [
+                { email: emailOrPhone.toLowerCase() }, // make email case-insensitive
+                { phone: emailOrPhone }
+            ]
+        });
 
-    if (!user) {
-      return res.json({ success: false, message: "User does not exist" });
+        if (!user) {
+            return res.json({ success: false, message: "User does not exist" });
+        }
+
+        // Check password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.json({ success: false, message: "Invalid credentials" });
+        }
+
+        const token = createToken(user._id);
+        return res.json({ success: true, token });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.json({ success: false, message: "Invalid credentials" });
-    }
-
-    const token = createToken(user._id);
-    return res.json({ success: true, token });
-
-  } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
-  }
 };
 
 
@@ -218,14 +218,59 @@ const getUserDetails = async (req, res) => {
 };
 
 
+const getUserAddresses = async (req, res) => {
+    try {
+        const user = await userModel.findById(req.body.userId);
+        if (!user) return res.json({ success: false, message: "User not found" });
+        res.json({ success: true, addresses: user.addresses });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+const addUserAddress = async (req, res) => {
+    try {
+        const user = await userModel.findById(req.body.userId);
+        if (!user) return res.json({ success: false, message: "User not found" });
+
+        user.addresses.push(req.body); // req.body contains the address fields
+        await user.save();
+
+        res.json({ success: true, addresses: user.addresses });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+const deleteUserAddress = async (req, res) => {
+    try {
+        const user = await userModel.findById(req.body.userId);
+        if (!user) return res.json({ success: false, message: "User not found" });
+
+        const index = req.params.index;
+        if (index < 0 || index >= user.addresses.length) {
+            return res.json({ success: false, message: "Invalid address index" });
+        }
+
+        user.addresses.splice(index, 1);
+        await user.save();
+
+        res.json({ success: true, addresses: user.addresses });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
 
 
-
-
-
-
-
-
-
-
-export { loginUser, registerUser, adminLogin, forgotPassword, resetPassword, verifyOtp, getUserDetails }
+export {
+    loginUser,
+    registerUser,
+    adminLogin,
+    forgotPassword,
+    resetPassword,
+    verifyOtp,
+    getUserDetails,
+    getUserAddresses,
+    addUserAddress,
+    deleteUserAddress
+}
