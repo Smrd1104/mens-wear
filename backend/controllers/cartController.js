@@ -65,7 +65,9 @@ const updateCart = async (req, res) => {
 // ✅ Get user cart
 const getUserCart = async (req, res) => {
   try {
-    const { userId } = req.body;
+    // const { userId } = req.body;
+        const userId = req.user.id; // ✅ Extracted from token
+
     if (!userId) return res.status(400).json({ success: false, message: "Missing userId" });
 
     const userData = await userModel.findById(userId);
