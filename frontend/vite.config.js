@@ -8,5 +8,20 @@ export default defineConfig({
   plugins: [tailwindcss(), react()],
   server: { port: 5173 },
 
-  base: './',
-})  
+  build: {
+    outDir: './dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js'
+      }
+    }
+  },
+  
+  base: process.env.NODE_ENV === 'production' 
+    ? '/product/assets/' 
+    : '/',
+});

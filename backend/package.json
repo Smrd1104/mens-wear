@@ -7,6 +7,7 @@
 		"server": "nodemon Server.js"
 	},
 	"dependencies": {
+		"add": "^2.0.6",
 		"bcrypt": "^6.0.0",
 		"cloudinary": "^2.7.0",
 		"cors": "^2.8.5",
@@ -17,7 +18,9 @@
 		"mongoose": "^8.16.1",
 		"multer": "^2.0.1",
 		"nodemailer": "^7.0.4",
+		"path-to-regexp": "6.2.1",
 		"pdfkit": "^0.17.1",
+		"pnpm": "^10.13.1",
 		"razorpay": "^2.9.6",
 		"stripe": "^18.2.1",
 		"validator": "^13.15.15"
