@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import connectCloudinary from './config/cloudinary.js';
 import connectDB from './config/mongodb.js';
 import userRouter from './routes/userRoute.js';
@@ -44,32 +45,61 @@ app.use(cors({
 }));
 
 // ===== CRITICAL ADDITIONS START ===== //
+// Dynamic path resolution for different environments
+const getFrontendPath = () => {
+  // Try Render.com path first
+  const renderPath = path.join(__dirname, '../../frontend/dist');
+  if (fs.existsSync(renderPath)) return renderPath;
+  
+  // Fallback to local development path
+  const localPath = path.join(__dirname, '../frontend/dist');
+  if (fs.existsSync(localPath)) return localPath;
+  
+  throw new Error('Frontend build not found');
+};
 
+const frontendPath = getFrontendPath();
 // Serve static assets with proper MIME types
+// Serve static assets
 app.use('/product/assets', express.static(
-  path.join(__dirname, '../frontend/dist/assets'),
+  path.join(frontendPath, 'assets'),
   {
     setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.css')) {
-        res.set('Content-Type', 'text/css');
-      } else if (filePath.endsWith('.js')) {
-        res.set('Content-Type', 'application/javascript');
-      } else if (filePath.endsWith('.png')) {
-        res.set('Content-Type', 'image/png');
-      } else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
-        res.set('Content-Type', 'image/jpeg');
-      } else if (filePath.endsWith('.svg')) {
-        res.set('Content-Type', 'image/svg+xml');
-      }
+      const mimeTypes = {
+        '.css': 'text/css',
+        '.js': 'application/javascript',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.svg': 'image/svg+xml',
+        '.woff': 'font/woff',
+        '.woff2': 'font/woff2'
+      };
+      const ext = path.extname(filePath);
+      if (mimeTypes[ext]) res.set('Content-Type', mimeTypes[ext]);
     },
-    maxAge: '1y', // Cache for 1 year
-    immutable: true // For cache-busted files
+    maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0',
+    immutable: true
   }
 ));
 
-// Serve index.html for all other routes (SPA fallback)
-app.get(/^(?!\/?api).*/, (req, res) => { // Exclude /api routes
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+// Debug endpoint to verify paths
+app.get('/path-info', (req, res) => {
+  res.json({
+    frontendPath,
+    exists: fs.existsSync(frontendPath),
+    contents: fs.readdirSync(frontendPath),
+    env: process.env.NODE_ENV
+  });
+});
+
+// SPA Fallback (excludes API routes)
+app.get(/^(?!\/?api).*/, (req, res) => {
+  const indexPath = path.join(frontendPath, 'index.html');
+  if (!fs.existsSync(indexPath)) {
+    return res.status(500).send('Frontend build not found');
+  }
+  res.sendFile(indexPath);
 });
 
 // ===== CRITICAL ADDITIONS END ===== //
