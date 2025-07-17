@@ -9,7 +9,7 @@ export default defineConfig({
   server: { port: 5173 },
 
   build: {
-    outDir: './dist',
+    outDir: '../dist',
     assetsDir: 'assets',
     emptyOutDir: true,
     rollupOptions: {
@@ -20,8 +20,6 @@ export default defineConfig({
       }
     }
   },
-  
-  base: process.env.NODE_ENV === 'production' 
-    ? '/product/assets/' 
-    : '/',
+
+  base: '/product/'
 });

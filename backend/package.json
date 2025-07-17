@@ -3,7 +3,8 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"start": "node Server.js",
+		"start": "cd ../frontend && pnpm run build && cd ../backend && pnpm start:server",
+  "start:server": "node Server.js",
 		"server": "nodemon Server.js"
 	},
 	"dependencies": {

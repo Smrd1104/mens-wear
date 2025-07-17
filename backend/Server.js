@@ -45,21 +45,16 @@ app.use(cors({
 }));
 
 // ===== CRITICAL ADDITIONS START ===== //
-// Dynamic path resolution for different environments
-const getFrontendPath = () => {
-  // Try Render.com path first
-  const renderPath = path.join(__dirname, '../../frontend/dist');
-  if (fs.existsSync(renderPath)) return renderPath;
-  
-  // Fallback to local development path
-  const localPath = path.join(__dirname, '../frontend/dist');
-  if (fs.existsSync(localPath)) return localPath;
-  
-  throw new Error('Frontend build not found');
-};
+// ===== Enhanced Static File Handling ===== //
+const frontendPath = path.join(__dirname, '../dist');
 
-const frontendPath = getFrontendPath();
-// Serve static assets with proper MIME types
+
+// / Verify build exists
+if (!fs.existsSync(frontendPath)) {
+  console.error('Frontend build not found at:', frontendPath);
+  console.error('Please run "npm run build" in the frontend directory');
+  process.exit(1);
+}
 // Serve static assets
 app.use('/product/assets', express.static(
   path.join(frontendPath, 'assets'),
@@ -70,18 +65,16 @@ app.use('/product/assets', express.static(
         '.js': 'application/javascript',
         '.png': 'image/png',
         '.jpg': 'image/jpeg',
-        '.jpeg': 'image/jpeg',
-        '.svg': 'image/svg+xml',
-        '.woff': 'font/woff',
-        '.woff2': 'font/woff2'
+        '.svg': 'image/svg+xml'
       };
       const ext = path.extname(filePath);
       if (mimeTypes[ext]) res.set('Content-Type', mimeTypes[ext]);
     },
-    maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0',
+    maxAge: '1y',
     immutable: true
   }
 ));
+
 
 // Debug endpoint to verify paths
 app.get('/path-info', (req, res) => {
@@ -95,11 +88,7 @@ app.get('/path-info', (req, res) => {
 
 // SPA Fallback (excludes API routes)
 app.get(/^(?!\/?api).*/, (req, res) => {
-  const indexPath = path.join(frontendPath, 'index.html');
-  if (!fs.existsSync(indexPath)) {
-    return res.status(500).send('Frontend build not found');
-  }
-  res.sendFile(indexPath);
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 // ===== CRITICAL ADDITIONS END ===== //
