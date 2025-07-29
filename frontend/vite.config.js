@@ -21,5 +21,5 @@ export default defineConfig({
     }
   },
 
-  base: '/product/'
+  base: '/'
 });
