@@ -43,13 +43,13 @@ export const ShopProvider = ({ children }) => {
     if (!token || !userId) return;
 
     try {
-      const res = await axios.get(`${backendUrl}/api/wishlist`,{
-  headers: {
-  Authorization: `Bearer ${token}`
-}
+      const res = await axios.get(`${backendUrl}/api/wishlist`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
 
-}
-);
+      }
+      );
 
       const wishlistData = res.data?.data?.items || [];
       const productIds = wishlistData.map(item => item.productId._id); // ✅ use populated data
@@ -72,9 +72,9 @@ export const ShopProvider = ({ children }) => {
     try {
       await axios.post(`${backendUrl}/api/wishlist`, { productId }, {
         headers: {
-  Authorization: `Bearer ${token}`
-}
-,
+          Authorization: `Bearer ${token}`
+        }
+        ,
       });
 
       setWishlist((prev) => [...new Set([...prev, productId])]);
@@ -91,9 +91,9 @@ export const ShopProvider = ({ children }) => {
     try {
       await axios.delete(`${backendUrl}/api/wishlist`, {
         headers: {
-  Authorization: `Bearer ${token}`
-}
-,
+          Authorization: `Bearer ${token}`
+        }
+        ,
         data: { productId },
       });
 
@@ -108,8 +108,6 @@ export const ShopProvider = ({ children }) => {
   useEffect(() => {
     if (token && userId && products) {
       fetchWishlist();
-      console.log("userId:", userId);
-      console.log("token:", token);
     }
   }, [token, userId, products]);
 
@@ -164,9 +162,11 @@ export const ShopProvider = ({ children }) => {
       try {
         await axios.post(backendUrl + "/api/cart/add",
           { itemId, size, color },
-          {headers: {
-  Authorization: `Bearer ${token}`,
-} }
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          }
         );
       } catch (error) {
         console.log(error);
@@ -221,9 +221,11 @@ export const ShopProvider = ({ children }) => {
         await axios.post(
           backendUrl + "/api/cart/update",
           { itemId, size, color, quantity },
-          {headers: {
-  Authorization: `Bearer ${token}`,
-} }
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          }
         );
       } catch (error) {
         console.log(error);
@@ -274,9 +276,11 @@ export const ShopProvider = ({ children }) => {
   const getUserCart = async (token) => {
 
     try {
-      const response = await axios.post(backendUrl + "/api/cart/get", {}, { headers: {
-  Authorization: `Bearer ${token}`,
-}})
+      const response = await axios.post(backendUrl + "/api/cart/get", {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      })
 
       if (response.data.success) {
         setCartItems(response.data.cartData)
