@@ -36,9 +36,9 @@ const Profile = () => {
     useEffect(() => {
         const fetchAddresses = async () => {
             try {
-                const res = await axios.get(`${backendUrl}/api/user/addresses`, {
-                    headers: { token },
-                });
+                const res = await axios.get(`${backendUrl}/api/user/addresses`, { headers: {
+    Authorization: `Bearer ${token}`,
+  }});
                 if (res.data.success) setAddresses(res.data.addresses);
             } catch (err) {
                 console.error("Failed to fetch addresses", err);
@@ -53,9 +53,9 @@ const Profile = () => {
 
     const handleAddAddress = async () => {
         try {
-            const res = await axios.post(`${backendUrl}/api/user/addresses`, newAddress, {
-                headers: { token },
-            });
+            const res = await axios.post(`${backendUrl}/api/user/addresses`, newAddress,{ headers: {
+    Authorization: `Bearer ${token}`,
+  }});
             if (res.data.success) {
                 setAddresses(res.data.addresses);
                 setNewAddress({
@@ -72,9 +72,9 @@ const Profile = () => {
 
     const handleDeleteAddress = async (index) => {
         try {
-            const res = await axios.delete(`${backendUrl}/api/user/addresses/${index}`, {
-               headers: { token },
-            });
+            const res = await axios.delete(`${backendUrl}/api/user/addresses/${index}`,{ headers: {
+    Authorization: `Bearer ${token}`,
+  }});
             if (res.data.success) {
                 setAddresses(res.data.addresses);
             }
@@ -109,7 +109,9 @@ const Profile = () => {
                 const res = await axios.post(
                     `${backendUrl}/api/order/userorders`,
                     { userId: localStorage.getItem('userId') },
-                    { headers: { token: localStorage.getItem("token") } }
+                   { headers: {
+    Authorization: `Bearer ${token}`,
+  }}
                 );
                 if (res.data.success) {
                     setOrderHistory(res.data.orders);

@@ -4,7 +4,7 @@ import authUser from '../middleware/auth.js';
 
 const wishlistRouter = express.Router();
 
-wishlistRouter.get('/:userId', authUser, getWishlist);
+wishlistRouter.get('/', authUser, getWishlist);       // ✅ updated
 wishlistRouter.post('/', authUser, addToWishlist);
 wishlistRouter.delete('/', authUser, removeFromWishlist);
 

@@ -56,7 +56,9 @@ const EditProduct = ({ token, onClose }) => {
 
     const fetchSKUs = async () => {
       try {
-        const res = await axios.get(`${backendUrl}/api/sku/product/${productId}`, { headers: { token } });
+        const res = await axios.get(`${backendUrl}/api/sku/product/${productId}`, { headers: {
+    Authorization: `Bearer ${token}`,
+  },});
         if (res.data.success) {
           setSkuData(res.data.data || []);
           const initialQuantities = {};
@@ -100,7 +102,9 @@ const EditProduct = ({ token, onClose }) => {
           quantityAvailable: skuQuantities[skuId].quantityAvailable,
           quantityReserved: skuQuantities[skuId].quantityReserved,
         };
-        await axios.put(`${backendUrl}/api/sku/update/${skuId}`, payload, { headers: { token } });
+        await axios.put(`${backendUrl}/api/sku/update/${skuId}`, payload, { headers: {
+    Authorization: `Bearer ${token}`,
+  }});
       }
       toast.success("SKUs updated successfully");
     } catch (err) {
@@ -129,9 +133,10 @@ const EditProduct = ({ token, onClose }) => {
       image3 && formData.append('image3', image3);
       image4 && formData.append('image4', image4);
 
-      const response = await axios.post(`${backendUrl}/api/product/edit`, formData, {
-        headers: { token },
-      });
+      const response = await axios.post(`${backendUrl}/api/product/edit`, formData,  { headers: {
+    Authorization: `Bearer ${token}`,
+  }}
+      );
 
       if (response.data.success) {
         toast.success("Product updated successfully");

@@ -4,18 +4,29 @@ import Wishlist from '../models/wishlistModel.js';
 // GET wishlist
 export const getWishlist = async (req, res) => {
   try {
-    const userId = req.params.userId; // ✅ from URL param
-    const wishlist = await Wishlist.findOne({ userId }).populate('items.productId');
-    res.status(200).json({ success: true, data: wishlist || { items: [] } });
+   const userId = req.user?._id; // or req.user.id based on your middleware
+ // 👈 from decoded token
+    if (!userId) return res.status(400).json({ success: false, message: "User ID not found" });
+
+    const wishlist = await Wishlist.findOne({ userId }).populate("items.productId");
+    res.status(200).json({ success: true, data: wishlist });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error fetching wishlist" });
+    console.error("Get Wishlist Error:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
 
+
+// ADD to wishlist
 // ADD to wishlist
 export const addToWishlist = async (req, res) => {
-  const { productId, userId } = req.body;
+  const { productId } = req.body;
+  const userId = req.user?._id;
+
+  if (!userId) {
+    return res.status(401).json({ success: false, message: "Please login to add to wishlist" });
+  }
 
   try {
     let wishlist = await Wishlist.findOne({ userId });
@@ -37,8 +48,14 @@ export const addToWishlist = async (req, res) => {
 };
 
 // REMOVE from wishlist
+// REMOVE from wishlist
 export const removeFromWishlist = async (req, res) => {
-  const { productId, userId } = req.body;
+  const { productId } = req.body;
+  const userId = req.user?._id;
+
+  if (!userId) {
+    return res.status(401).json({ success: false, message: "Please login to remove from wishlist" });
+  }
 
   try {
     const wishlist = await Wishlist.findOne({ userId });

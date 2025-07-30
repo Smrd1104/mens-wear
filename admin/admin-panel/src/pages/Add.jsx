@@ -49,7 +49,9 @@ const Add = ({ token }) => {
             image3 && formData.append("image3", image3)
             image4 && formData.append("image4", image4)
 
-            const response = await axios.post(backendUrl + "/api/product/add", formData, { headers: { token } });
+            const response = await axios.post(backendUrl + "/api/product/add", formData, { headers: {
+    Authorization: `Bearer ${token}`,
+  },});
 
             if (response.data.success) {
                 const productId = response.data?.product?._id;
@@ -92,7 +94,9 @@ const Add = ({ token }) => {
                     quantityAvailable: skuQuantities[skuCode]?.quantityAvailable || 0,
                     quantityReserved: skuQuantities[skuCode]?.quantityReserved || 0,
                 };
-                await axios.post(`${backendUrl}/api/sku/create`, skuPayload, { headers: { token } });
+                await axios.post(`${backendUrl}/api/sku/create`, skuPayload, { headers: {
+    Authorization: `Bearer ${token}`,
+  },});
             }
             toast.success("SKUs created successfully");
 

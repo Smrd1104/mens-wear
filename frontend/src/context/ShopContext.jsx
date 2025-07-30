@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios"
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { jwtDecode } from "jwt-decode"; // ✅ Correct
 
 // Create context
 export const ShopContext = createContext();
@@ -15,15 +16,21 @@ export const ShopProvider = ({ children }) => {
   // axios setup (React example)
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  // const backendUrl = "http://localhost:5000";
 
   // Example call
   // axios.get(`${backendUrl}/api/products`);
   const [userId, setUserId] = useState(null);
+
+  const [token, setToken] = useState(() => {
+    const stored = localStorage.getItem("token");
+    return stored && stored !== "null" ? stored : '';
+  });
+
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [products, setProducts] = useState([])
   const [cartItems, setCartItems] = useState({})
-  const [token, setToken] = useState('')
   const navigate = useNavigate()
   const hasFetched = useRef(false); // 👈 this line is important
 
@@ -32,29 +39,42 @@ export const ShopProvider = ({ children }) => {
 
 
 
- const fetchWishlist = async () => {
-  if (!token || !userId) return;
+  const fetchWishlist = async () => {
+    if (!token || !userId) return;
 
-  try {
-    const res = await axios.get(`${backendUrl}/api/wishlist/${userId}`, {
-      headers: { token },
-    });
+    try {
+      const res = await axios.get(`${backendUrl}/api/wishlist`,{
+  headers: {
+  Authorization: `Bearer ${token}`
+}
 
-    const wishlistData = res.data?.data?.items || [];
-    const productIds = wishlistData.map(item => item.productId._id); // ✅ use populated data
-    setWishlist(productIds);
-  } catch (error) {
-    console.error("Fetch Wishlist Error:", error);
-    toast.error("Failed to load wishlist");
-  }
-};
+}
+);
+
+      const wishlistData = res.data?.data?.items || [];
+      const productIds = wishlistData.map(item => item.productId._id); // ✅ use populated data
+      setWishlist(productIds);
+    } catch (error) {
+      console.error("Fetch Wishlist Error:", error);
+      toast.error("Failed to load wishlist");
+    }
+  };
 
 
   // ✅ Add to wishlist
   const addToWishlist = async (productId) => {
+    if (!userId || userId === "null" || userId === undefined) {
+      toast.error("Please login to add to wishlist");
+      navigate("/login");
+      return;
+    }
+
     try {
       await axios.post(`${backendUrl}/api/wishlist`, { productId }, {
-        headers: { token },
+        headers: {
+  Authorization: `Bearer ${token}`
+}
+,
       });
 
       setWishlist((prev) => [...new Set([...prev, productId])]);
@@ -65,11 +85,15 @@ export const ShopProvider = ({ children }) => {
     }
   };
 
+
   // ✅ Remove from wishlist
   const removeFromWishlist = async (productId) => {
     try {
       await axios.delete(`${backendUrl}/api/wishlist`, {
-        headers: { token },
+        headers: {
+  Authorization: `Bearer ${token}`
+}
+,
         data: { productId },
       });
 
@@ -81,12 +105,27 @@ export const ShopProvider = ({ children }) => {
     }
   };
 
- useEffect(() => {
-  if (token && userId && productsLoaded) {
-    fetchWishlist();
-  }
-}, [token, userId, productsLoaded]);
+  useEffect(() => {
+    if (token && userId && products) {
+      fetchWishlist();
+      console.log("userId:", userId);
+      console.log("token:", token);
+    }
+  }, [token, userId, products]);
 
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserId(decoded.id || decoded._id); // depending on your token payload
+      } catch (err) {
+        console.error("Invalid token:", err);
+        setUserId(null);
+      }
+    } else {
+      setUserId(null);
+    }
+  }, [token]);
 
 
 
@@ -125,7 +164,9 @@ export const ShopProvider = ({ children }) => {
       try {
         await axios.post(backendUrl + "/api/cart/add",
           { itemId, size, color },
-          { headers: { token } }
+          {headers: {
+  Authorization: `Bearer ${token}`,
+} }
         );
       } catch (error) {
         console.log(error);
@@ -180,7 +221,9 @@ export const ShopProvider = ({ children }) => {
         await axios.post(
           backendUrl + "/api/cart/update",
           { itemId, size, color, quantity },
-          { headers: { token } }
+          {headers: {
+  Authorization: `Bearer ${token}`,
+} }
         );
       } catch (error) {
         console.log(error);
@@ -231,7 +274,9 @@ export const ShopProvider = ({ children }) => {
   const getUserCart = async (token) => {
 
     try {
-      const response = await axios.post(backendUrl + "/api/cart/get", {}, { headers: { token } })
+      const response = await axios.post(backendUrl + "/api/cart/get", {}, { headers: {
+  Authorization: `Bearer ${token}`,
+}})
 
       if (response.data.success) {
         setCartItems(response.data.cartData)
@@ -252,27 +297,22 @@ export const ShopProvider = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUserId = localStorage.getItem("userId");
-
-    if (storedToken) {
-      setToken(storedToken);
-      setUserId(storedUserId); // ✅ now sets in memory
-      getUserCart(storedToken);
+    if (token) {
+      getUserCart(token);
     }
-  }, []);
+  }, [token]);
 
 
   const fetchSKUs = async (productId) => {
-  try {
-    const res = await axios.get(`${backendUrl}/api/sku/${productId}`);
-    return res.data.data; // Return the latest SKU list
-  } catch (error) {
-    console.error("Fetch SKU Error:", error);
-    toast.error("Failed to fetch SKU data");
-    return [];
-  }
-};
+    try {
+      const res = await axios.get(`${backendUrl}/api/sku/${productId}`);
+      return res.data.data; // Return the latest SKU list
+    } catch (error) {
+      console.error("Fetch SKU Error:", error);
+      toast.error("Failed to fetch SKU data");
+      return [];
+    }
+  };
 
 
 

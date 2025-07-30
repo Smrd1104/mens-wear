@@ -60,7 +60,9 @@ const PlaceOrder = () => {
           const { data } = await axios.post(
             `${backendUrl}/api/order/verifyRazorpay`,
             response,
-            { headers: { token } }
+           { headers: {
+    Authorization: `Bearer ${token}`,
+  },} 
           );
           if (data.success) {
             setCartItems({});
@@ -141,7 +143,9 @@ const PlaceOrder = () => {
           const response = await axios.post(
             `${backendUrl}/api/order/place`,
             orderData,
-            { headers: { token } }
+             { headers: {
+    Authorization: `Bearer ${token}`,
+  },}
           );
 
           if (response.data.success) {
@@ -161,7 +165,9 @@ const PlaceOrder = () => {
           const responseRazorpay = await axios.post(
             `${backendUrl}/api/order/razorpay`,
             orderData,
-            { headers: { token } }
+             { headers: {
+    Authorization: `Bearer ${token}`,
+  },}
           );
           if (responseRazorpay.data.success) {
             initPay(responseRazorpay.data.order);
@@ -196,7 +202,9 @@ ${formData.street}, ${formData.city}, ${formData.state} - ${formData.zipcode}, $
           await axios.post(
             `${backendUrl}/api/order/whatsapp`,
             orderData,
-            { headers: { token } }
+              { headers: {
+    Authorization: `Bearer ${token}`,
+  },}
           );
 
           window.open(whatsappUrl, "_blank");

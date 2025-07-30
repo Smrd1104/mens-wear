@@ -3,9 +3,10 @@ import userModel from "../models/userModel.js";
 // ✅ Add product to user cart
 const addToCart = async (req, res) => {
   try {
-    const { userId, itemId, size, color } = req.body;
+    const { itemId, size, color } = req.body;
+    const userId = req.user._id;
 
-    if (!userId || !itemId || !size || !color || color === "undefined") {
+    if (!itemId || !size || !color || color === "undefined") {
       return res.status(400).json({ success: false, message: "Invalid cart input" });
     }
 
@@ -26,13 +27,13 @@ const addToCart = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // ✅ Update user cart item quantity
 const updateCart = async (req, res) => {
   try {
-    const { userId, itemId, size, color, quantity } = req.body;
+    const { itemId, size, color, quantity } = req.body;
+    const userId = req.user._id;
 
-    if (!userId || !itemId || !size || !color || quantity == null) {
+    if (!itemId || !size || !color || quantity == null) {
       return res.status(400).json({ success: false, message: "Invalid update input" });
     }
 
@@ -65,8 +66,7 @@ const updateCart = async (req, res) => {
 // ✅ Get user cart
 const getUserCart = async (req, res) => {
   try {
-    const { userId } = req.body;
-    if (!userId) return res.status(400).json({ success: false, message: "Missing userId" });
+    const userId = req.user._id;
 
     const userData = await userModel.findById(userId);
     if (!userData) return res.status(404).json({ success: false, message: "User not found" });

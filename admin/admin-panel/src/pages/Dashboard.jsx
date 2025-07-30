@@ -6,6 +6,7 @@ import {
 } from "recharts";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+// export const backendUrl = "http://localhost:5000";
 
 const Dashboard = ({ token }) => {
   const [stats, setStats] = useState(null);
@@ -13,9 +14,9 @@ const Dashboard = ({ token }) => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get(`${backendUrl}/api/dashboard/stats?page=${page}`, {
-        headers: { token }
-      });
+      const res = await axios.get(`${backendUrl}/api/dashboard/stats?page=${page}`,{ headers: {
+    Authorization: `Bearer ${token}`,
+  }});
       setStats(res.data.data);
     } catch (err) {
       console.error("Failed to fetch dashboard stats", err);

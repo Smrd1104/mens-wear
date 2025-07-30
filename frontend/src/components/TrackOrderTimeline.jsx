@@ -17,7 +17,9 @@ const TrackOrderTimeline = ({ orderId, onClose }) => {
                 const res = await axios.post(
                     `${backendUrl}/api/order/track`,
                     { orderId },
-                    { headers: { token } }
+                   { headers: {
+    Authorization: `Bearer ${token}`,
+  }}
                 );
 
                 if (res.data.success) {

@@ -11,6 +11,7 @@ const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET)
 }
 
+
 // route for user login
 
 const loginUser = async (req, res) => {
@@ -117,23 +118,25 @@ const registerUser = async (req, res) => {
 // routes for admin login 
 
 const adminLogin = async (req, res) => {
-
     try {
         const { email, password } = req.body;
 
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-            const token = jwt.sign(email + password, process.env.JWT_SECRET);
-            res.json({ success: true, token })
+            const token = jwt.sign(
+                { email, role: "admin" }, // ✅ object payload
+                process.env.JWT_SECRET,
+                { expiresIn: "7d" }
+            );
+            res.json({ success: true, token });
         } else {
-            res.json({ success: false, message: "Invalid Credentials" })
+            res.json({ success: false, message: "Invalid Credentials" });
         }
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
+};
 
-}
 
 
 // Send OTP
@@ -220,7 +223,7 @@ const getUserDetails = async (req, res) => {
 
 const getUserAddresses = async (req, res) => {
     try {
-        const user = await userModel.findById(req.body.userId);
+        const user = await userModel.findById(req.user._id);
         if (!user) return res.json({ success: false, message: "User not found" });
         res.json({ success: true, addresses: user.addresses });
     } catch (err) {
@@ -230,7 +233,7 @@ const getUserAddresses = async (req, res) => {
 
 const addUserAddress = async (req, res) => {
     try {
-        const user = await userModel.findById(req.body.userId);
+        const user = await userModel.findById(req.user._id);
         if (!user) return res.json({ success: false, message: "User not found" });
 
         user.addresses.push(req.body); // req.body contains the address fields
@@ -244,7 +247,7 @@ const addUserAddress = async (req, res) => {
 
 const deleteUserAddress = async (req, res) => {
     try {
-        const user = await userModel.findById(req.body.userId);
+        const user = await userModel.findById(req.user._id);
         if (!user) return res.json({ success: false, message: "User not found" });
 
         const index = req.params.index;

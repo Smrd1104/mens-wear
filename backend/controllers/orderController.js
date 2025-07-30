@@ -46,7 +46,8 @@ const updateSKUQuantities = async (items) => {
 // placing order using COD method
 const placeOrder = async (req, res) => {
   try {
-    const { userId, items, amount, address } = req.body
+    const { items, amount, address } = req.body
+    const userId = req.user._id;
 
     const orderData = {
       userId,
@@ -151,7 +152,8 @@ const verifyRazorpay = async (req, res) => {
 // placing order using razorpay method
 const placeOrderRazorPay = async (req, res) => {
   try {
-    const { userId, items, amount, address } = req.body
+    const { items, amount, address } = req.body
+    const userId = req.user._id;
 
     const orderData = {
       userId,
@@ -206,7 +208,7 @@ const allOrders = async (req, res) => {
 // User's orders
 const userOrders = async (req, res) => {
   try {
-    const { userId } = req.body
+    const userId = req.user._id;
     // Sort by newest orders first
     const orders = await orderModel.find({ userId })
       .sort({ date: -1 })
