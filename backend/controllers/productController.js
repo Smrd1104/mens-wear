@@ -19,6 +19,7 @@ const addProduct = async (req, res) => {
       sizes,
       bestseller,
       latest,
+      festive,
       colors
     } = req.body;
 
@@ -37,7 +38,9 @@ const addProduct = async (req, res) => {
     }
 
     const isBestseller = bestseller === "true";
-    const isLatest = latest === "true"
+    const isLatest = latest === "true";
+    const isFestive = festive === "true";
+
     const sizesArray = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
     const colorsArray = typeof colors === "string" ? JSON.parse(colors) : colors;
 
@@ -75,6 +78,7 @@ const addProduct = async (req, res) => {
       colors: colorsArray,
       bestseller: isBestseller,
       latest: isLatest,
+      festive: isFestive,
       date: Date.now(),
     });
 
@@ -101,6 +105,7 @@ const editProduct = async (req, res) => {
       sizes,
       bestseller,
       latest,
+      festive,
       colors
     } = req.body;
 
@@ -112,6 +117,7 @@ const editProduct = async (req, res) => {
     const discountNumericPrice = Number(discountPrice);
     const sizesArray = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
     const colorsArray = typeof colors === "string" ? JSON.parse(colors) : colors;
+    const isFestive = festive === "true";
 
     // Upload new images if available
     const images = [];
@@ -137,6 +143,8 @@ const editProduct = async (req, res) => {
       colors: colorsArray,
       bestseller: bestseller === "true",
       latest: latest === "true",
+      festive: isFestive,
+
     };
 
     // Only update images if new ones were uploaded
@@ -222,4 +230,4 @@ const singleProduct = async (req, res) => {
 }
 
 
-export { addProduct, singleProduct,editProduct, removeProduct, listProducts }
+export { addProduct, singleProduct, editProduct, removeProduct, listProducts }

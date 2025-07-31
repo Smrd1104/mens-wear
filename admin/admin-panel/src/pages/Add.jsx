@@ -21,6 +21,7 @@ const Add = ({ token }) => {
     const [subCategory, setSubCategory] = useState("")
     const [bestseller, setBestseller] = useState(false)
     const [latest, setLatest] = useState(false)
+    const [festive, setFestive] = useState(false);
     const [sizes, setSizes] = useState([])
 
     const [createdProductId, setCreatedProductId] = useState(null);
@@ -40,6 +41,7 @@ const Add = ({ token }) => {
             formData.append("subCategory", subCategory)
             formData.append("bestseller", bestseller)
             formData.append("latest", latest)
+            formData.append("festive", festive);
 
             formData.append("sizes", JSON.stringify(sizes))
             formData.append("colors", JSON.stringify(colors));
@@ -49,9 +51,11 @@ const Add = ({ token }) => {
             image3 && formData.append("image3", image3)
             image4 && formData.append("image4", image4)
 
-            const response = await axios.post(backendUrl + "/api/product/add", formData, { headers: {
-    Authorization: `Bearer ${token}`,
-  },});
+            const response = await axios.post(backendUrl + "/api/product/add", formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
             if (response.data.success) {
                 const productId = response.data?.product?._id;
@@ -94,9 +98,11 @@ const Add = ({ token }) => {
                     quantityAvailable: skuQuantities[skuCode]?.quantityAvailable || 0,
                     quantityReserved: skuQuantities[skuCode]?.quantityReserved || 0,
                 };
-                await axios.post(`${backendUrl}/api/sku/create`, skuPayload, { headers: {
-    Authorization: `Bearer ${token}`,
-  },});
+                await axios.post(`${backendUrl}/api/sku/create`, skuPayload, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
             }
             toast.success("SKUs created successfully");
 
@@ -117,6 +123,7 @@ const Add = ({ token }) => {
             setSubCategory('');
             setBestseller(false);
             setLatest(false);
+            setFestive(false);
 
         } catch (error) {
             console.log(error);
@@ -202,6 +209,10 @@ const Add = ({ token }) => {
                         <div className='flex gap-2 mt-2'>
                             <input onChange={() => setLatest(prev => !prev)} checked={latest} type='checkbox' id='latest' />
                             <label className='cursor-pointer' htmlFor='latest'> Add to latest</label>
+                        </div>
+                        <div className='flex gap-2 mt-2'>
+                            <input onChange={() => setFestive(prev => !prev)} checked={festive} type='checkbox' id='festive' />
+                            <label className='cursor-pointer' htmlFor='festive'> Add to festive</label>
                         </div>
                     </div>
 

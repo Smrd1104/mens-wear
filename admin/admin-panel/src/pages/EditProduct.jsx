@@ -19,6 +19,7 @@ const EditProduct = ({ token, onClose }) => {
   const [sizes, setSizes] = useState([]);
   const [colors, setColors] = useState([]);
   const [bestseller, setBestseller] = useState(false);
+  const [festive, setFestive] = useState(false);
   const [latest, setLatest] = useState(false);
   const [image1, setImage1] = useState(null);
   const [image2, setImage2] = useState(null);
@@ -46,6 +47,8 @@ const EditProduct = ({ token, onClose }) => {
           setColors(p.colors || []);
           setBestseller(p.bestseller);
           setLatest(p.latest);
+          setFestive(p.festive);
+
         } else {
           toast.error("Failed to fetch product");
         }
@@ -56,9 +59,11 @@ const EditProduct = ({ token, onClose }) => {
 
     const fetchSKUs = async () => {
       try {
-        const res = await axios.get(`${backendUrl}/api/sku/product/${productId}`, { headers: {
-    Authorization: `Bearer ${token}`,
-  },});
+        const res = await axios.get(`${backendUrl}/api/sku/product/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (res.data.success) {
           setSkuData(res.data.data || []);
           const initialQuantities = {};
@@ -102,9 +107,11 @@ const EditProduct = ({ token, onClose }) => {
           quantityAvailable: skuQuantities[skuId].quantityAvailable,
           quantityReserved: skuQuantities[skuId].quantityReserved,
         };
-        await axios.put(`${backendUrl}/api/sku/update/${skuId}`, payload, { headers: {
-    Authorization: `Bearer ${token}`,
-  }});
+        await axios.put(`${backendUrl}/api/sku/update/${skuId}`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
       }
       toast.success("SKUs updated successfully");
     } catch (err) {
@@ -126,6 +133,8 @@ const EditProduct = ({ token, onClose }) => {
       formData.append('subCategory', subCategory);
       formData.append('bestseller', bestseller);
       formData.append('latest', latest);
+      formData.append('latest', festive);
+
       formData.append('sizes', JSON.stringify(sizes));
       formData.append('colors', JSON.stringify(colors));
       image1 && formData.append('image1', image1);
@@ -133,9 +142,11 @@ const EditProduct = ({ token, onClose }) => {
       image3 && formData.append('image3', image3);
       image4 && formData.append('image4', image4);
 
-      const response = await axios.post(`${backendUrl}/api/product/edit`, formData,  { headers: {
-    Authorization: `Bearer ${token}`,
-  }}
+      const response = await axios.post(`${backendUrl}/api/product/edit`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      }
       );
 
       if (response.data.success) {
@@ -213,6 +224,10 @@ const EditProduct = ({ token, onClose }) => {
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={latest} onChange={() => setLatest(prev => !prev)} />
           Latest
+        </label>
+          <label className="flex items-center gap-2">
+          <input type="checkbox" checked={festive} onChange={() => setFestive(prev => !prev)} />
+          Festive
         </label>
       </div>
 
