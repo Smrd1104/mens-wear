@@ -47,7 +47,7 @@ const FestiveProducts = () => {
               image={item.image}
               name={item.name}
               price={item.price}
-              bestseller={item.bestseller}
+              festive={item.festive}
               discountPrice={item.discountPrice}
             />
           </SwiperSlide>
@@ -67,7 +67,7 @@ const FestiveProducts = () => {
               image={item.image}
               name={item.name}
               price={item.price}
-              bestseller={item.bestseller}
+              festive={item.festive}
               discountPrice={item.discountPrice}
             />
           </SwiperSlide>
