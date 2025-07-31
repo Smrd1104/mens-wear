@@ -33,20 +33,23 @@ const LatestCollection = () => {
             {/* Title */}
             <div className="text-center py-8 text-3xl">
                 <Title text1={"LATEST"} text2={"COLLECTIONS"} />
-                <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
+                {/* <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
                     Discover premium quality fashion with unbeatable comfort and timeless style. At our store, we believe clothing is more than just fabric — it's a statement. Explore our curated collections and find your next favorite piece today.
-                </p>
+                </p> */}
             </div>
 
             {/* Top Row Slider */}
             <Swiper
                 spaceBetween={20}
-                slidesPerView={2}
+                slidesPerView={2.4}
                 breakpoints={breakpoints}
                 className="px-4 mb-6"
             >
                 {topRowProducts.map((item, index) => (
-                    <SwiperSlide key={`top-${index}`}>
+                    <SwiperSlide key={`top-${index}`}
+
+
+                    >
                         <ProductItem
                             id={item._id}
                             image={item.image}
@@ -65,12 +68,13 @@ const LatestCollection = () => {
             {/* Bottom Row Slider */}
             <Swiper
                 spaceBetween={20}
-                slidesPerView={2}
+                slidesPerView={2.4}
                 breakpoints={breakpoints}
                 className="px-4"
             >
                 {bottomRowProducts.map((item, index) => (
-                    <SwiperSlide key={`bottom-${index}`}>
+                    <SwiperSlide key={`bottom-${index}`}
+                    >
                         <ProductItem
                             id={item._id}
                             image={item.image}
@@ -90,3 +94,6 @@ const LatestCollection = () => {
 };
 
 export default LatestCollection;
+
+
+// className={`${index === 0 ? 'ml-4' : ''}`}

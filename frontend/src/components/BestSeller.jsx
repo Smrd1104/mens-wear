@@ -34,15 +34,15 @@ const BestSeller = () => {
         <div className='my-10'>
             <div className='text-center text-3xl py-8'>
                 <Title text1={'BEST'} text2={'SELLERS'} />
-                <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
+                {/* <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
                     Discover what our customers love the most. These top-rated, most-loved products are flying off the shelves — grab yours before they're gone!
-                </p>
+                </p> */}
             </div>
 
             {/* Top Row Swiper */}
             <Swiper
                 spaceBetween={20}
-                slidesPerView={2}
+                slidesPerView={2.4}
                 breakpoints={breakpoints}
                 className="px-4 mb-6"
             >
@@ -65,7 +65,7 @@ const BestSeller = () => {
             {/* Bottom Row Swiper */}
             <Swiper
                 spaceBetween={20}
-                slidesPerView={2}
+                slidesPerView={2.4}
                 breakpoints={breakpoints}
                 className="px-4"
             >
