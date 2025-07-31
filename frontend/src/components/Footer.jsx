@@ -38,7 +38,7 @@ const Footer = () => {
             </div>
             <div className='mt-2'>
                 <hr />
-                <Link target='_blank' to="https://trends-wear.onrender.com/">  <p className='py-5 text-sm text-center'>trends-wear.onrender.com.</p></Link>
+                <Link target='_blank' to="https://mens-wear-backend.onrender.com/">  <p className='py-5 text-sm text-center'>trends-wear.onrender.com.</p></Link>
 
             </div>
         </div>

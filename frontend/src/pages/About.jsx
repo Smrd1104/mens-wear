@@ -45,7 +45,7 @@ const About = () => {
 
                 <Title text1={'about '} text2={'us'} />
             </div>
-            <div className='my-10 flex flex-col md:flex-row gap-16'>
+            <div className='my-10 flex flex-col md:flex-row justify-center gap-16'>
                 <img src={img} alt='' className='w-full sm:max-w-[450px]' />
                 <div className='flex flex-col justify-center gap-6 md:w-2/4 text-gray-600'>
                     <p>At Trends Wear, we're passionate about bringing you the latest fashion trends at affordable prices. Our carefully curated collections are designed to help you express your unique style while staying comfortable and confident. From casual everyday wear to standout statement pieces, we offer something for every taste and occasion.</p>
