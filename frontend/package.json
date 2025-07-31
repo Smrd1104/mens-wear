@@ -16,6 +16,7 @@
     "axios": "^1.10.0",
     "color-namer": "^1.4.0",
     "gsap": "^3.13.0",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.522.0",
     "prop-types": "^15.8.1",
     "react": "^19.1.0",
