@@ -20,6 +20,7 @@ const EditProduct = ({ token, onClose }) => {
   const [colors, setColors] = useState([]);
   const [bestseller, setBestseller] = useState(false);
   const [festive, setFestive] = useState(false);
+  const [trending, setTrending] = useState(false);
   const [latest, setLatest] = useState(false);
   const [image1, setImage1] = useState(null);
   const [image2, setImage2] = useState(null);
@@ -48,7 +49,7 @@ const EditProduct = ({ token, onClose }) => {
           setBestseller(p.bestseller);
           setLatest(p.latest);
           setFestive(p.festive);
-
+          setTrending(p.trending)
         } else {
           toast.error("Failed to fetch product");
         }
@@ -133,8 +134,8 @@ const EditProduct = ({ token, onClose }) => {
       formData.append('subCategory', subCategory);
       formData.append('bestseller', bestseller);
       formData.append('latest', latest);
-      formData.append('latest', festive);
-
+      formData.append('festive', festive);
+      formData.append('trending', trending);
       formData.append('sizes', JSON.stringify(sizes));
       formData.append('colors', JSON.stringify(colors));
       image1 && formData.append('image1', image1);
@@ -225,9 +226,13 @@ const EditProduct = ({ token, onClose }) => {
           <input type="checkbox" checked={latest} onChange={() => setLatest(prev => !prev)} />
           Latest
         </label>
-          <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2">
           <input type="checkbox" checked={festive} onChange={() => setFestive(prev => !prev)} />
           Festive
+        </label>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" checked={trending} onChange={() => setTrending(prev => !prev)} />
+          Trending
         </label>
       </div>
 

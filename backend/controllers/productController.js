@@ -20,6 +20,7 @@ const addProduct = async (req, res) => {
       bestseller,
       latest,
       festive,
+      trending,
       colors
     } = req.body;
 
@@ -40,6 +41,7 @@ const addProduct = async (req, res) => {
     const isBestseller = bestseller === "true";
     const isLatest = latest === "true";
     const isFestive = festive === "true";
+    const isTrending = trending === "true";
 
     const sizesArray = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
     const colorsArray = typeof colors === "string" ? JSON.parse(colors) : colors;
@@ -79,6 +81,7 @@ const addProduct = async (req, res) => {
       bestseller: isBestseller,
       latest: isLatest,
       festive: isFestive,
+      trending: isTrending,
       date: Date.now(),
     });
 
@@ -106,6 +109,7 @@ const editProduct = async (req, res) => {
       bestseller,
       latest,
       festive,
+      trending,
       colors
     } = req.body;
 
@@ -118,7 +122,7 @@ const editProduct = async (req, res) => {
     const sizesArray = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
     const colorsArray = typeof colors === "string" ? JSON.parse(colors) : colors;
     const isFestive = festive === "true";
-
+    const isTrending =trending==="true";
     // Upload new images if available
     const images = [];
 
@@ -144,6 +148,8 @@ const editProduct = async (req, res) => {
       bestseller: bestseller === "true",
       latest: latest === "true",
       festive: isFestive,
+      trending: isTrending,
+
 
     };
 

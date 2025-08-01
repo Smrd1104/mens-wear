@@ -22,8 +22,8 @@ const Add = ({ token }) => {
     const [bestseller, setBestseller] = useState(false)
     const [latest, setLatest] = useState(false)
     const [festive, setFestive] = useState(false);
+    const [trending, setTrending] = useState(false);
     const [sizes, setSizes] = useState([])
-
     const [createdProductId, setCreatedProductId] = useState(null);
     const [skuQuantities, setSKUQuantities] = useState({});
 
@@ -42,7 +42,7 @@ const Add = ({ token }) => {
             formData.append("bestseller", bestseller)
             formData.append("latest", latest)
             formData.append("festive", festive);
-
+            formData.append("trending", trending);
             formData.append("sizes", JSON.stringify(sizes))
             formData.append("colors", JSON.stringify(colors));
 
@@ -124,7 +124,7 @@ const Add = ({ token }) => {
             setBestseller(false);
             setLatest(false);
             setFestive(false);
-
+            setTrending(false)
         } catch (error) {
             console.log(error);
             toast.error("Failed to create SKUs");
@@ -213,6 +213,10 @@ const Add = ({ token }) => {
                         <div className='flex gap-2 mt-2'>
                             <input onChange={() => setFestive(prev => !prev)} checked={festive} type='checkbox' id='festive' />
                             <label className='cursor-pointer' htmlFor='festive'> Add to festive</label>
+                        </div>
+                        <div className='flex gap-2 mt-2'>
+                            <input onChange={() => setTrending(prev => !prev)} checked={trending} type='checkbox' id='trending' />
+                            <label className='cursor-pointer' htmlFor='festive'> Add to Trending</label>
                         </div>
                     </div>
 

@@ -15,7 +15,8 @@ const ProductItem = ({
   bestseller,
   latest,
   discountPrice,
-  festive // ✅ Add this line
+  festive,
+  trending
 
 }) => {
   const { currency, wishlist, addToWishlist, removeFromWishlist, backendUrl } = useContext(ShopContext);
@@ -114,6 +115,11 @@ const ProductItem = ({
       {festive && (
         <span className="absolute top-2 left-2 z-10 bg-green-500/80 text-white text-xs font-semibold px-2 py-1 rounded shadow">
           Festive
+        </span>
+      )}
+      {trending && (
+        <span className="absolute top-2 left-2 z-10 bg-orange-500/80 text-white text-xs font-semibold px-2 py-1 rounded shadow">
+          trending
         </span>
       )}
 

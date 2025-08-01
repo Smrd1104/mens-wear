@@ -12,6 +12,7 @@ const productSchema = new mongoose.Schema({
     bestseller: { type: Boolean },
     latest: { type: Boolean, default: false },
     festive: { type: Boolean, default: false },
+    trending:{type:Boolean,default:false},
     date: { type: Number, required: true },
     colors: {
         type: [String], // Array of color codes like "#ffffff"
