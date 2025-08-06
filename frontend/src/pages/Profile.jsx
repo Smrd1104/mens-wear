@@ -3,6 +3,17 @@ import axios from 'axios';
 import { useContext } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { calculateRewardPoints } from '../utils/rewards'; // 🔁 Add import
+import {
+  User,
+  PackageSearch,
+  Heart,
+  Home,
+  CreditCard,
+  Gift,
+  LogOut,
+} from 'lucide-react';
+
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const Profile = () => {
 
@@ -36,9 +47,11 @@ const Profile = () => {
     useEffect(() => {
         const fetchAddresses = async () => {
             try {
-                const res = await axios.get(`${backendUrl}/api/user/addresses`, { headers: {
-    Authorization: `Bearer ${token}`,
-  }});
+                const res = await axios.get(`${backendUrl}/api/user/addresses`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                });
                 if (res.data.success) setAddresses(res.data.addresses);
             } catch (err) {
                 console.error("Failed to fetch addresses", err);
@@ -53,9 +66,11 @@ const Profile = () => {
 
     const handleAddAddress = async () => {
         try {
-            const res = await axios.post(`${backendUrl}/api/user/addresses`, newAddress,{ headers: {
-    Authorization: `Bearer ${token}`,
-  }});
+            const res = await axios.post(`${backendUrl}/api/user/addresses`, newAddress, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
             if (res.data.success) {
                 setAddresses(res.data.addresses);
                 setNewAddress({
@@ -72,9 +87,11 @@ const Profile = () => {
 
     const handleDeleteAddress = async (index) => {
         try {
-            const res = await axios.delete(`${backendUrl}/api/user/addresses/${index}`,{ headers: {
-    Authorization: `Bearer ${token}`,
-  }});
+            const res = await axios.delete(`${backendUrl}/api/user/addresses/${index}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
             if (res.data.success) {
                 setAddresses(res.data.addresses);
             }
@@ -109,9 +126,11 @@ const Profile = () => {
                 const res = await axios.post(
                     `${backendUrl}/api/order/userorders`,
                     { userId: localStorage.getItem('userId') },
-                   { headers: {
-    Authorization: `Bearer ${token}`,
-  }}
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        }
+                    }
                 );
                 if (res.data.success) {
                     setOrderHistory(res.data.orders);
@@ -155,25 +174,29 @@ const Profile = () => {
                 <h2 className="text-xl font-bold mb-6">My Account</h2>
                 <ul className="space-y-4">
                     {[
-                        { tab: 'profile', label: '👤 Profile Info' },
-                        { tab: 'orders', label: '📦 Order History' },
-                        { tab: 'wishlist', label: '❤️ Wishlist' },
-                        { tab: 'address', label: '🏠 Address Book' },
-                        { tab: 'payment', label: '💳 Payment Methods' },
-                        { tab: 'rewards', label: '🎁 Rewards' },
-                    ].map(({ tab, label }) => (
+                        { tab: 'profile', label: 'Profile Info', icon: <User size={18} /> },
+                        { tab: 'orders', label: 'Order History', icon: <PackageSearch size={18} /> },
+                        { tab: 'wishlist', label: 'Wishlist', icon: <Heart size={18} /> },
+                        { tab: 'address', label: 'Address Book', icon: <Home size={18} /> },
+                        { tab: 'payment', label: 'Payment Methods', icon: <CreditCard size={18} /> },
+                        { tab: 'rewards', label: 'Rewards', icon: <Gift size={18} /> },
+                    ].map(({ tab, label, icon }) => (
                         <li key={tab}>
                             <button
                                 onClick={() => handleTabClick(tab)}
-                                className={`w-full text-left ${selectedTab === tab ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'}`}
+                                className={`w-full flex items-center gap-2 text-left ${selectedTab === tab ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+                                    }`}
                             >
-                                {label}
+                                {icon} {label}
                             </button>
                         </li>
                     ))}
-                    <li>
-                        <button onClick={logout} className="text-red-500 hover:underline w-full text-left">🚪 Logout</button>
-                    </li>
+                 <li>
+  <button onClick={logout} className="text-red-500 hover:underline w-full flex items-center gap-2 text-left">
+    <LogOut size={18} /> Logout
+  </button>
+</li>
+
                 </ul>
             </aside>
 
