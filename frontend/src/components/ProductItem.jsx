@@ -16,7 +16,8 @@ const ProductItem = ({
   latest,
   discountPrice,
   festive,
-  trending
+  trending,
+  
 
 }) => {
   const { currency, wishlist, addToWishlist, removeFromWishlist, backendUrl } = useContext(ShopContext);
@@ -134,15 +135,23 @@ const ProductItem = ({
         )}
       </button>
 
-      <Link to={`/product/${id}`} className="text-gray-700 cursor-pointer block">
+      <Link to={`/product/${id}`} className="text-gray-700 cursor-pointer block ">
         <div className="overflow-hidden">
           <img
             src={displayImage}
             alt={name}
-            className="hover:scale-110 object-cover lg:object-top-right w-full max-w-[350px] md:h-[350px] h-[300px] transition-all ease-in-out duration-300"
+            className="hover:scale-110 object-cover rounded-xl lg:object-top-right w-full max-w-[350px] md:h-[350px] h-[300px] transition-all ease-in-out duration-300"
           />
         </div>
-        <p className="pt-3 pb-1 text-sm">{name}</p>
+        {/* Mobile: show truncated name */}
+        <p className="pt-3 pb-1 text-sm block md:hidden">
+          {name.length > 15 ? name.slice(0, 15) + "..." : name}
+        </p>
+
+        {/* Tablet and up: show full name */}
+        <p className="pt-3 pb-1 text-sm hidden md:block">
+          {name}
+        </p>
         <div className="flex items-center gap-1">
           <div className="flex gap-1">
             {loadingReviews ? (

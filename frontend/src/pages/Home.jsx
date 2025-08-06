@@ -3,8 +3,8 @@ import Hero from '../components/Hero'
 import LatestCollection from '../components/LatestCollection'
 import NewsLetter from '../components/NewsLetter'
 import OurPolicy from '../components/OurPolicy'
-import Festive from '../components/Festive'
-import Trending from '../components/Trending'
+// import Festive from '../components/Festive'
+// import Trending from '../components/Trending'
 
 const Home = () => {
     return (
@@ -12,8 +12,8 @@ const Home = () => {
             <Hero />
             <LatestCollection />
             <BestSeller />
-            <Festive />
-            <Trending />
+            {/* <Festive />
+            <Trending /> */}
             <OurPolicy />
             <NewsLetter />
         </div>
